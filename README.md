@@ -6,7 +6,7 @@ WIFI baseret med brugerinterface på pc, tablet eller smartphone uden en app.
 
 ### Video
 Demo: https://youtu.be/LwKjKHndKVI?si=cySOksD_dHbvwOPf
-Montage: https://youtu.be/FqwLseU3cSM
+Montage: https://youtu.be/dBixb1N289g?si=HN9RM4nVA17M3Kbw
 
 ### Specs
 Leverer inden for +/- 5g. Doseringsmængden kan indstilles mellem 50g og 20kg (Vær opmærksom på vægtens max belastning som kan være væsentligt mindre end 20kg !).
@@ -19,7 +19,7 @@ entweder auf einem PC, Tablet oder Smartphone, ohne dass eine APP benötigt wird
 
 ### Video
 Demo: https://youtu.be/LwKjKHndKVI?si=cySOksD_dHbvwOPf
-Montage: https://youtu.be/FqwLseU3cSM
+Montage: https://youtu.be/dBixb1N289g?si=HN9RM4nVA17M3Kbw
 
 ### Specs
 Es ist möglich mit einer Genauigkeit von +/- 5g zu erreichen. Der Menge kann zwischen 50g und 20kg eingestellt werden (Achte auf die maximale Belastung der Waage, die möglicherweise deutlich weniger als 20 kg beträgt !).
@@ -31,7 +31,7 @@ WIFI based with user interface on pc, tablet or smartphone without the need for 
 
 ### Video
 Demo: https://youtu.be/LwKjKHndKVI?si=cySOksD_dHbvwOPf
-Assembly: https://youtu.be/FqwLseU3cSM
+Assembly: https://youtu.be/dBixb1N289g?si=HN9RM4nVA17M3Kbw
 
 ### Specs
 An accuracy of +/- 5g is achievable. The amount to fill can be selected in the range from 50g to 20kg (Be mindful of the scale's maximum load, which may be significantly less than 20kg !).
