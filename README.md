@@ -1,5 +1,9 @@
 # BeeSMART
 
+## Buy one, Køb en, Kaufen 
+€215 + shipping
+Write me an email: mogens at gnh.dk
+
 ## Dansk
 Honning tappemaskine til den lille produktion.
 WIFI baseret med brugerinterface på pc, tablet eller smartphone uden en app.
