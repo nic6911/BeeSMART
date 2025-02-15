@@ -2,7 +2,8 @@
 
 ## Buy one, Køb en, Kaufen 
 €215 + shipping
-Write me an email: mogens at gnh.dk
+Write me an email:
+![Contact](/contact.png)
 
 ## Dansk
 Honning tappemaskine til den lille produktion.
