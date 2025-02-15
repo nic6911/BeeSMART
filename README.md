@@ -1,5 +1,13 @@
 # BeeSMART
 
+## Buy one, Køb en, Kaufen 
+€200 + shipping from DK
+
+Write me an email:
+
+![Contact](/contact.png)
+
+## What is it?
 Honey filling system controlled from your phone, tablet or PC !
 
 ![Setup](/setup.jpg) 
@@ -7,13 +15,6 @@ Honey filling system controlled from your phone, tablet or PC !
 ![Scale](/scale.jpg) 
 
 ![UI](/UI.jpg) 
-
-## Buy one, Køb en, Kaufen 
-€200 + shipping from DK
-
-Write me an email:
-
-![Contact](/contact.png)
 
 ## Dansk
 Honning tappemaskine til den lille produktion.
