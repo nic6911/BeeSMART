@@ -194,6 +194,7 @@ void readFile(fs::FS &fs, const char * path){
     maxWeight = array.substring(indx[9]+1,indx[10]).toInt();
 }
 
+// Initialize PID controller with limits
 void initPID(float lowlim, float highlim)
 {
 	//PID setup
@@ -204,6 +205,7 @@ void initPID(float lowlim, float highlim)
   stopSystem();
 }
 
+// Stop the dosing system
 void stopSystem()
 {
   myController.stop(); 
@@ -216,6 +218,7 @@ void stopSystem()
   stateMachine = 4;
 }
 
+// Read calibration factor from file
 void readCal(fs::FS &fs, const char * path){
     File file = fs.open(path);
     if(!file || file.isDirectory()){
@@ -230,6 +233,7 @@ void readCal(fs::FS &fs, const char * path){
     calFactor = array.substring(0,indx[1]).toFloat();
 }
 
+// Write to file
 void writeFile(fs::FS &fs, const char * path, String message){
     File file = fs.open(path, FILE_WRITE);
     if (!file) { // failed to open the file, return false
@@ -243,11 +247,13 @@ void writeFile(fs::FS &fs, const char * path, String message){
     file.close();
 }
 
+// Save settings to file
 void saveSettings(){
   settings = String(kP[0])+","+String(Ti[0])+","+String(kD[0])+","+desiredAmount+","+String(servoMin)+","+String(servoMax)+","+String(lang)+","+String(stopHysteresis)+","+String(minGlassWeight)+","+String(maxWeight);
   writeFile(LittleFS, "/data.txt", settings);
 }
 
+// Callback for number inputs
 void numberCall(Control* sender, int type)
 {
     if(sender->label == "PID Kp")
@@ -390,6 +396,7 @@ void numberCall(Control* sender, int type)
     }       
 }
 
+// Callback for selector input
 void selectorCallback(Control* sender, int type)
 {
   if(sender->value == "Brugerdefineret")
@@ -417,6 +424,7 @@ void selectorCallback(Control* sender, int type)
   ESPUI.updateNumber(kdId, kD[gainSelector]);  
 }
 
+// Callback for button presses
 void buttonCallback(Control* sender, int type)
 {
     switch (type)
@@ -459,6 +467,7 @@ void buttonCallback(Control* sender, int type)
     }
 }
 
+// Callback for language selection
 void selectLanguage(Control* sender, int value)
 {
   if(sender->value == "DA"){
@@ -474,6 +483,7 @@ void selectLanguage(Control* sender, int value)
   ESP.restart();
 }
 
+// Callback for switch input
 void switchCallback(Control* sender, int value)
 {
     switch (value)
@@ -521,360 +531,236 @@ void setup(void)
 	snprintf(ap_ssid, 26, "BeeSMART-%08X", chipid);
 	WiFi.softAP(ap_ssid);
 		  
-    dnsServer.start(DNS_PORT, "*", apIP);
+  dnsServer.start(DNS_PORT, "*", apIP);
 
-    // Tabs definition
-    uint16_t tab1 = ESPUI.addControl(Tab, "Tapning", tab1Text[lang]);
-    uint16_t tab2 = ESPUI.addControl(Tab, "Indstillinger", tab2Text[lang]);
-    uint16_t tab3 = ESPUI.addControl(Tab, "Avancerede indstillinger", tab3Text[lang]);
-    uint16_t tab4 = ESPUI.addControl(Tab, "Kalibrering", tab4Text[lang]);
+  // --------------  Initialize ESPUI  ----------------------//
+  // Tabs definition
+  uint16_t tab1 = ESPUI.addControl(Tab, "Tapning", tab1Text[lang]);
+  uint16_t tab2 = ESPUI.addControl(Tab, "Indstillinger", tab2Text[lang]);
+  uint16_t tab3 = ESPUI.addControl(Tab, "Avancerede indstillinger", tab3Text[lang]);
+  uint16_t tab4 = ESPUI.addControl(Tab, "Kalibrering", tab4Text[lang]);
 
-    // Styling for labels
-    String switcherLabelStyle = "width: 60px; margin-left: .3rem; margin-right: .3rem; background-color: unset;";
-    String clearLabelStyle = "background-color: unset; width: 100%;";
-    String lineLabelStyle = "background-color: LightGrey; width: 100%;";
+  // Styling for labels
+  String switcherLabelStyle = "width: 60px; margin-left: .3rem; margin-right: .3rem; background-color: unset;";
+  String clearLabelStyle = "background-color: unset; width: 100%;";
+  String lineLabelStyle = "background-color: LightGrey; width: 100%;";
 
-    // Page 1 - Start dosing & show weight of container and actual weight
-    int tapLabel = ESPUI.addControl(Label, "", tab1Text[lang], None, tab1);
-    ESPUI.setElementStyle(tapLabel, clearLabelStyle);
+  // Page 1 - Start dosing & show weight of container and actual weight
+  int tapLabel = ESPUI.addControl(Label, "", tab1Text[lang], None, tab1);
+  ESPUI.setElementStyle(tapLabel, clearLabelStyle);
 
-    // Start button
-    startId = ESPUI.addControl(Button, "Start", "Start", Dark, tapLabel, &buttonCallback);
-    ESPUI.addControl(Button, "Stop", "Stop", Dark, tapLabel, &buttonCallback);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, tapLabel), clearLabelStyle);
+  // Start button
+  startId = ESPUI.addControl(Button, "Start", "Start", Dark, tapLabel, &buttonCallback);
+  ESPUI.addControl(Button, "Stop", "Stop", Dark, tapLabel, &buttonCallback);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, tapLabel), clearLabelStyle);
 
-    // Auto start of process switch
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", autoText[lang], None, tapLabel), clearLabelStyle);
-    switchId = ESPUI.addControl(Switcher, "Auto", "", Dark, tapLabel, &switchCallback);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, tapLabel), clearLabelStyle);
+  // Auto start of process switch
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", autoText[lang], None, tapLabel), clearLabelStyle);
+  switchId = ESPUI.addControl(Switcher, "Auto", "", Dark, tapLabel, &switchCallback);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, tapLabel), clearLabelStyle);
 
-    // Display desired amount selected on the settings tab
-	  ESPUI.setElementStyle(ESPUI.addControl(Label, "", SPText[lang]+":", None, tapLabel), clearLabelStyle);
-    desiredamountInputId = ESPUI.addControl(Label, "Ønsket Mængde:", desiredAmount+" g", Dark, tapLabel);
-    ESPUI.setElementStyle(desiredamountInputId, clearLabelStyle);
-	  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, tapLabel), clearLabelStyle);
+  // Display desired amount selected on the settings tab
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", SPText[lang]+":", None, tapLabel), clearLabelStyle);
+  desiredamountInputId = ESPUI.addControl(Label, "Ønsket Mængde:", desiredAmount+" g", Dark, tapLabel);
+  ESPUI.setElementStyle(desiredamountInputId, clearLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, tapLabel), clearLabelStyle);
 
-    // Display actual scale feedback
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", PVText[lang], None, tapLabel), clearLabelStyle);
-    honeyweight = ESPUI.addControl(Label, "Aktuel Vægt:", "0 g", Dark, tapLabel);
-    ESPUI.setElementStyle(honeyweight, clearLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, tapLabel), clearLabelStyle);
+  // Display actual scale feedback
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", PVText[lang], None, tapLabel), clearLabelStyle);
+  honeyweight = ESPUI.addControl(Label, "Aktuel Vægt:", "0 g", Dark, tapLabel);
+  ESPUI.setElementStyle(honeyweight, clearLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, tapLabel), clearLabelStyle);
 
-    // Display infoText
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, tapLabel), clearLabelStyle);
-    infoTextId = ESPUI.addControl(Label, " ", " ", Dark, tapLabel);
-    ESPUI.setElementStyle(infoTextId, "background-color: Grey; width: 50%;");
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, tapLabel), clearLabelStyle);    
+  // Display infoText
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, tapLabel), clearLabelStyle);
+  infoTextId = ESPUI.addControl(Label, " ", " ", Dark, tapLabel);
+  ESPUI.setElementStyle(infoTextId, "background-color: Grey; width: 50%;");
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, tapLabel), clearLabelStyle);    
 
-    // Page 2 - Settings
-    int setLabel = ESPUI.addControl(Label, "", "", None, tab2);
-    ESPUI.setElementStyle(setLabel, clearLabelStyle);
+  // Page 2 - Settings
+  int setLabel = ESPUI.addControl(Label, "", "", None, tab2);
+  ESPUI.setElementStyle(setLabel, clearLabelStyle);
 
-    // Desired amount headline label
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", SPText[lang]+" [g]", None, setLabel), clearLabelStyle);
+  // Desired amount headline label
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", SPText[lang]+" [g]", None, setLabel), clearLabelStyle);
 
-    // Desired amount slider
-    amountInputId = ESPUI.addControl(Slider, "Ønsket Mængde", desiredAmount, Dark, setLabel, &numberCall);
-    ESPUI.sliderContinuous = true;    
-    ESPUI.addControl(Min, "Min", String(minWeight), None, amountInputId);
-    ESPUI.addControl(Max, "Max", String(maxWeight), None, amountInputId);
+  // Desired amount slider
+  amountInputId = ESPUI.addControl(Slider, "Ønsket Mængde", desiredAmount, Dark, setLabel, &numberCall);
+  ESPUI.sliderContinuous = true;    
+  ESPUI.addControl(Min, "Min", String(minWeight), None, amountInputId);
+  ESPUI.addControl(Max, "Max", String(maxWeight), None, amountInputId);
 
-    amountInputId2 = ESPUI.addControl(Number, "Ønsket Mængde2", String(desiredAmount.toFloat(), 0), Dark, setLabel, &numberCall); 
-    ESPUI.addControl(Min, "Min", String(minWeight), None, amountInputId2);
-    ESPUI.addControl(Max, "Max", String(maxWeight), None, amountInputId2);
-    ESPUI.setElementStyle(amountInputId2, "width: 30%;color: #000000;");
-    
+  amountInputId2 = ESPUI.addControl(Number, "Ønsket Mængde2", String(desiredAmount.toFloat(), 0), Dark, setLabel, &numberCall); 
+  ESPUI.addControl(Min, "Min", String(minWeight), None, amountInputId2);
+  ESPUI.addControl(Max, "Max", String(maxWeight), None, amountInputId2);
+  ESPUI.setElementStyle(amountInputId2, "width: 30%;color: #000000;");
+  
 
-    // PID presets - viscosity selection
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, setLabel), clearLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, setLabel), lineLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "Selector", viscosityHeading[lang], None, setLabel), clearLabelStyle);
-    //These are the values for the selector's options. (Note that they *must* be declared static
-    //so that the storage is allocated in global memory and not just on the stack of this function.)
-    static String optionValues[] {viscosityCustom[lang], viscosityLow[lang], viscosityMedium[lang], viscosityHigh[lang]};
-    selectorId = ESPUI.addControl(Select, "Selector", "Selector", Dark, setLabel, &selectorCallback);
-    for(auto const& v : optionValues) {
-      ESPUI.addControl(Option, v.c_str(), v, None, selectorId);
-    }   
+  // PID presets - viscosity selection
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, setLabel), clearLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, setLabel), lineLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "Selector", viscosityHeading[lang], None, setLabel), clearLabelStyle);
+  //These are the values for the selector's options. (Note that they *must* be declared static
+  //so that the storage is allocated in global memory and not just on the stack of this function.)
+  static String optionValues[] {viscosityCustom[lang], viscosityLow[lang], viscosityMedium[lang], viscosityHigh[lang]};
+  selectorId = ESPUI.addControl(Select, "Selector", "Selector", Dark, setLabel, &selectorCallback);
+  for(auto const& v : optionValues) {
+    ESPUI.addControl(Option, v.c_str(), v, None, selectorId);
+  }   
 
-    // PID parameter number inputs
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", tap3Heading[lang], None, setLabel), clearLabelStyle);
-    ESPUI.setElementStyle(setLabel, clearLabelStyle);
-    kpId = ESPUI.addControl(Number, "PID Kp", String(kP[gainSelector]), Dark, setLabel, &numberCall);
-    ESPUI.addControl(Min, "Min", String(0), None, kpId);
-    ESPUI.addControl(Max, "Max", String(50), None, kpId);
-    ESPUI.setElementStyle(kpId, "width: 30%;color: #000000;");
-    kiId = ESPUI.addControl(Number, "PID Ti", String(Ti[gainSelector]), Dark, setLabel, &numberCall);
-    ESPUI.addControl(Min, "Min", String(0), None, kiId);
-    ESPUI.addControl(Max, "Max", String(50), None, kiId);
-    ESPUI.setElementStyle(kiId, "width: 30%;color: #000000;");
-    kdId = ESPUI.addControl(Number, "PID Kd", String(kD[gainSelector]), Dark, setLabel, &numberCall);
-    ESPUI.addControl(Min, "Min", String(0), None, kdId);
-    ESPUI.addControl(Max, "Max", String(50), None, kdId);
-    ESPUI.setElementStyle(kdId, "width: 30%;color: #000000;");
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, setLabel), clearLabelStyle);
+  // PID parameter number inputs
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", tap3Heading[lang], None, setLabel), clearLabelStyle);
+  ESPUI.setElementStyle(setLabel, clearLabelStyle);
+  kpId = ESPUI.addControl(Number, "PID Kp", String(kP[gainSelector]), Dark, setLabel, &numberCall);
+  ESPUI.addControl(Min, "Min", String(0), None, kpId);
+  ESPUI.addControl(Max, "Max", String(50), None, kpId);
+  ESPUI.setElementStyle(kpId, "width: 30%;color: #000000;");
+  kiId = ESPUI.addControl(Number, "PID Ti", String(Ti[gainSelector]), Dark, setLabel, &numberCall);
+  ESPUI.addControl(Min, "Min", String(0), None, kiId);
+  ESPUI.addControl(Max, "Max", String(50), None, kiId);
+  ESPUI.setElementStyle(kiId, "width: 30%;color: #000000;");
+  kdId = ESPUI.addControl(Number, "PID Kd", String(kD[gainSelector]), Dark, setLabel, &numberCall);
+  ESPUI.addControl(Min, "Min", String(0), None, kdId);
+  ESPUI.addControl(Max, "Max", String(50), None, kdId);
+  ESPUI.setElementStyle(kdId, "width: 30%;color: #000000;");
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, setLabel), clearLabelStyle);
 
-    // PID labels
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "Kp", None, setLabel), switcherLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "Ti", None, setLabel), switcherLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "Kd", None, setLabel), switcherLabelStyle);
+  // PID labels
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "Kp", None, setLabel), switcherLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "Ti", None, setLabel), switcherLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "Kd", None, setLabel), switcherLabelStyle);
 
-    //Tare
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, setLabel), clearLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, setLabel), lineLabelStyle);    
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", tareText[lang], None, setLabel), clearLabelStyle);
-    tareweight = ESPUI.addControl(Label, "Aktuel Vægt:", "0 g", Dark, setLabel);
-    ESPUI.setElementStyle(tareweight, clearLabelStyle);
-	  ESPUI.setElementStyle(ESPUI.addControl(Label, "", tareTextHeading[lang], None, setLabel), clearLabelStyle);
-    ESPUI.addControl(Button, "Tare", "Tare", Dark, setLabel, &buttonCallback);
+  //Tare
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, setLabel), clearLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, setLabel), lineLabelStyle);    
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", tareText[lang], None, setLabel), clearLabelStyle);
+  tareweight = ESPUI.addControl(Label, "Aktuel Vægt:", "0 g", Dark, setLabel);
+  ESPUI.setElementStyle(tareweight, clearLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", tareTextHeading[lang], None, setLabel), clearLabelStyle);
+  ESPUI.addControl(Button, "Tare", "Tare", Dark, setLabel, &buttonCallback);
 
-    // Language selector
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, setLabel), clearLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, setLabel), lineLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "Language", langHeading[lang], None, setLabel), clearLabelStyle);
-    uint16_t languageSelect = ESPUI.addControl( Select, "Select Language", langString[lang], Dark, setLabel, &selectLanguage );
-    ESPUI.addControl( Option, "Dansk", "DA", Dark, languageSelect);
-    ESPUI.addControl( Option, "Deutsch", "DE", Dark, languageSelect);
-    ESPUI.addControl( Option, "English", "EN", Dark, languageSelect);
+  // Language selector
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, setLabel), clearLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, setLabel), lineLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "Language", langHeading[lang], None, setLabel), clearLabelStyle);
+  uint16_t languageSelect = ESPUI.addControl( Select, "Select Language", langString[lang], Dark, setLabel, &selectLanguage );
+  ESPUI.addControl( Option, "Dansk", "DA", Dark, languageSelect);
+  ESPUI.addControl( Option, "Deutsch", "DE", Dark, languageSelect);
+  ESPUI.addControl( Option, "English", "EN", Dark, languageSelect);
 
-    // Save settings
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, setLabel), clearLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, setLabel), lineLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "Gem indstillinger", saveTextHeading[lang], None, setLabel), clearLabelStyle);
-    ESPUI.addControl(Button, "Gem indstillinger", saveText[lang], Dark, setLabel, &buttonCallback);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, setLabel), clearLabelStyle);
-    saveStateId = ESPUI.addControl(Label, "", saveState, Dark, setLabel);
-    ESPUI.setElementStyle(saveStateId, clearLabelStyle);
+  // Save settings
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, setLabel), clearLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, setLabel), lineLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "Gem indstillinger", saveTextHeading[lang], None, setLabel), clearLabelStyle);
+  ESPUI.addControl(Button, "Gem indstillinger", saveText[lang], Dark, setLabel, &buttonCallback);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, setLabel), clearLabelStyle);
+  saveStateId = ESPUI.addControl(Label, "", saveState, Dark, setLabel);
+  ESPUI.setElementStyle(saveStateId, clearLabelStyle);
 
-    // Page 3 - Advanced settings
-    int pidLabel = ESPUI.addControl(Label, "", "", None, tab3);
-    ESPUI.setElementStyle(pidLabel, clearLabelStyle);
+  // Page 3 - Advanced settings
+  int pidLabel = ESPUI.addControl(Label, "", "", None, tab3);
+  ESPUI.setElementStyle(pidLabel, clearLabelStyle);
 
-    // Servo settings headline label
-	  ESPUI.setElementStyle(ESPUI.addControl(Label, "Servo opsætning", servoText[lang], None, pidLabel), clearLabelStyle);
-    ESPUI.setElementStyle(pidLabel, clearLabelStyle);
-    
-    // Servo min position selector
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), clearLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "Servo Minimum", "Servo Minimum", None, pidLabel), clearLabelStyle);
-    servoMinId = ESPUI.addControl(Slider, "Servo Minimum", String(servoMin), Dark, pidLabel, &numberCall);
-    ESPUI.sliderContinuous = true;    
-    ESPUI.addControl(Min, "Min", "1", None, servoMinId);
-    ESPUI.addControl(Max, "Max", "90", None, servoMinId);
+  // Servo settings headline label
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "Servo opsætning", servoText[lang], None, pidLabel), clearLabelStyle);
+  ESPUI.setElementStyle(pidLabel, clearLabelStyle);
+  
+  // Servo min position selector
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), clearLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "Servo Minimum", "Servo Minimum", None, pidLabel), clearLabelStyle);
+  servoMinId = ESPUI.addControl(Slider, "Servo Minimum", String(servoMin), Dark, pidLabel, &numberCall);
+  ESPUI.sliderContinuous = true;    
+  ESPUI.addControl(Min, "Min", "1", None, servoMinId);
+  ESPUI.addControl(Max, "Max", "90", None, servoMinId);
 
-    // Servo max position selector
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), clearLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "Servo Maximum", "Servo Maximum", None, pidLabel), clearLabelStyle);    
-    servoMaxId = ESPUI.addControl(Slider, "Servo Maximum", String(servoMax), Dark, pidLabel, &numberCall);
-    ESPUI.sliderContinuous = true;     
-    ESPUI.addControl(Min, "Min", "90", None, servoMaxId);
-    ESPUI.addControl(Max, "Max", "180", None, servoMaxId);
+  // Servo max position selector
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), clearLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "Servo Maximum", "Servo Maximum", None, pidLabel), clearLabelStyle);    
+  servoMaxId = ESPUI.addControl(Slider, "Servo Maximum", String(servoMax), Dark, pidLabel, &numberCall);
+  ESPUI.sliderContinuous = true;     
+  ESPUI.addControl(Min, "Min", "90", None, servoMaxId);
+  ESPUI.addControl(Max, "Max", "180", None, servoMaxId);
 
-    // Move to servo min/max
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), clearLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "Gå til servo position", servoText2[lang], None, pidLabel), clearLabelStyle);  
-    ESPUI.addControl(Button, "Gå til servo minimum", "Minimum", Dark, pidLabel, &buttonCallback);
-    ESPUI.addControl(Button, "Gå til servo maximum", "Maximum", Dark, pidLabel, &buttonCallback);
+  // Move to servo min/max
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), clearLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "Gå til servo position", servoText2[lang], None, pidLabel), clearLabelStyle);  
+  ESPUI.addControl(Button, "Gå til servo minimum", "Minimum", Dark, pidLabel, &buttonCallback);
+  ESPUI.addControl(Button, "Gå til servo maximum", "Maximum", Dark, pidLabel, &buttonCallback);
 
-    // Pre-stop weight
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), clearLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), lineLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "Stop før", prestopTextHeading[lang], None, pidLabel), clearLabelStyle);
-    stopHysteresisId = ESPUI.addControl(Number, "prestop", String(stopHysteresis), Dark, pidLabel, &numberCall); 
-    ESPUI.addControl(Min, "Min", String(0), None, stopHysteresisId);
-    ESPUI.addControl(Max, "Max", String(maxWeight/2), None, stopHysteresisId);
-    ESPUI.setElementStyle(stopHysteresisId, "width: 30%;color: #000000;");
+  // Pre-stop weight
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), clearLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), lineLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "Stop før", prestopTextHeading[lang], None, pidLabel), clearLabelStyle);
+  stopHysteresisId = ESPUI.addControl(Number, "prestop", String(stopHysteresis), Dark, pidLabel, &numberCall); 
+  ESPUI.addControl(Min, "Min", String(0), None, stopHysteresisId);
+  ESPUI.addControl(Max, "Max", String(maxWeight/2), None, stopHysteresisId);
+  ESPUI.setElementStyle(stopHysteresisId, "width: 30%;color: #000000;");
 
-    // Glass weight
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), clearLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), lineLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "Glas vægt", minGlassWeightTextHeading[lang], None, pidLabel), clearLabelStyle);
-    minGlassWeightId = ESPUI.addControl(Number, "glasweight", String(minGlassWeight), Dark, pidLabel, &numberCall); 
-    ESPUI.addControl(Min, "Min", String(5), None, minGlassWeightId);
-    ESPUI.addControl(Max, "Max", String(minWeight), None, minGlassWeightId);
-    ESPUI.setElementStyle(minGlassWeightId, "width: 30%;color: #000000;");
+  // Glass weight
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), clearLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), lineLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "Glas vægt", minGlassWeightTextHeading[lang], None, pidLabel), clearLabelStyle);
+  minGlassWeightId = ESPUI.addControl(Number, "glasweight", String(minGlassWeight), Dark, pidLabel, &numberCall); 
+  ESPUI.addControl(Min, "Min", String(5), None, minGlassWeightId);
+  ESPUI.addControl(Max, "Max", String(minWeight), None, minGlassWeightId);
+  ESPUI.setElementStyle(minGlassWeightId, "width: 30%;color: #000000;");
 
-    // Max weight
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), clearLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), lineLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "Max vægt", maxWeightTextHeading[lang], None, pidLabel), clearLabelStyle);
-    maxWeightLimId = ESPUI.addControl(Number, "maxweightlim", String(maxWeight), Dark, pidLabel, &numberCall); 
-    ESPUI.addControl(Min, "Min", String(minWeight), None, maxWeightLimId);
-    ESPUI.addControl(Max, "Max", String(maxWeightLim), None, maxWeightLimId);
-    ESPUI.setElementStyle(maxWeightLimId, "width: 30%;color: #000000;");
+  // Max weight
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), clearLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), lineLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "Max vægt", maxWeightTextHeading[lang], None, pidLabel), clearLabelStyle);
+  maxWeightLimId = ESPUI.addControl(Number, "maxweightlim", String(maxWeight), Dark, pidLabel, &numberCall); 
+  ESPUI.addControl(Min, "Min", String(minWeight), None, maxWeightLimId);
+  ESPUI.addControl(Max, "Max", String(maxWeightLim), None, maxWeightLimId);
+  ESPUI.setElementStyle(maxWeightLimId, "width: 30%;color: #000000;");
 
-    // Save settings
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), clearLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), lineLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "Gem indstillinger", saveTextHeading[lang], None, pidLabel), clearLabelStyle);
-    ESPUI.addControl(Button, "Gem indstillinger", saveText[lang], Dark, pidLabel, &buttonCallback);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), clearLabelStyle);
-    saveStateId2 = ESPUI.addControl(Label, "", saveState, Dark, pidLabel);
-    ESPUI.setElementStyle(saveStateId2, clearLabelStyle);
+  // Save settings
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), clearLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), lineLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "Gem indstillinger", saveTextHeading[lang], None, pidLabel), clearLabelStyle);
+  ESPUI.addControl(Button, "Gem indstillinger", saveText[lang], Dark, pidLabel, &buttonCallback);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, pidLabel), clearLabelStyle);
+  saveStateId2 = ESPUI.addControl(Label, "", saveState, Dark, pidLabel);
+  ESPUI.setElementStyle(saveStateId2, clearLabelStyle);
 
 
-    // Page 4 - Calibration
-    int calLabel = ESPUI.addControl(Label, "", "", None, tab4);
-    ESPUI.setElementStyle(calLabel, clearLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", tareText[lang], None, calLabel), clearLabelStyle);    
-    actCalWeight = ESPUI.addControl(Label, "Aktuel Vægt:", "0 g", Dark, calLabel);
-    ESPUI.setElementStyle(actCalWeight, clearLabelStyle);
-    // Display infoText
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, calLabel), clearLabelStyle);
-    infoTextCalId = ESPUI.addControl(Label, " ", " ", Dark, calLabel);
-    ESPUI.setElementStyle(infoTextCalId, "background-color: Grey; width: 50%;");
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, calLabel), clearLabelStyle);    
+  // Page 4 - Calibration
+  int calLabel = ESPUI.addControl(Label, "", "", None, tab4);
+  ESPUI.setElementStyle(calLabel, clearLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", tareText[lang], None, calLabel), clearLabelStyle);    
+  actCalWeight = ESPUI.addControl(Label, "Aktuel Vægt:", "0 g", Dark, calLabel);
+  ESPUI.setElementStyle(actCalWeight, clearLabelStyle);
+  // Display infoText
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, calLabel), clearLabelStyle);
+  infoTextCalId = ESPUI.addControl(Label, " ", " ", Dark, calLabel);
+  ESPUI.setElementStyle(infoTextCalId, "background-color: Grey; width: 50%;");
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, calLabel), clearLabelStyle);    
 
-    // calibration weight slider
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, calLabel), clearLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, calLabel), lineLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", calSelectorText[lang], None, calLabel), clearLabelStyle);            
-    calInputId = ESPUI.addControl(Slider, "Calibration Weight", calWeight, Dark, calLabel, &numberCall);
-    ESPUI.sliderContinuous = true;    
-    ESPUI.addControl(Min, "Min", String(minWeight), None, calInputId);
-    ESPUI.addControl(Max, "Max", String(maxWeight), None, calInputId);
+  // calibration weight slider
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, calLabel), clearLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, calLabel), lineLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", calSelectorText[lang], None, calLabel), clearLabelStyle);            
+  calInputId = ESPUI.addControl(Slider, "Calibration Weight", calWeight, Dark, calLabel, &numberCall);
+  ESPUI.sliderContinuous = true;    
+  ESPUI.addControl(Min, "Min", String(minWeight), None, calInputId);
+  ESPUI.addControl(Max, "Max", String(maxWeight), None, calInputId);
 
-    calInputId2 = ESPUI.addControl(Number, "Calibration Weight2", String(calWeight.toFloat(), 0), Dark, calLabel, &numberCall); 
-    ESPUI.addControl(Min, "Min", String(minWeight), None, calInputId2);
-    ESPUI.addControl(Max, "Max", String(maxWeight), None, calInputId2);
-    ESPUI.setElementStyle(calInputId2, "width: 30%;color: #000000;");
+  calInputId2 = ESPUI.addControl(Number, "Calibration Weight2", String(calWeight.toFloat(), 0), Dark, calLabel, &numberCall); 
+  ESPUI.addControl(Min, "Min", String(minWeight), None, calInputId2);
+  ESPUI.addControl(Max, "Max", String(maxWeight), None, calInputId2);
+  ESPUI.setElementStyle(calInputId2, "width: 30%;color: #000000;");
 
-    // Calibrate button
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, calLabel), clearLabelStyle);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, calLabel), lineLabelStyle);
-    calibrateId = ESPUI.addControl(Button, "Calibrate", calButtonText[lang], Dark, calLabel, &buttonCallback);
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, calLabel), clearLabelStyle);
-    /*
-     * .begin loads and serves all files from PROGMEM directly.
-     * If you want to serve the files from LITTLEFS use ESPUI.beginLITTLEFS
-     * (.prepareFileSystem has to be run in an empty sketch before)
-     */
+  // Calibrate button
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, calLabel), clearLabelStyle);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, calLabel), lineLabelStyle);
+  calibrateId = ESPUI.addControl(Button, "Calibrate", calButtonText[lang], Dark, calLabel, &buttonCallback);
+  ESPUI.setElementStyle(ESPUI.addControl(Label, "", "", None, calLabel), clearLabelStyle);
 
-    ESPUI.begin("BeeSMART 2.0.0");
-    myController.stop(); 
-    //**********************SOUND INJECTION BEGIN***************************//
-/*      String script = R"rawliteral(
-      <script>
-        var ws = new WebSocket('ws://' + window.location.hostname + ':81');
-        ws.onmessage = function(event) {
-          if (event.data === 'playSound') {
-            playCoinSound();
-          }
-        };
-
-        function playCoinSound() {
-          var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-          var oscillator = audioCtx.createOscillator();
-          var gainNode = audioCtx.createGain();
-
-          // First part of the coin sound
-          oscillator.type = 'square'; // Square wave for a more retro sound
-          oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // Frequency for the first part (880 Hz)
-
-          gainNode.gain.setValueAtTime(1, audioCtx.currentTime); // Start at full volume
-          gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1); // Quickly fade out
-
-          oscillator.connect(gainNode);
-          gainNode.connect(audioCtx.destination);
-
-          oscillator.start();
-          oscillator.stop(audioCtx.currentTime + 0.1); // Short duration for the first part
-
-          // Second part of the coin sound
-          setTimeout(function() {
-            var secondOscillator = audioCtx.createOscillator();
-            var secondGainNode = audioCtx.createGain();
-
-            secondOscillator.type = 'square';
-            secondOscillator.frequency.setValueAtTime(1760, audioCtx.currentTime); // Frequency for the second part (1760 Hz)
-
-            secondGainNode.gain.setValueAtTime(1, audioCtx.currentTime);
-            secondGainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-
-            secondOscillator.connect(secondGainNode);
-            secondGainNode.connect(audioCtx.destination);
-
-            secondOscillator.start();
-            secondOscillator.stop(audioCtx.currentTime + 0.1);
-          }, 100); // Delay between the first and second part
-
-          // Adding a "pling" effect with more ring
-          setTimeout(function() {
-            var plingOscillator = audioCtx.createOscillator();
-            var plingGainNode = audioCtx.createGain();
-
-            plingOscillator.type = 'triangle'; // Triangle wave for the "pling" sound
-            plingOscillator.frequency.setValueAtTime(2093, audioCtx.currentTime); // Frequency for the "pling" (2093 Hz)
-
-            plingGainNode.gain.setValueAtTime(0.5, audioCtx.currentTime); // Start at half volume
-            plingGainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5); // Longer fade out for more ring
-
-            plingOscillator.connect(plingGainNode);
-            plingGainNode.connect(audioCtx.destination);
-
-            plingOscillator.start();
-            plingOscillator.stop(audioCtx.currentTime + 0.5); // Longer duration for the "pling"
-          }, 200); // Delay to play after the main coin sound
-        }
-      </script>
-    )rawliteral";
-    ESPUI.setElementStyle(ESPUI.addControl(Label, "", script, None, pidLabel), clearLabelStyle);  
-    // Initialize WebSocket server
-    webSocket.begin();
-    webSocket.onEvent(onWebSocketEvent);*/
-    //**********************SOUND INJECTION END***************************//
-    scale.tare();	// reset the scale to 0
+  ESPUI.begin("BeeSMART 2.0.0");
+  myController.stop(); 
+  scale.tare();	// reset the scale to 0
 }
 
-/**
- * Main loop function that handles the state machine for the honey dosing system.
- * 
- * The loop performs the following tasks:
- * - Handles WebSocket communication.
- * - Reads the weight from the scale and adjusts it by subtracting the glass weight.
- * - Manages different states of the state machine:
- *   - State 1: Calibrates the glass weight when the start button is pushed.
- *   - State 2: Starts the PID controller and sets the desired amount.
- *   - State 3: Fills the glass to the set weight and stops the PID controller when the target weight is reached.
- *   - State 4: Stops the PID controller and resets it when the glass is removed.
- * - Processes DNS server requests.
- * - Computes the PID controller output and adjusts the servo position accordingly.
- * - Updates the UI with the current information at regular intervals.
- * 
- * States:
- * - 1: Calibrate glass weight.
- * - 2: Start PID controller.
- * - 3: Fill glass to the desired weight.
- * - 4: Stop PID controller and reset when glass is removed.
- * 
- * Variables:
- * - actualWeight: The current weight read from the scale.
- * - adjustedWeight: The weight adjusted by subtracting the glass weight.
- * - stateMachine: The current state of the state machine.
- * - cnt: Counter used for debouncing the glass weight calibration.
- * - glasWeight: The recorded weight of the glass.
- * - setpoint: The desired amount to be dosed.
- * - setpointPI: The setpoint for the PID controller.
- * - output: The output value from the PID controller.
- * - infoText: The text to be displayed on the UI.
- * - autoState: Flag indicating if the system is in automatic mode.
- * - input: The input value for the PID controller.
- * - oldTime: The timestamp of the last UI update.
- * - saveState: The text indicating the save state.
- * 
- * Functions:
- * - webSocket.loop(): Handles WebSocket communication.
- * - scale.get_units(): Reads the weight from the scale.
- * - myController.start(): Starts the PID controller.
- * - myController.stop(): Stops the PID controller.
- * - myController.reset(): Resets the PID controller.
- * - myController.compute(): Computes the PID controller output.
- * - myservo.write(): Writes the position to the servo.
- * - ESPUI.print(): Updates the UI with the given information.
- * - ESPUI.setElementStyle(): Sets the style of a UI element.
- * - dnsServer.processNextRequest(): Processes the next DNS server request.
- * - sendSoundNotification(): Sends a sound notification.
- */
 void loop(void)
 {
   actualWeight = scale.get_units();//weight from scale
@@ -965,7 +851,6 @@ void loop(void)
         myController.reset();
         output = 0;
         infoText = step4Text[lang]; 
-        //sendSoundNotification();//***************** SOUND INJECTION ************************//
         ESPUI.setElementStyle(startId, "background-color: #999999;");
         stateMachine = 4;//
       }
@@ -980,7 +865,6 @@ void loop(void)
             cnt = 0;
           }
         }
-      //tæl op i antal glas og total vægt på statistik side
       break;
     default:
       break;
