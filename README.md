@@ -100,6 +100,31 @@ The scale board contains an HX711 to interface with common load cells. No progra
 
 ![UI](/Hardware/Scale/bottom.jpg) 
 
+## Construction
+There are a number of parts to acquire and some to 3D print. All the parts for printing are found in the Mechanical folder. You'll need one of each BUT only one of the brackets (either 40 or 53mm) and one of the main controller housing (40 or 53mm).
+
+Besides the 3D printed parts some of the main components you'll need are:
+
+- 2 x Ikea Bamboo lids Art no 103.819.09
+- 1 x Standard size servo like e.g., MG996R
+- 1 x Load cell
+- 1 x Mainboard
+- 1 x Scale board
+- 1 x 5V 3A USB-C power supply
+- 1 x RJ45 cable
+
+The scale is constructed using two Ikea Bamboo lids Art no 103.819.09, the 3D printed encapsulation, electronics and a load cell that can be found almost anywhere. To assemble the scale, two holes must be drilled in each bamboo lid, where one side of the load cell is typically M4 and the other side M5. To mount them you'll need 2 x M4x25 and 2 x M5x30.
+
+![UI](/Mechanical/scale_perspective.png) 
+
+![UI](/Mechanical/load_cell.png) 
+
+The "controller" is the unit that contains the Mainboard and Servo. The servo is a standard size servo like the MG996R. To mount that in the 3D printed housing you'll need 4 x M3x25 and 4 x M3 nuts.
+
+![UI](/Mechanical/render.png) 
+
+All the remaining screws and nuts required are listed on the BOM in the manual.
+
 ## Software
 The software is not prettified but has the functionality needed. It utilizes existing libraries to provide and host the UI. Scale calibration is incorporated in the software, making it easy commission a new system. Find the latest software in the software folder.
 
