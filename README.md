@@ -121,7 +121,7 @@ The scale is constructed using two Ikea Bamboo lids Art no 103.819.09, the 3D pr
 
 The "controller" is the unit that contains the Mainboard and Servo. The servo is a standard size servo like the MG996R. To mount that in the 3D printed housing you'll need 4 x M3x25 and 4 x M3 nuts.
 
-![UI](/Mechanical/render.png) 
+![UI](/Mechanical/render.PNG) 
 
 All the remaining screws and nuts required are listed on the BOM in the manual.
 
