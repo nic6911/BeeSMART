@@ -84,7 +84,7 @@ Find the STL files for 3D printing in the STL's folder. The 2nd revision fits th
 
 ## Hardware
 The hardware is specifically designed for the project. RJ45 is utilized for connecting scale and mainboard, giving a seamless and robust connection. Power is provided from a 3A 5V USB-C power supply while the servo has its dedicated connector on the main board.
-Schematic drawings are found under each subsystem folder in the Hardware folder (i.e. Scale and Mainboard).
+Schematic drawings, production files and source files are found under each subsystem folder in the Hardware folder (i.e. Scale and Mainboard).
 
 ### Mainboard
 The mainboard contains the ESP32C3 and interfaces for programmin and power (USB-C), scale and servo as well as reset and boot buttons. The system is easily programmed using Arduino through the USB-C interface.
