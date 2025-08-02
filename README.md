@@ -128,6 +128,11 @@ All the remaining screws and nuts required are listed on the BOM in the manual.
 ## Software
 The software is not prettified but has the functionality needed. It utilizes existing libraries to provide and host the UI. Scale calibration is incorporated in the software, making it easy commission a new system. Find the latest software in the software folder.
 
+### HiL
+The HiL folder contains a hardware-in-loop software package - however, this was done for the early version of the hardware, and thus the pin numberings need to be adjusted. Also there's some work to do on the modeling of the bucket and honey. But it gives a superb opportunity for tuning the software on different simulated viscosities.
+![HiL](/Software/HiL/Udklip.PNG) 
+![HiL](/Software/HiL/HiL.PNG) 
+
 ---
 
 ## Disclaimer
