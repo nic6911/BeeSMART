@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeeSMART Honey Dosing System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#007AFF">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <img src="beesmart_bee.png" alt="BeeSMART Logo" class="app-logo">
+                <div class="header-text">
+                    <h1 class="app-title">BeeSMART</h1>
+                    <div class="version">v3.0.0</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Tab Navigation -->
+        <nav class="tab-navigation">
+            <button class="tab-button active" data-tab="filling" data-key="tab1Text">
+                <div class="tab-icon">🍯</div>
+                <span>Tapning</span>
+            </button>
+            <button class="tab-button" data-tab="settings" data-key="tab2Text">
+                <div class="tab-icon">⚙️</div>
+                <span>Indstillinger</span>
+            </button>
+            <button class="tab-button" data-tab="advanced" data-key="tab3Text">
+                <div class="tab-icon">🔧</div>
+                <span>Avanceret</span>
+            </button>
+            <button class="tab-button" data-tab="calibration" data-key="tab4Text">
+                <div class="tab-icon">⚖️</div>
+                <span>Kalibrering</span>
+            </button>
+        </nav>
+
+        <!-- Content Container -->
+        <main class="content-container">
+            
+            <!-- Filling Tab -->
+            <div id="filling" class="tab-content active">
+                <div class="section-card">
+                    <div class="control-group">
+                        <button id="startButton" class="primary-button large" data-key="startText">
+                            <span class="button-icon">▶️</span>
+                            Start
+                        </button>
+                        <button id="stopButton" class="secondary-button large" data-key="stopText">
+                            <span class="button-icon">⏹️</span>
+                            Stop
+                        </button>
+                    </div>
+
+                    <div class="toggle-group">
+                        <label class="toggle-label" data-key="autoText">Automatisk start af tapning</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="autoSwitch" class="toggle-input">
+                            <label for="autoSwitch" class="toggle-slider"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <div class="info-display">
+                        <div class="info-item">
+                            <label class="info-label" data-key="SPText">Ønsket Mængde:</label>
+                            <span id="desiredAmount" class="info-value">300 g</span>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label" data-key="PVText">Aktuel Honning Vægt (uden glas):</label>
+                            <span id="honeyWeight" class="info-value">0 g</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <div id="statusMessage" class="status-message" data-key="step1Text">
+                        Tryk start
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settings" class="tab-content">
+                <div class="section-card">
+                    <h3 class="section-title" data-key="SPText">Ønsket Mængde</h3>
+                    <div class="slider-group">
+                        <input type="range" id="amountSlider" class="modern-slider" min="50" max="1000" value="300">
+                        <div class="slider-labels">
+                            <span>50g</span>
+                            <span id="sliderValue">300g</span>
+                            <span id="maxWeightDisplay">1000g</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <input type="number" id="amountInput" class="modern-input" min="50" max="1000" value="300">
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3 class="section-title" data-key="viscosityHeading">Viskositet</h3>
+                    <div class="segmented-control">
+                        <input type="radio" id="viscosityCustom" name="viscosity" value="0" checked>
+                        <label for="viscosityCustom" data-key="viscosityCustom">Brugerdefineret</label>
+                        
+                        <input type="radio" id="viscosityLow" name="viscosity" value="1">
+                        <label for="viscosityLow" data-key="viscosityLow">Lav</label>
+                        
+                        <input type="radio" id="viscosityMedium" name="viscosity" value="2">
+                        <label for="viscosityMedium" data-key="viscosityMedium">Medium</label>
+                        
+                        <input type="radio" id="viscosityHigh" name="viscosity" value="3">
+                        <label for="viscosityHigh" data-key="viscosityHigh">Høj</label>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3 class="section-title" data-key="tap3Heading">Kontrol Parametre</h3>
+                    <div class="pid-controls">
+                        <div class="input-group">
+                            <label>Kp</label>
+                            <input type="number" id="kpInput" class="modern-input" step="0.1" min="0" max="50" value="8">
+                        </div>
+                        <div class="input-group">
+                            <label>Ti</label>
+                            <input type="number" id="tiInput" class="modern-input" step="0.1" min="0" max="50" value="10">
+                        </div>
+                        <div class="input-group">
+                            <label>Kd</label>
+                            <input type="number" id="kdInput" class="modern-input" step="0.1" min="0" max="50" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3 class="section-title" data-key="tareTextHeading">Tare kun med tom vægt !</h3>
+                    <div class="info-display">
+                        <div class="info-item">
+                            <label class="info-label" data-key="tareText">Aktuel Vægt:</label>
+                            <span id="tareWeight" class="info-value">0 g</span>
+                        </div>
+                    </div>
+                    <div style="text-align: center;">
+                        <button id="tareButton" class="secondary-button large" data-key="tareButton">
+                            <span class="button-icon">⚖️</span>
+                            Tare
+                        </button>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3 class="section-title" data-key="langHeading">Sprog</h3>
+                    <div class="segmented-control">
+                        <input type="radio" id="langDA" name="language" value="0" checked>
+                        <label for="langDA">Dansk</label>
+                        
+                        <input type="radio" id="langDE" name="language" value="1">
+                        <label for="langDE">Deutsch</label>
+                        
+                        <input type="radio" id="langEN" name="language" value="2">
+                        <label for="langEN">English</label>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <!-- Advanced Settings Tab -->
+            <div id="advanced" class="tab-content">
+                <div class="section-card">
+                    <h3 class="section-title" data-key="servoText">Indstil min og max Servo position</h3>
+                    <div class="servo-controls">
+                        <div class="slider-group">
+                            <label>Servo Minimum</label>
+                            <input type="range" id="servoMinSlider" class="modern-slider" min="1" max="90" value="90">
+                            <div class="slider-value" id="servoMinValue">90°</div>
+                        </div>
+                        <div class="slider-group">
+                            <label>Servo Maximum</label>
+                            <input type="range" id="servoMaxSlider" class="modern-slider" min="90" max="180" value="90">
+                            <div class="slider-value" id="servoMaxValue">90°</div>
+                        </div>
+                    </div>
+                    <div class="servo-button-group">
+                        <button id="servoMinButton" class="secondary-button" data-key="servoMinButtonText">
+                            Gå til min position
+                        </button>
+                        <button id="servoMaxButton" class="secondary-button" data-key="servoMaxButtonText">
+                            Gå til max position
+                        </button>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3 class="section-title" data-key="prestopTextHeading">Luk hanen når der mangler</h3>
+                    <div class="input-group">
+                        <input type="number" id="stopHysteresisInput" class="modern-input" min="0" max="500" value="5">
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3 class="section-title" data-key="minGlassWeightTextHeading">Glasregistrering: Glas vejer mere end</h3>
+                    <div class="input-group">
+                        <input type="number" id="minGlassWeightInput" class="modern-input" min="5" max="50" value="10">
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3 class="section-title" data-key="maxWeightTextHeading">Max tappemængde</h3>
+                    <div class="input-group">
+                        <input type="number" id="maxWeightInput" class="modern-input" min="50" max="20000" value="1000">
+                    </div>
+                </div>
+
+
+            </div>
+
+            <!-- Calibration Tab -->
+            <div id="calibration" class="tab-content">
+                <div class="section-card">
+                    <div class="info-display">
+                        <div class="info-item">
+                            <label class="info-label" data-key="tareText">Aktuel Vægt:</label>
+                            <span id="calCurrentWeight" class="info-value">0 g</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <div id="calStatusMessage" class="status-message" data-key="calStep1Text">
+                        System kalibreret, tryk Kalibrer for at starte re-kalibrering
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3 class="section-title" data-key="calSelectorText">Kalibreringsvægt</h3>
+                    <div class="slider-group">
+                        <input type="range" id="calWeightSlider" class="modern-slider" min="50" max="1000" value="250">
+                        <div class="slider-labels">
+                            <span>50g</span>
+                            <span id="calSliderValue">250g</span>
+                            <span>1000g</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <input type="number" id="calWeightInput" class="modern-input" min="50" max="1000" value="250">
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <button id="calibrateButton" class="primary-button full-width" data-key="calButtonText">
+                        <span class="button-icon">⚖️</span>
+                        Kalibrer
+                    </button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- WebSocket connection status -->
+    <div id="connectionStatus" class="connection-status">
+        <div class="connection-indicator"></div>
+        <span>Forbinder...</span>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
