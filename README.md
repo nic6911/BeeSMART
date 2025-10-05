@@ -32,7 +32,7 @@ Honey filling system controlled from your phone, tablet or PC !
 
 ![Scale](/scale.jpg) 
 
-![UI](/UI.jpg) 
+![UI](/UI.png) 
 
 ---
 
