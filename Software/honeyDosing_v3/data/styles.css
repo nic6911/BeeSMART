@@ -1,10 +1,22 @@
-/* BeeSMART Honey Dosing System - Modern iOS-like Styling */
+/**
+ * BeeSMART Honey Dosing System - Modern Responsive Styling
+ * 
+ * A modern, iOS-inspired interface with golden honey color palette.
+ * Optimized for touch devices and desktop use with responsive design.
+ * 
+ * @author BeeSMART Development Team
+ * @version 3.0.1
+ */
 
-/* Import Cooper Black font with fallback */
+/* ================================== */
+/* EXTERNAL FONT IMPORTS              */
+/* ================================== */
 @import url('https://fonts.googleapis.com/css2?family=Cooper+Black&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&display=swap');
 
-/* Variables */
+/* ================================== */
+/* CSS CUSTOM PROPERTIES              */
+/* ================================== */
 :root {
     /* BeeSMART Golden Honey color palette */
     --primary-color: #DAA520;        /* Golden Rod - pleasant, warm yellow */
@@ -21,6 +33,8 @@
     --text-secondary: #8B7355;       /* Warm brown-gray */
     --separator-color: #DDD3C0;      /* Warm beige separator */
     --overlay-color: rgba(139, 115, 85, 0.4);  /* Warm brown overlay */
+    --target-color: #007AFF;       /* Same as primary for target indicators */
+    --actual-color: #4CAF50;       /* Same as success for actual indicators */
     
     /* Spacing */
     --spacing-xs: 4px;
@@ -45,6 +59,9 @@
     --transition-normal: 0.3s ease-out;
 }
 
+/* ================================== */
+/* GLOBAL RESET & BASE STYLES         */
+/* ================================== */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -69,7 +86,9 @@ body {
     overflow: hidden;
 }
 
-/* Header */
+/* ================================== */
+/* APPLICATION HEADER                 */
+/* ================================== */
 .app-header {
     background: linear-gradient(135deg, #FFD700, #FFA500);
     color: #2C1810;
@@ -114,7 +133,9 @@ body {
     color: #8B4513;
 }
 
-/* Tab Navigation */
+/* ================================== */
+/* TAB NAVIGATION                     */
+/* ================================== */
 .tab-navigation {
     display: flex;
     background: var(--card-background);
@@ -169,7 +190,9 @@ body {
     transform: scale(0.95);
 }
 
-/* Content Container */
+/* ================================== */
+/* CONTENT LAYOUT                     */
+/* ================================== */
 .content-container {
     padding: var(--spacing-md);
     min-height: calc(100vh - 200px);
@@ -190,7 +213,9 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Section Cards */
+/* ================================== */
+/* SECTION CARDS & CONTAINERS         */
+/* ================================== */
 .section-card {
     background: var(--card-background);
     border-radius: var(--radius-lg);
@@ -213,7 +238,9 @@ body {
     color: var(--text-primary);
 }
 
-/* Buttons */
+/* ================================== */
+/* BUTTONS & INTERACTIVE CONTROLS     */
+/* ================================== */
 .primary-button {
     background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
     color: white;
@@ -304,7 +331,11 @@ body {
     flex: 1;
 }
 
-/* Toggle Switch */
+/* ================================== */
+/* FORM CONTROLS & INPUTS             */
+/* ================================== */
+
+/* Toggle Switch Component */
 .toggle-group {
     display: flex;
     align-items: center;
@@ -517,8 +548,11 @@ body {
     font-size: 1.125rem;
 }
 
-/* Status Message */
+/* ================================== */
+/* STATUS & FEEDBACK COMPONENTS       */
+/* ================================== */
 .status-message {
+    position: relative;
     background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
     color: var(--primary-color);
     padding: var(--spacing-md);
@@ -528,6 +562,35 @@ body {
     margin-bottom: var(--spacing-md);
     border-left: 4px solid var(--primary-color);
     animation: pulse 2s infinite;
+    overflow: hidden;
+}
+
+/* Calibration Progress Wrapper */
+.calibration-progress-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.cal-progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    opacity: 0.25;
+    transition: width 0.4s ease, opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.calibration-progress-wrapper.active .cal-progress-bar { opacity: 0.35; }
+
+.calibration-progress-wrapper.completed .cal-progress-bar { width: 100% !important; opacity: 0.45; }
+
+.calibration-progress-wrapper .cal-status-text {
+    position: relative;
+    z-index: 2;
+    display: inline-block;
 }
 
 @keyframes pulse {
@@ -569,7 +632,11 @@ body {
     gap: var(--spacing-lg);
 }
 
-/* Connection Status */
+/* ================================== */
+/* SPECIALIZED UI COMPONENTS          */
+/* ================================== */
+
+/* Network Connection Status Indicator */
 .connection-status {
     position: fixed;
     top: var(--spacing-md);
@@ -605,7 +672,11 @@ body {
     51%, 100% { opacity: 0.3; }
 }
 
-/* Responsive Design */
+/* ================================== */
+/* RESPONSIVE DESIGN                  */
+/* ================================== */
+
+/* Tablet and smaller screens */
 @media (max-width: 768px) {
     .app-container {
         margin: 0;
@@ -655,6 +726,7 @@ body {
     }
 }
 
+/* Mobile screens */
 @media (max-width: 480px) {
     .content-container {
         padding: var(--spacing-xs);
@@ -675,6 +747,10 @@ body {
         font-size: 0.75rem;
     }
 }
+
+/* ================================== */
+/* ACCESSIBILITY & THEMES             */
+/* ================================== */
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
@@ -701,7 +777,478 @@ body {
     }
 }
 
-/* Print styles */
+/* ================================== */
+/* SPECIALIZED FEATURES               */
+/* ================================== */
+
+/* Performance indicators with user-friendly colors */
+.performance-indicator {
+    font-weight: 700;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-normal);
+}
+
+.precision-learning {
+    background: rgba(255, 140, 0, 0.15);
+    color: var(--secondary-color);
+}
+
+.precision-good {
+    background: rgba(218, 165, 32, 0.15);
+    color: var(--primary-color);
+}
+
+.precision-very-good {
+    background: rgba(143, 188, 143, 0.15);
+    color: var(--success-color);
+}
+
+.precision-excellent {
+    background: rgba(50, 205, 50, 0.15);
+    color: #32CD32;
+}
+
+.experience-new {
+    background: rgba(135, 206, 235, 0.15);
+    color: #4682B4;
+}
+
+.experience-learning {
+    background: rgba(255, 140, 0, 0.15);
+    color: var(--secondary-color);
+}
+
+.experience-experienced {
+    background: rgba(218, 165, 32, 0.15);
+    color: var(--primary-color);
+}
+
+.experience-expert {
+    background: rgba(50, 205, 50, 0.15);
+    color: #32CD32;
+}
+
+/* Info notes styling */
+.info-note, .performance-note {
+    margin-top: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    background: rgba(218, 165, 32, 0.08);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--primary-color);
+}
+
+.info-note small, .performance-note small {
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+/* Enhanced button styling for system reset */
+#resetSystemButton {
+    background: linear-gradient(135deg, var(--destructive-color), #D2691E);
+    border: none;
+    transition: all var(--transition-normal);
+}
+
+#resetSystemButton:hover {
+    background: linear-gradient(135deg, #D2691E, var(--destructive-color));
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+}
+
+
+
+/* Control Mode Selection */
+input[name="controlMode"]:checked + label {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    color: white;
+    border-color: var(--primary-dark);
+}
+
+
+
+/* Statistics Page Styles */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.stat-card {
+    background: linear-gradient(135deg, rgba(218, 165, 32, 0.08), rgba(244, 208, 63, 0.05));
+    border: 1px solid var(--separator-color);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    text-align: center;
+    transition: all var(--transition-normal);
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-light);
+}
+
+.stat-icon {
+    font-size: 28px;
+    margin-bottom: var(--spacing-sm);
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--spacing-xs);
+}
+
+.stat-value {
+    color: var(--text-primary);
+    font-size: 20px;
+    font-weight: 700;
+}
+
+/* Subsection styling for grouped parameters */
+.subsection {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.subsection:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.subsection-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 0.75rem;
+    opacity: 0.8;
+}
+
+/* Legacy PID card specific styling */
+#legacyPidParametersCard {
+    border-left: 3px solid #FF6B35;
+}
+
+#legacyPidParametersCard .section-title {
+    color: #FF6B35;
+}
+
+/* Calibration Status with Progress Background */
+.calibration-status-container {
+    margin: 16px 0;
+}
+
+.calibration-progress-bg {
+    position: relative;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid #E5D5B7;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    min-height: 24px;
+}
+
+.calibration-progress-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, 
+        rgba(218, 165, 32, 0.2) 0%, 
+        rgba(218, 165, 32, 0.4) 50%,
+        rgba(218, 165, 32, 0.6) 100%);
+    border-radius: 8px;
+    transition: width 0.3s ease-in-out;
+    z-index: 1;
+}
+
+.calibration-status-text {
+    position: relative;
+    z-index: 2;
+    color: #8B7355;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* Calibration Progress Bar (keep for compatibility) */
+.progress-container {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1));
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: var(--radius-md);
+}
+
+.progress-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 12px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #FFC107, #FF9800);
+    border-radius: 6px;
+    transition: width 0.3s ease;
+    width: 0%;
+    position: relative;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: progress-shimmer 2s infinite;
+}
+
+@keyframes progress-shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.progress-details {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    opacity: 0.8;
+}
+
+/* Chart Container - Dark Theme */
+.chart-container {
+    background: #2A2A2A;
+    border: 1px solid #404040;
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+    overflow-x: auto; /* Allow horizontal scroll on very small screens */
+    width: 100%;
+}
+
+.chart-container canvas {
+    border: 1px solid #404040;
+    border-radius: var(--radius-sm);
+    background: #1E1E1E;
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Responsive chart adjustments */
+@media (max-width: 480px) {
+    .chart-container {
+        margin: 10px -10px; /* Extend to edges on mobile */
+        padding: var(--spacing-sm);
+    }
+}
+
+@media (min-width: 1200px) {
+    .chart-container {
+        margin: 20px auto;
+        max-width: 900px; /* Prevent excessive width on large screens */
+    }
+}
+
+.chart-legend {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid #404040;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 14px;
+    color: #B0B0B0;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+}
+
+/* Recent History */
+.history-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.history-empty {
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
+    padding: var(--spacing-xl);
+}
+
+.history-item {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: var(--spacing-md);
+    align-items: center;
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--separator-color);
+    transition: background-color var(--transition-fast);
+}
+
+.history-item:hover {
+    background: rgba(218, 165, 32, 0.05);
+}
+
+.history-item.perfect {
+    border-left: 3px solid var(--success-color);
+    background: rgba(143, 188, 143, 0.05);
+}
+
+.history-item.overshoot {
+    border-left: 3px solid var(--destructive-color);
+    background: rgba(205, 133, 63, 0.05);
+}
+
+.history-item.undershoot {
+    border-left: 3px solid var(--secondary-color);
+    background: rgba(255, 140, 0, 0.05);
+}
+
+.history-weights {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-weight: 600;
+}
+
+.history-weights .target {
+    color: var(--primary-color);
+}
+
+.history-weights .arrow {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.history-weights .actual {
+    color: var(--success-color);
+}
+
+.history-error {
+    font-weight: 700;
+    font-size: 14px;
+    text-align: right;
+    min-width: 60px;
+}
+
+.history-item.perfect .history-error {
+    color: var(--success-color);
+}
+
+.history-item.overshoot .history-error {
+    color: var(--destructive-color);
+}
+
+.history-item.undershoot .history-error {
+    color: var(--secondary-color);
+}
+
+.history-time {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: right;
+    min-width: 70px;
+}
+
+/* Error Distribution Bars */
+.error-bars {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.error-bar {
+    display: grid;
+    grid-template-columns: 100px 1fr auto;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+.error-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.error-visual {
+    background: var(--separator-color);
+    height: 20px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    position: relative;
+}
+
+.error-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--destructive-color), #D2691E);
+    border-radius: var(--radius-sm);
+    transition: width var(--transition-normal);
+}
+
+.error-fill.perfect {
+    background: linear-gradient(90deg, var(--success-color), #9ACD32);
+}
+
+.error-value {
+    font-weight: 700;
+    color: var(--text-primary);
+    text-align: right;
+    min-width: 40px;
+}
+
+/* Calibration section in Advanced tab */
+.calibration-controls {
+    margin-top: var(--spacing-md);
+}
+
+.subsection-title {
+    color: var(--text-primary);
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--separator-color);
+}
+
+/* ================================== */
+/* PRINT STYLES                       */
+/* ================================== */
 @media print {
     .app-container {
         box-shadow: none;
@@ -720,3 +1267,7 @@ body {
         display: none;
     }
 }
+
+/* ================================== */
+/* END OF STYLESHEET                  */
+/* ================================== */

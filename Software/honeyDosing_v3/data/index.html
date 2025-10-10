@@ -1,31 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Document Metadata -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BeeSMART Honey Dosing System</title>
+    
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="styles.css">
+    
+    <!-- Progressive Web App Icons -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    
+    <!-- Mobile App Configuration -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#007AFF">
 </head>
 <body>
+    <!-- Main Application Container -->
     <div class="app-container">
-        <!-- Header -->
+        
+        <!-- ================================== -->
+        <!-- APPLICATION HEADER                 -->
+        <!-- ================================== -->
         <header class="app-header">
             <div class="header-content">
                 <img src="beesmart_bee.png" alt="BeeSMART Logo" class="app-logo">
                 <div class="header-text">
                     <h1 class="app-title">BeeSMART</h1>
-                    <div class="version">v3.0.0</div>
+                    <div class="version">v3.0.1</div>
                 </div>
             </div>
         </header>
 
-        <!-- Tab Navigation -->
+        <!-- ================================== -->
+        <!-- TAB NAVIGATION                     -->
+        <!-- ================================== -->
         <nav class="tab-navigation">
             <button class="tab-button active" data-tab="filling" data-key="tab1Text">
                 <div class="tab-icon">🍯</div>
@@ -39,16 +52,19 @@
                 <div class="tab-icon">🔧</div>
                 <span>Avanceret</span>
             </button>
-            <button class="tab-button" data-tab="calibration" data-key="tab4Text">
-                <div class="tab-icon">⚖️</div>
-                <span>Kalibrering</span>
+            <button class="tab-button" data-tab="statistics" data-key="tab4Text">
+                <div class="tab-icon">📊</div>
+                <span>Statistik</span>
             </button>
         </nav>
 
-        <!-- Content Container -->
+        <!-- ================================== -->
+        <!-- MAIN CONTENT CONTAINER             -->
+        <!-- ================================== -->
         <main class="content-container">
             
-            <!-- Filling Tab -->
+            <!-- ===== FILLING TAB ===== -->
+            <!-- Main dosing control interface -->
             <div id="filling" class="tab-content active">
                 <div class="section-card">
                     <div class="control-group">
@@ -91,7 +107,8 @@
                 </div>
             </div>
 
-            <!-- Settings Tab -->
+            <!-- ===== SETTINGS TAB ===== -->
+            <!-- Basic system configuration -->
             <div id="settings" class="tab-content">
                 <div class="section-card">
                     <h3 class="section-title" data-key="SPText">Ønsket Mængde</h3>
@@ -109,37 +126,23 @@
                 </div>
 
                 <div class="section-card">
-                    <h3 class="section-title" data-key="viscosityHeading">Viskositet</h3>
-                    <div class="segmented-control">
-                        <input type="radio" id="viscosityCustom" name="viscosity" value="0" checked>
-                        <label for="viscosityCustom" data-key="viscosityCustom">Brugerdefineret</label>
-                        
-                        <input type="radio" id="viscosityLow" name="viscosity" value="1">
-                        <label for="viscosityLow" data-key="viscosityLow">Lav</label>
-                        
-                        <input type="radio" id="viscosityMedium" name="viscosity" value="2">
-                        <label for="viscosityMedium" data-key="viscosityMedium">Medium</label>
-                        
-                        <input type="radio" id="viscosityHigh" name="viscosity" value="3">
-                        <label for="viscosityHigh" data-key="viscosityHigh">Høj</label>
+                    <h3 class="section-title" data-key="prestopTextHeading">Luk hanen når der mangler</h3>
+                    <div class="input-group">
+                        <input type="number" id="stopHysteresisInput" class="modern-input" min="0" max="500" value="5">
                     </div>
                 </div>
 
                 <div class="section-card">
-                    <h3 class="section-title" data-key="tap3Heading">Kontrol Parametre</h3>
-                    <div class="pid-controls">
-                        <div class="input-group">
-                            <label>Kp</label>
-                            <input type="number" id="kpInput" class="modern-input" step="0.1" min="0" max="50" value="8">
-                        </div>
-                        <div class="input-group">
-                            <label>Ti</label>
-                            <input type="number" id="tiInput" class="modern-input" step="0.1" min="0" max="50" value="10">
-                        </div>
-                        <div class="input-group">
-                            <label>Kd</label>
-                            <input type="number" id="kdInput" class="modern-input" step="0.1" min="0" max="50" value="5">
-                        </div>
+                    <h3 class="section-title" data-key="minGlassWeightTextHeading">Glasregistrering: Glas vejer mere end</h3>
+                    <div class="input-group">
+                        <input type="number" id="minGlassWeightInput" class="modern-input" min="5" max="50" value="10">
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3 class="section-title" data-key="maxWeightTextHeading">Max tappemængde</h3>
+                    <div class="input-group">
+                        <input type="number" id="maxWeightInput" class="modern-input" min="50" max="20000" value="1000">
                     </div>
                 </div>
 
@@ -176,20 +179,61 @@
 
             </div>
 
-            <!-- Advanced Settings Tab -->
+            <!-- ===== ADVANCED TAB ===== -->
+            <!-- PID control, servo settings, and calibration -->
             <div id="advanced" class="tab-content">
+                <div class="section-card">
+                    <h3 class="section-title" data-key="pidHeading">PID Kontrol Parametre</h3>
+                    
+                    <div class="subsection">
+                        <h4 class="subsection-title" data-key="viscosityHeading">Viskositet</h4>
+                        <div class="segmented-control">
+                            <input type="radio" id="viscosityLow" name="viscosity" value="1">
+                            <label for="viscosityLow" data-key="viscosityLow">Lav</label>
+                            
+                            <input type="radio" id="viscosityMedium" name="viscosity" value="2" checked>
+                            <label for="viscosityMedium" data-key="viscosityMedium">Medium</label>
+                            
+                            <input type="radio" id="viscosityHigh" name="viscosity" value="3">
+                            <label for="viscosityHigh" data-key="viscosityHigh">Høj</label>
+                            
+                            <input type="radio" id="viscosityCustom" name="viscosity" value="0">
+                            <label for="viscosityCustom" data-key="viscosityCustom">Brugerdefineret</label>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h4 class="subsection-title" data-key="tap3Heading">Kontrol Parametre</h4>
+                        <div class="pid-controls">
+                            <div class="input-group">
+                                <label data-key="pidKpLabel">Kp</label>
+                                <input type="number" id="kpInput" class="modern-input" step="0.1" min="0" max="50" value="8">
+                            </div>
+                            <div class="input-group">
+                                <label data-key="pidTiLabel">Ti</label>
+                                <input type="number" id="tiInput" class="modern-input" step="0.1" min="0" max="50" value="10">
+                            </div>
+                            <div class="input-group">
+                                <label data-key="pidKdLabel">Kd</label>
+                                <input type="number" id="kdInput" class="modern-input" step="0.1" min="0" max="50" value="5">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
                 <div class="section-card">
                     <h3 class="section-title" data-key="servoText">Indstil min og max Servo position</h3>
                     <div class="servo-controls">
                         <div class="slider-group">
-                            <label>Servo Minimum</label>
-                            <input type="range" id="servoMinSlider" class="modern-slider" min="1" max="90" value="90">
-                            <div class="slider-value" id="servoMinValue">90°</div>
+                            <label data-key="servoMinLabel">Servo Minimum</label>
+                            <input type="range" id="servoMinSlider" class="modern-slider" min="0" max="175" value="45">
+                            <div class="slider-value" id="servoMinValue">45°</div>
                         </div>
                         <div class="slider-group">
-                            <label>Servo Maximum</label>
-                            <input type="range" id="servoMaxSlider" class="modern-slider" min="90" max="180" value="90">
-                            <div class="slider-value" id="servoMaxValue">90°</div>
+                            <label data-key="servoMaxLabel">Servo Maximum</label>
+                            <input type="range" id="servoMaxSlider" class="modern-slider" min="5" max="180" value="135">
+                            <div class="slider-value" id="servoMaxValue">135°</div>
                         </div>
                     </div>
                     <div class="servo-button-group">
@@ -202,79 +246,151 @@
                     </div>
                 </div>
 
+
+
+                <!-- Calibration Section (moved from Calibration tab) -->
                 <div class="section-card">
-                    <h3 class="section-title" data-key="prestopTextHeading">Luk hanen når der mangler</h3>
-                    <div class="input-group">
-                        <input type="number" id="stopHysteresisInput" class="modern-input" min="0" max="500" value="5">
-                    </div>
-                </div>
-
-                <div class="section-card">
-                    <h3 class="section-title" data-key="minGlassWeightTextHeading">Glasregistrering: Glas vejer mere end</h3>
-                    <div class="input-group">
-                        <input type="number" id="minGlassWeightInput" class="modern-input" min="5" max="50" value="10">
-                    </div>
-                </div>
-
-                <div class="section-card">
-                    <h3 class="section-title" data-key="maxWeightTextHeading">Max tappemængde</h3>
-                    <div class="input-group">
-                        <input type="number" id="maxWeightInput" class="modern-input" min="50" max="20000" value="1000">
-                    </div>
-                </div>
-
-
-            </div>
-
-            <!-- Calibration Tab -->
-            <div id="calibration" class="tab-content">
-                <div class="section-card">
+                    <h3 class="section-title" data-key="calSectionHeading">Vægt Kalibrering</h3>
                     <div class="info-display">
                         <div class="info-item">
                             <label class="info-label" data-key="tareText">Aktuel Vægt:</label>
                             <span id="calCurrentWeight" class="info-value">0 g</span>
                         </div>
                     </div>
-                </div>
-
-                <div class="section-card">
-                    <div id="calStatusMessage" class="status-message" data-key="calStep1Text">
-                        System kalibreret, tryk Kalibrer for at starte re-kalibrering
-                    </div>
-                </div>
-
-                <div class="section-card">
-                    <h3 class="section-title" data-key="calSelectorText">Kalibreringsvægt</h3>
-                    <div class="slider-group">
-                        <input type="range" id="calWeightSlider" class="modern-slider" min="50" max="1000" value="250">
-                        <div class="slider-labels">
-                            <span>50g</span>
-                            <span id="calSliderValue">250g</span>
-                            <span>1000g</span>
+                    
+                    <div class="calibration-status-container">
+                        <div id="calStatusMessage" class="status-message calibration-progress-wrapper" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                            <div class="cal-progress-bar" id="calProgressBar"></div>
+                            <span class="cal-status-text" data-key="calStatusLoading">Indlæser kalibreringsstatus...</span>
                         </div>
                     </div>
-                    <div class="input-group">
-                        <input type="number" id="calWeightInput" class="modern-input" min="50" max="1000" value="250">
+                    
+                    <div class="calibration-controls">
+                        <h4 class="subsection-title" data-key="calSelectorText">Kalibreringsvægt</h4>
+                        <div class="slider-group">
+                            <input type="range" id="calWeightSlider" class="modern-slider" min="50" max="1000" value="250">
+                            <div class="slider-labels">
+                                <span>50g</span>
+                                <span id="calSliderValue">250g</span>
+                                <span>1000g</span>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <input type="number" id="calWeightInput" class="modern-input" min="50" max="1000" value="250">
+                        </div>
+                        
+                        <div class="control-group" style="justify-content: center; margin-top: 16px;">
+                            <button id="calibrateButton" class="primary-button" data-key="calButtonText">
+                                <span class="button-icon">⚖️</span>
+                                <span data-key="calButtonText">Kalibrer</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
+            </div>
+
+            <!-- ===== STATISTICS TAB ===== -->
+            <!-- Performance metrics and charts -->
+            <div id="statistics" class="tab-content">
+                <!-- Basic Statistics Overview -->
                 <div class="section-card">
-                    <button id="calibrateButton" class="primary-button full-width" data-key="calButtonText">
-                        <span class="button-icon">⚖️</span>
-                        Kalibrer
-                    </button>
+                    <h3 class="section-title" data-key="performanceOverviewHeading">Statistik Oversigt</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">🍯</div>
+                            <div class="stat-content">
+                                <div class="stat-label" data-key="totalDispensingText">Total Tappet</div>
+                                <div class="stat-value" id="totalDispensed">0 kg</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🫙</div>
+                            <div class="stat-content">
+                                <div class="stat-label" data-key="glassesFilledText">Glas Fyldt</div>
+                                <div class="stat-value" id="cycleCount">0</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📏</div>
+                            <div class="stat-content">
+                                <div class="stat-label" data-key="averageDeviationText">Gennemsnitlig Afvigelse</div>
+                                <div class="stat-value" id="averageDeviation">0g</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group" style="justify-content: center; margin-top: 20px;">
+                        <button id="resetStatisticsButton" class="secondary-button" data-key="resetStatisticsButton">
+                            <span class="button-icon">🔄</span>
+                            <span>Nulstil Statistik</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Weight Accuracy Chart -->
+                <div class="section-card">
+                    <h3 class="section-title" data-key="accurencyTrendHeading">Præcisions Trend</h3>
+                    <div class="chart-container">
+                        <canvas id="accuracyChart"></canvas>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: var(--target-color);"></div>
+                            <span data-key="targetWeightText">Ønsket Vægt</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: var(--actual-color);"></div>
+                            <span data-key="actualWeightText">Faktisk Vægt</span>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Error Distribution -->
+                <div class="section-card">
+                    <h3 class="section-title" data-key="errorDistributionHeading">Fejl Fordeling</h3>
+                    <div class="error-bars">
+                        <div class="error-bar">
+                            <div class="error-label" data-key="overshootText">Overskydning</div>
+                            <div class="error-visual">
+                                <div class="error-fill" id="overshootBar" style="width: 0%;"></div>
+                            </div>
+                            <div class="error-value" id="overshootValue">0%</div>
+                        </div>
+                        <div class="error-bar">
+                            <div class="error-label" data-key="undershootText">Underskydning</div>
+                            <div class="error-visual">
+                                <div class="error-fill" id="undershootBar" style="width: 0%;"></div>
+                            </div>
+                            <div class="error-value" id="undershootValue">0%</div>
+                        </div>
+                        <div class="error-bar">
+                            <div class="error-label" data-key="perfectText">Perfekt</div>
+                            <div class="error-visual">
+                                <div class="error-fill perfect" id="perfectBar" style="width: 0%;"></div>
+                            </div>
+                            <div class="error-value" id="perfectValue">0%</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
         </main>
     </div>
 
-    <!-- WebSocket connection status -->
+    <!-- ================================== -->
+    <!-- GLOBAL UI ELEMENTS                -->
+    <!-- ================================== -->
+    
+    <!-- Connection Status Indicator -->
     <div id="connectionStatus" class="connection-status">
         <div class="connection-indicator"></div>
         <span>Forbinder...</span>
     </div>
 
+    <!-- Application JavaScript -->
     <script src="app.js"></script>
 </body>
 </html>
