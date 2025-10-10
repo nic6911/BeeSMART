@@ -25,31 +25,31 @@ A class-based model that simulates the dispensing of honey from a bucket through
 
 #### 1. **Viscosity Adjustment**
 Viscosity ($\eta$) is temperature-dependent:
-$$
-\eta = \eta_0 \cdot 2^{\frac{20 - T}{10}}
-$$
+
+η = η₀ · 2^((20 − T) / 10)
+
 Where $\eta_0$ is the base viscosity for the selected honey type.
 
 #### 2. **Bucket Head Pressure**
 Pressure at the tap due to honey column:
-$$
-P = \rho \cdot g \cdot h_{fill}
-$$
+
+P = ρ · g · h_fill
+
 Where:
 - $\rho$ = honey density ($\approx 1400\,kg/m^3$)
 - $g$ = gravity ($9.81\,m/s^2$)
 - $h_{fill}$ = current honey height (m)
 
 #### 3. **Tap Area**
-$$
-A_{tap} = \pi \left(\frac{d_{tap}}{2 \times 10}\right)^2
-$$
+
+A_tap = π · (d_tap / 20)²
+
 Where $d_{tap}$ is in mm, converted to cm.
 
 #### 4. **Flow Rate (Hagen-Poiseuille Law, simplified)**
-$$
-Q = \frac{\pi r^4 \Delta P}{8 \eta L}
-$$
+
+Q = (π · r⁴ · ΔP) / (8 · η · L)
+
 Where:
 - $r$ = tap radius (m)
 - $\Delta P$ = pressure difference (Pa)
@@ -57,25 +57,23 @@ Where:
 - $L$ = tap length ($\approx d_{tap}$, m)
 
 Converted to grams/second:
-$$
-Q_{g/s} = Q_{m^3/s} \cdot \rho \cdot 1000
-$$
+
+Q_g/s = Q_m³/s · ρ · 1000
 
 #### 5. **Transport Delay**
 Time for honey to reach the scale:
-$$
-\text{delay} = \frac{L_{tap-scale}}{v}
-$$
+
+delay = L_tap-scale / v
+
 Where $v$ is average velocity:
-$$
-v = \frac{Q_{kg/s}}{\rho \cdot A_{tap}}
-$$
+
+v = Q_kg/s / (ρ · A_tap)
 
 #### 6. **Bucket Fill Update**
 After each simulation step:
-$$
-\Delta h_{fill} = \frac{Q_{g/s} \cdot dt}{\rho \cdot A_{bucket} \cdot 10}
-$$
+
+Δh_fill = (Q_g/s · dt) / (ρ · A_bucket · 10)
+
 Where $A_{bucket}$ is the bucket cross-sectional area (cm²).
 
 ### Usage Example
@@ -168,4 +166,11 @@ pip install -r requirements.txt
 ---
 
 ## License
-MIT
+This work is licensed under a  
+[Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License][cc-by-nc-sa].
+
+[![CC BY-NC-SA 4.0][cc-by-nc-sa-image]][cc-by-nc-sa]
+
+[cc-by-nc-sa]: http://creativecommons.org/licenses/by-nc-sa/4.0/  
+[cc-by-nc-sa-image]: https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png  
+[cc-by-nc-sa-shield]: https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg
