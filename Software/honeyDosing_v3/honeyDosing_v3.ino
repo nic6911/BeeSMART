@@ -65,7 +65,7 @@
  * DATE: October 2025
  * 
  * ╔══════════════════════════════════════════════════════════════════════════════╗
- * ║  For support and updates, visit: https://github.com/beesmart-honey-dosing    ║
+ * ║  For support and updates, visit: https://github.com/nic6911/BeeSMART         ║
  * ╚══════════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -1376,17 +1376,16 @@ void loop(void) {
     myController.compute();
 
     // Handle servo test mode with auto-timeout
-    /*if (servoTestMode) {
+    if (servoTestMode) {
       if (millis() - servoTestStartTime > 3000) { // 3 second timeout for responsive testing
         servoTestMode = false;
         servoTestOutput = 0.0;
       } else {
         output = servoTestOutput; // Override PID output during test
       }
-    }*/
+    }
 
     // Update servo position based on PID output or test mode
     myservo.write(servoMin + output * (servoMax - servoMin));
   }
-  // ...existing code...
 }
