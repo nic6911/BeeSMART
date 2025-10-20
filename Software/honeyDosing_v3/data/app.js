@@ -689,8 +689,8 @@ class BeeSMART {
         this.accuracyChart = {
             canvas,
             ctx,
-            data: this.statisticsData.dispensingHistory.slice(-20), // Show last 20 points
-            maxDataPoints: 20
+            data: this.statisticsData.dispensingHistory.slice(-10), // Show last 10 points
+            maxDataPoints: 10
         };
 
         this.drawChart();
@@ -808,7 +808,7 @@ class BeeSMART {
 
     updateChart() {
         if (this.accuracyChart) {
-            this.accuracyChart.data = this.statisticsData.dispensingHistory.slice(-20);
+            this.accuracyChart.data = this.statisticsData.dispensingHistory.slice(-10);
             this.drawChart();
         }
     }

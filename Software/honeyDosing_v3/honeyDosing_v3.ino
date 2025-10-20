@@ -784,10 +784,12 @@ void handleApiStatus() {
   }
   
   // Add recent dispensing history for statistics
+  // Serialize circular buffer from oldest -> newest so frontend receives newest last
   json += ",\"recentHistory\":[";
+  int start = (historyIndex - historyCount + 10) % 10;
   for (int i = 0; i < historyCount; i++) {
     if (i > 0) json += ",";
-    DispensingRecord record = dispensingHistory[i];
+    DispensingRecord record = dispensingHistory[(start + i) % 10];
     json += "{\"target\":" + String(record.targetWeight, 1);
     json += ",\"actual\":" + String(record.actualWeight, 1);
     json += ",\"error\":" + String(record.error, 1) + "}";
