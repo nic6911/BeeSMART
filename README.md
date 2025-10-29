@@ -131,7 +131,7 @@ The software is not prettified but has the functionality needed. It utilizes exi
 ### HiL
 The HiL folder contains a hardware-in-loop software package. I have updated it to make it relatively plug & play - simply just upload the BeeSMART software to one board and the "combinedsimulator" to another and connect scale and servo pins 1:1. This now gives you a superb opportunity for tuning the software on different simulated viscosities as a semi-advanced model has been implemented for simulating the behavior of the bucket and honey.
 ![HiL](/Software/HiL/HiL_setup.jpg) 
-![HiL](/Software/HiL/HiL.PNG) 
+![HiL](/Software/HiL/HIL.PNG) 
 
 ---
 
