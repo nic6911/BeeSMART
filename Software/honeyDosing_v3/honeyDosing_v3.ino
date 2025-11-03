@@ -1,7 +1,7 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════════════════╗
  * ║                          BeeSMART Honey Dosing System                        ║
- * ║                                 Version 3.0.0                                ║
+ * ║                                 Version 3.1.0                                ║
  * ╚══════════════════════════════════════════════════════════════════════════════╝
  * 
  * @file honeyDosing_v3.ino
@@ -62,7 +62,7 @@
  * AUTHOR: Mogens Groth Nicolaisen 
  * 
  * LICENSE: Open Source - Please maintain attribution
- * DATE: October 2025
+ * DATE: November 2025
  * 
  * ╔══════════════════════════════════════════════════════════════════════════════╗
  * ║  For support and updates, visit: https://github.com/nic6911/BeeSMART         ║
@@ -144,6 +144,7 @@ int32_t weightSum = 0;                // Sum of current samples for quick calcul
 
 // System configuration
 uint8_t gainSelector = 2;         // Current viscosity preset (0-3), default: Medium viscosity
+
 //──────────────────────────────────────────────────────────────────────────────
 // Persistent cumulative statistics (across reboots)
 // Added in v3.1.0 - appended to settings file for backward compatibility
@@ -154,8 +155,6 @@ uint32_t cumulativeTargetGrams   = 0;   // Sum of target grams (for alternate me
 
 bool autoState = 0;               // Automatic mode enabled
 int looptime = 20;                // PID loop time in milliseconds
-
-// HTTP client state tracking (removed - not used in HTTP polling architecture)
 
 //═══════════════════════════════════════════════════════════════════════════════
 // DISPENSING STATISTICS SYSTEM
@@ -1169,7 +1168,7 @@ void initWebServer() {
 void setup(void) {
     Serial.begin(115200);
     Serial.println("\n" + String('═', 80));
-    Serial.println("BeeSMART Honey Dosing System v3.0.0 - Initializing...");
+    Serial.println("BeeSMART Honey Dosing System v3.1.0 - Initializing...");
     Serial.println(String('═', 80));
     
     // Initialize file system for persistent storage
@@ -1231,7 +1230,7 @@ void setup(void) {
     Serial.println("Scale tared and system reset to idle state");
     
     Serial.println(String('═', 80));
-    Serial.println("BeeSMART Honey Dosing System v3.0.0 Ready!");
+    Serial.println("BeeSMART Honey Dosing System v3.1.0 Ready!");
     Serial.println("Connect to WiFi: " + String(ap_ssid));
     Serial.println("Open browser - captive portal will redirect automatically");
     Serial.println(String('═', 80) + "\n");

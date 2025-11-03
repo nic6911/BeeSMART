@@ -1,30 +1,96 @@
 /**
- * BeeSMART Honey Dosing System - Web Interface
+ * ╔══════════════════════════════════════════════════════════════════════════════╗
+ * ║                  BeeSMART Honey Dosing System - Web Interface                ║
+ * ║                                Version 3.1.0                                 ║
+ * ╚══════════════════════════════════════════════════════════════════════════════╝
  * 
- * Modern, responsive web interface for the BeeSMART honey dosing system.
+ * @file app.js
+ * @description Modern, responsive web interface for the BeeSMART honey dosing system.
  * Features HTTP polling architecture for maximum compatibility and reliability.
  * 
- * @author Based on original work by Mogens Groth Nicolaisen
- * @version 3.0.1
+ * ARCHITECTURE:
+ * =============
+ * • HTTP Polling: 200ms intervals for real-time weight updates
+ * • RESTful API: GET /api/status, GET /api/settings, POST /api/command
+ * • Responsive UI: iOS-inspired design with golden honey theme
+ * • Multi-language: Danish, German, English support
+ * • Local Storage: Persistent statistics across sessions
+ * 
+ * KEY FEATURES:
+ * =============
+ * • Real-time weight monitoring with 200ms polling
+ * • Automatic mode for continuous filling
+ * • PID parameter tuning for different honey viscosities
+ * • Servo calibration and testing
+ * • Scale calibration with progress indication
+ * • Performance statistics with visualization
+ * • Error distribution analytics
+ * 
+ * @author Mogens Groth Nicolaisen
+ * @license Open Source - Please maintain attribution
+ * @date November 2025
  */
 
+/**
+ * Main application class for BeeSMART honey dosing system
+ * @class BeeSMART
+ */
 class BeeSMART {
+    /**
+     * Create a BeeSMART application instance
+     * @constructor
+     */
     constructor() {
-        // Network communication
+        //═══════════════════════════════════════════════════════════════════════
+        // NETWORK COMMUNICATION STATE
+        //═══════════════════════════════════════════════════════════════════════
+        /** @type {?number} Polling interval timer ID */
         this.pollingInterval = null;
+        
+        /** @type {boolean} Connection status to ESP32 backend */
         this.isConnected = false;
+        
+        /** @type {boolean} Flag to prevent concurrent status fetches */
         this.isFetchingStatus = false;
+        
+        /** @type {boolean} Flag to prevent concurrent settings fetches */
         this.isFetchingSettings = false;
 
-        // System configuration
-        this.currentLanguage = 0; // 0: Danish, 1: German, 2: English
+        //═══════════════════════════════════════════════════════════════════════
+        // SYSTEM CONFIGURATION
+        //═══════════════════════════════════════════════════════════════════════
+        /** @type {number} Current language index (0: Danish, 1: German, 2: English) */
+        this.currentLanguage = 0;
         
-        // Servo safety limits (must match firmware constraints)
+        /** @constant {number} Minimum allowed servo angle */
         this.SERVO_MIN_ANGLE = 0;
+        
+        /** @constant {number} Maximum allowed servo angle */
         this.SERVO_MAX_ANGLE = 180;
-        this.SERVO_DEFAULT_MIN = 0;    // Match firmware default
-        this.SERVO_DEFAULT_MAX = 90;   // Match firmware default
+        
+        /** @constant {number} Default minimum servo position (must match firmware) */
+        this.SERVO_DEFAULT_MIN = 0;
+        
+        /** @constant {number} Default maximum servo position (must match firmware) */
+        this.SERVO_DEFAULT_MAX = 90;
 
+        /**
+         * System settings synchronized with ESP32 firmware
+         * @type {Object}
+         * @property {number} desiredAmount - Target honey weight in grams
+         * @property {number} kp - PID proportional gain
+         * @property {number} ti - PID integral time constant
+         * @property {number} kd - PID derivative gain
+         * @property {number} servoMin - Minimum servo angle (closed position)
+         * @property {number} servoMax - Maximum servo angle (open position)
+         * @property {number} stopHysteresis - Distance before target to stop filling (grams)
+         * @property {number} minGlassWeight - Minimum weight for glass detection (grams)
+         * @property {number} maxWeight - Maximum dispensing amount (grams)
+         * @property {number} viscosity - Viscosity preset (0: Custom, 1: Low, 2: Medium, 3: High)
+         * @property {number} calWeight - Calibration weight value (grams)
+         * @property {boolean} autoState - Automatic mode enabled
+         * @property {number} lang - Language preference (synced with firmware)
+         */
         this.settings = {
             desiredAmount: 300,
             kp: 8,
@@ -41,7 +107,21 @@ class BeeSMART {
             lang: 0           // Persisted language (mirror of firmware 'language')
         };
         
-        // Statistics tracking (synced with backend)
+        //═══════════════════════════════════════════════════════════════════════
+        // STATISTICS TRACKING SYSTEM
+        //═══════════════════════════════════════════════════════════════════════
+        /**
+         * Performance statistics synchronized with backend
+         * @type {Object}
+         * @property {Array} dispensingHistory - Recent dispensing records from backend (last 10)
+         * @property {number} totalDispensed - Cumulative weight dispensed in kg
+         * @property {number} cycleCount - Total number of dispensing cycles (persistent)
+         * @property {number} averageError - Average dispensing error in grams
+         * @property {Object} errorStats - Error distribution percentages
+         * @property {number} errorStats.overshoot - Percentage over target
+         * @property {number} errorStats.undershoot - Percentage under target
+         * @property {number} errorStats.perfect - Percentage within ±2g tolerance
+         */
         this.statisticsData = {
             dispensingHistory: [], // Recent dispensing records from backend
             totalDispensed: 0,    // Total weight dispensed (kg) – cumulative if firmware provides persistent stats
@@ -54,10 +134,20 @@ class BeeSMART {
             }
         };
         
-        // Chart visualization
+        //═══════════════════════════════════════════════════════════════════════
+        // CHART VISUALIZATION
+        //═══════════════════════════════════════════════════════════════════════
+        /** @type {?Object} Chart object for accuracy visualization */
         this.accuracyChart = null;
         
-        // Multi-language support (matches firmware language system)
+        //═══════════════════════════════════════════════════════════════════════
+        // MULTI-LANGUAGE SUPPORT SYSTEM
+        //═══════════════════════════════════════════════════════════════════════
+        /**
+         * Localized text strings for all UI elements
+         * Each key contains an array with [Danish, German, English] translations
+         * @type {Object.<string, string[]>}
+         */
         this.languages = {
             // Navigation tabs
             tab1Text: ["Tapning", "Abfüllung", "Filling"],
@@ -124,13 +214,20 @@ class BeeSMART {
             tareTextHeading: ["Tare kun med tom vægt !", "Nur mit leerem Gewicht tarieren!", "Tare with empty scale only!"]
         };
 
-        // Initialize the application
+        //═══════════════════════════════════════════════════════════════════════
+        // APPLICATION INITIALIZATION
+        //═══════════════════════════════════════════════════════════════════════
         this.init();
     }
 
+    //═══════════════════════════════════════════════════════════════════════════
+    // INITIALIZATION & SETUP
+    //═══════════════════════════════════════════════════════════════════════════
+    
     /**
      * Initialize the BeeSMART application
      * Sets up event listeners, starts polling, and loads saved data
+     * @returns {void}
      */
     init() {
         this.setupEventListeners();
@@ -140,6 +237,15 @@ class BeeSMART {
         this.loadStatisticsFromStorage();
     }
     
+    //═══════════════════════════════════════════════════════════════════════════
+    // EVENT LISTENER SETUP
+    //═══════════════════════════════════════════════════════════════════════════
+    
+    /**
+     * Set up all event listeners for user interface interactions
+     * Handles tab switching, control buttons, sliders, inputs, and more
+     * @returns {void}
+     */
     setupEventListeners() {
         // Tab switching
         document.querySelectorAll('.tab-button').forEach(button => {
@@ -317,6 +423,15 @@ class BeeSMART {
         });
     }
 
+    //═══════════════════════════════════════════════════════════════════════════
+    // UI NAVIGATION & TAB MANAGEMENT
+    //═══════════════════════════════════════════════════════════════════════════
+    
+    /**
+     * Switch between application tabs (Filling, Settings, Advanced, Statistics)
+     * @param {string} tabName - Name of the tab to activate
+     * @returns {void}
+     */
     switchTab(tabName) {
         // Remove active class from all tabs and buttons
         document.querySelectorAll('.tab-button, .tab-content').forEach(el => {
@@ -336,6 +451,11 @@ class BeeSMART {
         }
     }
 
+    /**
+     * Update PID parameter input editability based on viscosity selection
+     * Only User Defined (viscosity 0) allows manual PID parameter editing
+     * @returns {void}
+     */
     updatePidParameterEditability() {
         // Only allow editing PID parameters for User Defined (viscosity 0)
         const isUserDefined = (this.settings.viscosity === 0);
@@ -349,6 +469,16 @@ class BeeSMART {
         });
     }
 
+    //═══════════════════════════════════════════════════════════════════════════
+    // NETWORK COMMUNICATION & POLLING
+    //═══════════════════════════════════════════════════════════════════════════
+    
+    /**
+     * Start HTTP polling for real-time updates
+     * Fetches status every 200ms and settings every 2 seconds
+     * @async
+     * @returns {Promise<void>}
+     */
     async startPolling() {
         if (this.pollingInterval) {
             clearInterval(this.pollingInterval);
@@ -369,6 +499,12 @@ class BeeSMART {
         }, 2000);
     }
 
+    /**
+     * Fetch current system status from ESP32 backend
+     * Includes weights, state machine status, and calibration progress
+     * @async
+     * @returns {Promise<void>}
+     */
     async fetchStatus() {
         if (this.isFetchingStatus) return;
         this.isFetchingStatus = true;
@@ -395,6 +531,12 @@ class BeeSMART {
         }
     }
 
+    /**
+     * Fetch system settings and configuration from ESP32 backend
+     * Includes PID parameters, servo limits, and user preferences
+     * @async
+     * @returns {Promise<void>}
+     */
     async fetchSettings() {
         if (this.isFetchingSettings) return;
         this.isFetchingSettings = true;
@@ -410,6 +552,18 @@ class BeeSMART {
         }
     }
 
+    //═══════════════════════════════════════════════════════════════════════════
+    // UI UPDATE FUNCTIONS
+    //═══════════════════════════════════════════════════════════════════════════
+    
+    /**
+     * Update status display elements with current system data
+     * @param {Object} data - Status data from backend API
+     * @param {string} data.message - Current status message
+     * @param {Object} data.weights - Weight measurements
+     * @param {Object} data.calibration - Calibration status and progress
+     * @returns {void}
+     */
     updateStatusDisplay(data) {
         // Update basic status
         document.getElementById('statusMessage').textContent = data.message || '';
@@ -442,6 +596,11 @@ class BeeSMART {
         }
     }
 
+    /**
+     * Update settings UI elements with configuration data from backend
+     * @param {Object} data - Settings data from backend API
+     * @returns {void}
+     */
     updateSettingsDisplay(data) {
         // Normalize API field name: firmware sends 'language'
         if (typeof data.language !== 'undefined' && typeof data.lang === 'undefined') {
@@ -471,6 +630,10 @@ class BeeSMART {
         this.updatePidParameterEditability();
     }
 
+    /**
+     * Update all slider controls with current values
+     * @returns {void}
+     */
     updateSliders() {
         const amountSlider = document.getElementById('amountSlider');
         if (amountSlider) {
@@ -510,6 +673,10 @@ class BeeSMART {
         }
     }
 
+    /**
+     * Update all input fields with current values
+     * @returns {void}
+     */
     updateInputs() {
         const inputs = {
             'amountInput': this.settings.desiredAmount,
@@ -530,6 +697,10 @@ class BeeSMART {
         });
     }
 
+    /**
+     * Update radio button states based on current settings
+     * @returns {void}
+     */
     updateRadioButtons() {
         // Update viscosity
         document.querySelectorAll('input[name="viscosity"]').forEach(radio => {
@@ -548,6 +719,16 @@ class BeeSMART {
         }
     }
 
+    //═══════════════════════════════════════════════════════════════════════════
+    // STATISTICS MANAGEMENT
+    //═══════════════════════════════════════════════════════════════════════════
+    
+    /**
+     * Update statistics data from server response
+     * Merges backend statistics with local tracking
+     * @param {Object} serverStats - Statistics object from backend
+     * @returns {void}
+     */
     updateStatisticsFromServer(serverStats) {
         if (serverStats.totalCycles !== undefined) {
             this.statisticsData.cycleCount = serverStats.totalCycles;
@@ -587,6 +768,11 @@ class BeeSMART {
         this.updateStatisticsDisplay();
     }
 
+    /**
+     * Calculate error distribution percentages from dispensing history
+     * Categorizes each cycle as overshoot, undershoot, or perfect (±2g tolerance)
+     * @returns {void}
+     */
     calculateErrorDistribution() {
         if (this.statisticsData.dispensingHistory.length === 0) {
             this.statisticsData.errorStats = { overshoot: 0, undershoot: 0, perfect: 0 };
@@ -614,6 +800,11 @@ class BeeSMART {
         this.statisticsData.errorStats.perfect = Math.round((perfect / total) * 100);
     }
 
+    /**
+     * Update statistics display elements with current data
+     * Updates performance cards and error distribution bars
+     * @returns {void}
+     */
     updateStatisticsDisplay() {
         // Update performance cards
         const totalDispensedElement = document.getElementById('totalDispensed');
@@ -640,6 +831,10 @@ class BeeSMART {
         this.updateErrorBars();
     }
 
+    /**
+     * Update error distribution bar chart elements
+     * @returns {void}
+     */
     updateErrorBars() {
         const overshootBar = document.getElementById('overshootBar');
         const undershootBar = document.getElementById('undershootBar');
@@ -664,10 +859,24 @@ class BeeSMART {
         }
     }
 
+    /**
+     * Initialize statistics system
+     * Loads persistent data from local storage
+     * @returns {void}
+     */
     initializeStatistics() {
         this.loadStatisticsFromStorage();
     }
 
+    //═══════════════════════════════════════════════════════════════════════════
+    // CHART VISUALIZATION
+    //═══════════════════════════════════════════════════════════════════════════
+    
+    /**
+     * Initialize accuracy chart canvas with high-DPI rendering
+     * Sets up chart context and prepares for data visualization
+     * @returns {void}
+     */
     initializeChart() {
         const canvas = document.getElementById('accuracyChart');
         if (!canvas) return;
@@ -696,6 +905,11 @@ class BeeSMART {
         this.drawChart();
     }
 
+    /**
+     * Draw accuracy trend chart showing target vs actual weights
+     * Renders line chart with grid, axes, and data points
+     * @returns {void}
+     */
     drawChart() {
         if (!this.accuracyChart || !this.accuracyChart.ctx) return;
 
@@ -806,6 +1020,11 @@ class BeeSMART {
         }
     }
 
+    /**
+     * Update chart with latest data from statistics
+     * Refreshes chart visualization with last 10 data points
+     * @returns {void}
+     */
     updateChart() {
         if (this.accuracyChart) {
             this.accuracyChart.data = this.statisticsData.dispensingHistory.slice(-10);
@@ -813,6 +1032,11 @@ class BeeSMART {
         }
     }
 
+    /**
+     * Clear all statistics data and reset counters
+     * Called when user confirms statistics reset
+     * @returns {void}
+     */
     clearStatistics() {
         this.statisticsData = {
             dispensingHistory: [],
@@ -826,6 +1050,11 @@ class BeeSMART {
         this.saveStatisticsToStorage();
     }
 
+    /**
+     * Load statistics from browser local storage
+     * Restores persistent statistics across browser sessions
+     * @returns {void}
+     */
     loadStatisticsFromStorage() {
         try {
             const saved = localStorage.getItem('beesmart_statistics');
@@ -838,6 +1067,11 @@ class BeeSMART {
         }
     }
 
+    /**
+     * Save statistics to browser local storage
+     * Persists statistics data across browser sessions
+     * @returns {void}
+     */
     saveStatisticsToStorage() {
         try {
             localStorage.setItem('beesmart_statistics', JSON.stringify(this.statisticsData));
@@ -846,6 +1080,15 @@ class BeeSMART {
         }
     }
 
+    //═══════════════════════════════════════════════════════════════════════════
+    // UI FEEDBACK & STATUS UPDATES
+    //═══════════════════════════════════════════════════════════════════════════
+    
+    /**
+     * Update connection status indicator
+     * @param {boolean} connected - True if connected to ESP32, false otherwise
+     * @returns {void}
+     */
     updateConnectionStatus(connected) {
         const statusElement = document.getElementById('connectionStatus');
         const indicator = statusElement?.querySelector('.connection-indicator');
@@ -860,6 +1103,11 @@ class BeeSMART {
         }
     }
 
+    /**
+     * Update all UI text elements to current selected language
+     * Iterates through all elements with data-key attributes
+     * @returns {void}
+     */
     updateLanguage() {
         document.querySelectorAll('[data-key]').forEach(element => {
             const key = element.getAttribute('data-key');
@@ -869,6 +1117,17 @@ class BeeSMART {
         });
     }
 
+    //═══════════════════════════════════════════════════════════════════════════
+    // COMMAND TRANSMISSION TO ESP32
+    //═══════════════════════════════════════════════════════════════════════════
+    
+    /**
+     * Send command to ESP32 backend via HTTP POST
+     * @async
+     * @param {string} command - Command name (e.g., 'start', 'stop', 'tare')
+     * @param {Object} [payload={}] - Command parameters
+     * @returns {Promise<Object>} Response object with success status
+     */
     async sendCommand(command, payload = {}) {
         try {
             const response = await fetch('/api/command', {
@@ -895,7 +1154,14 @@ class BeeSMART {
     }
 }
 
-// Initialize the application when DOM is loaded
+//═══════════════════════════════════════════════════════════════════════════════
+// APPLICATION ENTRY POINT
+//═══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Initialize the BeeSMART application when DOM is fully loaded
+ * Creates global instance accessible as window.beesmart
+ */
 document.addEventListener('DOMContentLoaded', () => {
     window.beesmart = new BeeSMART();
 });

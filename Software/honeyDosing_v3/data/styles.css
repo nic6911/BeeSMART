@@ -1,24 +1,54 @@
 /**
- * BeeSMART Honey Dosing System - Modern Responsive Styling
+ * ╔══════════════════════════════════════════════════════════════════════════════╗
+ * ║              BeeSMART Honey Dosing System - Modern Responsive Styling        ║
+ * ║                                 Version 3.1.0                                ║
+ * ╚══════════════════════════════════════════════════════════════════════════════╝
  * 
- * A modern, iOS-inspired interface with golden honey color palette.
+ * @file styles.css
+ * @description Modern, iOS-inspired interface with golden honey color palette.
  * Optimized for touch devices and desktop use with responsive design.
  * 
- * @author BeeSMART Development Team
- * @version 3.0.1
+ * DESIGN PHILOSOPHY:
+ * ==================
+ * • Golden honey color palette for brand consistency
+ * • iOS-inspired modern controls and interactions
+ * • Touch-optimized with minimum 44px hit targets
+ * • Responsive design supporting mobile, tablet, and desktop
+ * • Accessible with proper contrast and semantic structure
+ * • Smooth animations and transitions for premium feel
+ * 
+ * COLOR PALETTE:
+ * ==============
+ * Primary:     Golden Rod (#DAA520) - Warm, professional honey yellow
+ * Secondary:   Dark Orange (#FF8C00) - Complementary accent
+ * Success:     Muted Green (#8FBC8F) - Gentle success indicators
+ * Backgrounds: Cornsilk/Off-white - Light, warm interface
+ * Text:        Dark Gray (#2F2F2F) - Easy on eyes, professional
+ * 
+ * RESPONSIVE BREAKPOINTS:
+ * =======================
+ * Mobile:  < 480px
+ * Tablet:  480px - 768px
+ * Desktop: > 768px
+ * 
+ * @author Mogens Groth Nicolaisen 
+ * @license Open Source - Please maintain attribution
+ * @date November 2025
  */
 
-/* ================================== */
-/* EXTERNAL FONT IMPORTS              */
-/* ================================== */
+/*═══════════════════════════════════════════════════════════════════════════════
+  EXTERNAL FONT IMPORTS
+══════════════════════════════════════════════════════════════════════════════*/
 @import url('https://fonts.googleapis.com/css2?family=Cooper+Black&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&display=swap');
 
-/* ================================== */
-/* CSS CUSTOM PROPERTIES              */
-/* ================================== */
+/*═══════════════════════════════════════════════════════════════════════════════
+  CSS CUSTOM PROPERTIES (DESIGN TOKENS)
+══════════════════════════════════════════════════════════════════════════════*/
 :root {
-    /* BeeSMART Golden Honey color palette */
+    /*───────────────────────────────────────────────────────────────────────────
+      COLOR PALETTE - BeeSMART Golden Honey Theme
+    ───────────────────────────────────────────────────────────────────────────*/
     --primary-color: #DAA520;        /* Golden Rod - pleasant, warm yellow */
     --primary-light: #F4D03F;        /* Light golden yellow for highlights */
     --primary-dark: #B7950B;         /* Darker golden for contrast */
@@ -33,35 +63,43 @@
     --text-secondary: #8B7355;       /* Warm brown-gray */
     --separator-color: #DDD3C0;      /* Warm beige separator */
     --overlay-color: rgba(139, 115, 85, 0.4);  /* Warm brown overlay */
-    --target-color: #007AFF;       /* Same as primary for target indicators */
-    --actual-color: #4CAF50;       /* Same as success for actual indicators */
+    --target-color: #007AFF;         /* Blue for target indicators in charts */
+    --actual-color: #4CAF50;         /* Green for actual indicators in charts */
     
-    /* Spacing */
+    /*───────────────────────────────────────────────────────────────────────────
+      SPACING SCALE - Consistent spacing throughout interface
+    ───────────────────────────────────────────────────────────────────────────*/
     --spacing-xs: 4px;
     --spacing-sm: 8px;
     --spacing-md: 16px;
     --spacing-lg: 24px;
     --spacing-xl: 32px;
     
-    /* Border radius */
+    /*───────────────────────────────────────────────────────────────────────────
+      BORDER RADIUS - Consistent rounding for modern look
+    ───────────────────────────────────────────────────────────────────────────*/
     --radius-sm: 8px;
     --radius-md: 12px;
     --radius-lg: 16px;
     --radius-xl: 20px;
     
-    /* Shadows */
+    /*───────────────────────────────────────────────────────────────────────────
+      SHADOWS - Depth and elevation for cards and buttons
+    ───────────────────────────────────────────────────────────────────────────*/
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
     
-    /* Transitions */
+    /*───────────────────────────────────────────────────────────────────────────
+      TRANSITIONS - Smooth, consistent animations
+    ───────────────────────────────────────────────────────────────────────────*/
     --transition-fast: 0.2s ease-out;
     --transition-normal: 0.3s ease-out;
 }
 
-/* ================================== */
-/* GLOBAL RESET & BASE STYLES         */
-/* ================================== */
+/*═══════════════════════════════════════════════════════════════════════════════
+  GLOBAL RESET & BASE STYLES
+══════════════════════════════════════════════════════════════════════════════*/
 * {
     box-sizing: border-box;
     margin: 0;
@@ -86,9 +124,10 @@ body {
     overflow: hidden;
 }
 
-/* ================================== */
-/* APPLICATION HEADER                 */
-/* ================================== */
+/*═══════════════════════════════════════════════════════════════════════════════
+  APPLICATION HEADER
+  Brand identity with logo and version information
+══════════════════════════════════════════════════════════════════════════════*/
 .app-header {
     background: linear-gradient(135deg, #FFD700, #FFA500);
     color: #2C1810;
@@ -133,9 +172,10 @@ body {
     color: #8B4513;
 }
 
-/* ================================== */
-/* TAB NAVIGATION                     */
-/* ================================== */
+/*═══════════════════════════════════════════════════════════════════════════════
+  TAB NAVIGATION
+  Main navigation between application sections
+══════════════════════════════════════════════════════════════════════════════*/
 .tab-navigation {
     display: flex;
     background: var(--card-background);
@@ -190,9 +230,10 @@ body {
     transform: scale(0.95);
 }
 
-/* ================================== */
-/* CONTENT LAYOUT                     */
-/* ================================== */
+/*═══════════════════════════════════════════════════════════════════════════════
+  CONTENT LAYOUT & TAB SYSTEM
+  Tabbed content container with smooth transitions
+══════════════════════════════════════════════════════════════════════════════*/
 .content-container {
     padding: var(--spacing-md);
     min-height: calc(100vh - 200px);
@@ -213,9 +254,10 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* ================================== */
-/* SECTION CARDS & CONTAINERS         */
-/* ================================== */
+/*═══════════════════════════════════════════════════════════════════════════════
+  SECTION CARDS & CONTAINERS
+  Card-based layout for content organization
+══════════════════════════════════════════════════════════════════════════════*/
 .section-card {
     background: var(--card-background);
     border-radius: var(--radius-lg);
@@ -238,9 +280,10 @@ body {
     color: var(--text-primary);
 }
 
-/* ================================== */
-/* BUTTONS & INTERACTIVE CONTROLS     */
-/* ================================== */
+/*═══════════════════════════════════════════════════════════════════════════════
+  BUTTONS & INTERACTIVE CONTROLS
+  Primary, secondary, and utility button styles
+══════════════════════════════════════════════════════════════════════════════*/
 .primary-button {
     background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
     color: white;
@@ -331,11 +374,14 @@ body {
     flex: 1;
 }
 
-/* ================================== */
-/* FORM CONTROLS & INPUTS             */
-/* ================================== */
+/*═══════════════════════════════════════════════════════════════════════════════
+  FORM CONTROLS & INPUTS
+  Modern input fields, sliders, toggles, and segmented controls
+══════════════════════════════════════════════════════════════════════════════*/
 
-/* Toggle Switch Component */
+/*───────────────────────────────────────────────────────────────────────────
+  Toggle Switch Component
+───────────────────────────────────────────────────────────────────────────*/
 .toggle-group {
     display: flex;
     align-items: center;
@@ -391,7 +437,9 @@ body {
     transform: translateX(20px);
 }
 
-/* Modern Inputs */
+/*───────────────────────────────────────────────────────────────────────────
+  Text Input Fields
+───────────────────────────────────────────────────────────────────────────*/
 .input-group {
     margin-bottom: var(--spacing-md);
     position: relative;
@@ -422,7 +470,9 @@ body {
     box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.2);
 }
 
-/* Modern Sliders */
+/*───────────────────────────────────────────────────────────────────────────
+  Range Sliders
+───────────────────────────────────────────────────────────────────────────*/
 .slider-group {
     margin-bottom: var(--spacing-lg);
 }
@@ -485,7 +535,9 @@ body {
     margin-top: var(--spacing-xs);
 }
 
-/* Segmented Control */
+/*───────────────────────────────────────────────────────────────────────────
+  Segmented Control (Radio Button Group)
+───────────────────────────────────────────────────────────────────────────*/
 .segmented-control {
     display: flex;
     background: var(--separator-color);
@@ -520,7 +572,9 @@ body {
     box-shadow: var(--shadow-sm);
 }
 
-/* Info Display */
+/*───────────────────────────────────────────────────────────────────────────
+  Information Display Components
+───────────────────────────────────────────────────────────────────────────*/
 .info-display {
     margin-bottom: var(--spacing-md);
 }
@@ -548,9 +602,14 @@ body {
     font-size: 1.125rem;
 }
 
-/* ================================== */
-/* STATUS & FEEDBACK COMPONENTS       */
-/* ================================== */
+/*═══════════════════════════════════════════════════════════════════════════════
+  STATUS & FEEDBACK COMPONENTS
+  User feedback, status messages, and progress indicators
+══════════════════════════════════════════════════════════════════════════════*/
+
+/*───────────────────────────────────────────────────────────────────────────
+  Status Messages with Pulse Animation
+───────────────────────────────────────────────────────────────────────────*/
 .status-message {
     position: relative;
     background: linear-gradient(135deg, #E3F2FD, #BBDEFB);

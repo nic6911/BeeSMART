@@ -1,44 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Document Metadata -->
+    <!--═══════════════════════════════════════════════════════════════════════════
+    ║                    BeeSMART Honey Dosing System                              ║
+    ║                         Web User Interface                                   ║
+    ║                           Version 3.1.0                                      ║
+    ╠══════════════════════════════════════════════════════════════════════════════╣
+    ║  Modern, responsive web interface for precision honey dispensing control     ║
+    ║  Supports multi-language operation and real-time weight monitoring          ║
+    ║                                                                              ║
+    ║  Author: Mogens Groth Nicolaisen                                            ║
+    ║  License: Open Source - Please maintain attribution                                                       ║
+    ╚══════════════════════════════════════════════════════════════════════════════╝-->
+    
+    <!-- ================================== -->
+    <!-- DOCUMENT METADATA                  -->
+    <!-- ================================== -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BeeSMART Honey Dosing System - Precision honey dispensing control">
+    <meta name="author" content="Mogens Groth Nicolaisen">
     <title>BeeSMART Honey Dosing System</title>
     
-    <!-- Stylesheets -->
+    <!-- ================================== -->
+    <!-- STYLESHEETS                        -->
+    <!-- ================================== -->
     <link rel="stylesheet" href="styles.css">
     
-    <!-- Progressive Web App Icons -->
+    <!-- ================================== -->
+    <!-- PROGRESSIVE WEB APP CONFIGURATION  -->
+    <!-- ================================== -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     
-    <!-- Mobile App Configuration -->
+    <!-- ================================== -->
+    <!-- MOBILE APP OPTIMIZATION            -->
+    <!-- ================================== -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#007AFF">
 </head>
 <body>
-    <!-- Main Application Container -->
+    <!--═══════════════════════════════════════════════════════════════════════════
+    ║                      MAIN APPLICATION CONTAINER                              ║
+    ╚══════════════════════════════════════════════════════════════════════════════╝-->
     <div class="app-container">
         
-        <!-- ================================== -->
-        <!-- APPLICATION HEADER                 -->
-        <!-- ================================== -->
+        <!--═══════════════════════════════════════════════════════════════════════
+        ║                         APPLICATION HEADER                               ║
+        ║  Brand identity with logo and version information                       ║
+        ╚══════════════════════════════════════════════════════════════════════════╝-->
         <header class="app-header">
             <div class="header-content">
                 <img src="beesmart_bee.png" alt="BeeSMART Logo" class="app-logo">
                 <div class="header-text">
                     <h1 class="app-title">BeeSMART</h1>
-                    <div class="version">v3.0.1</div>
+                    <div class="version">v3.1.0</div>
                 </div>
             </div>
         </header>
 
-        <!-- ================================== -->
-        <!-- TAB NAVIGATION                     -->
-        <!-- ================================== -->
+        <!--═══════════════════════════════════════════════════════════════════════
+        ║                         TAB NAVIGATION BAR                               ║
+        ║  Main navigation between Filling, Settings, Advanced, and Statistics    ║
+        ╚══════════════════════════════════════════════════════════════════════════╝-->
         <nav class="tab-navigation">
             <button class="tab-button active" data-tab="filling" data-key="tab1Text">
                 <span>Tapning</span>
@@ -54,13 +80,16 @@
             </button>
         </nav>
 
-        <!-- ================================== -->
-        <!-- MAIN CONTENT CONTAINER             -->
-        <!-- ================================== -->
+        <!--═══════════════════════════════════════════════════════════════════════
+        ║                      MAIN CONTENT CONTAINER                              ║
+        ║  Contains all tabbed content sections for the application               ║
+        ╚══════════════════════════════════════════════════════════════════════════╝-->
         <main class="content-container">
             
-            <!-- ===== FILLING TAB ===== -->
-            <!-- Main dosing control interface -->
+            <!--═══════════════════════════════════════════════════════════════════
+            ║                         FILLING TAB                                  ║
+            ║  Main dosing control interface with start/stop and weight display   ║
+            ╚══════════════════════════════════════════════════════════════════════╝-->
             <div id="filling" class="tab-content active">
                 <div class="section-card">
                     <div class="control-group">
@@ -101,8 +130,10 @@
                 </div>
             </div>
 
-            <!-- ===== SETTINGS TAB ===== -->
-            <!-- Basic system configuration -->
+            <!--═══════════════════════════════════════════════════════════════════
+            ║                        SETTINGS TAB                                  ║
+            ║  Basic system configuration and user preferences                    ║
+            ╚══════════════════════════════════════════════════════════════════════╝-->
             <div id="settings" class="tab-content">
                 <div class="section-card">
                     <h3 class="section-title" data-key="SPText">Ønsket Mængde</h3>
@@ -173,8 +204,10 @@
 
             </div>
 
-            <!-- ===== ADVANCED TAB ===== -->
-            <!-- PID control, servo settings, and calibration -->
+            <!--═══════════════════════════════════════════════════════════════════
+            ║                        ADVANCED TAB                                  ║
+            ║  PID control, servo settings, and scale calibration                 ║
+            ╚══════════════════════════════════════════════════════════════════════╝-->
             <div id="advanced" class="tab-content">
                 <div class="section-card">
                     <h3 class="section-title" data-key="pidHeading">PID Kontrol Parametre</h3>
@@ -241,8 +274,10 @@
                 </div>
 
 
-
-                <!-- Calibration Section (moved from Calibration tab) -->
+                <!-- ========================================= -->
+                <!-- SCALE CALIBRATION SECTION                 -->
+                <!-- Precision scale calibration with progress -->
+                <!-- ========================================= -->
                 <div class="section-card">
                     <h3 class="section-title" data-key="calSectionHeading">Vægt Kalibrering</h3>
                     <div class="info-display">
@@ -284,8 +319,10 @@
 
             </div>
 
-            <!-- ===== STATISTICS TAB ===== -->
-            <!-- Performance metrics and charts -->
+            <!--═══════════════════════════════════════════════════════════════════
+            ║                       STATISTICS TAB                                 ║
+            ║  Performance metrics, charts, and dispensing analytics              ║
+            ╚══════════════════════════════════════════════════════════════════════╝-->
             <div id="statistics" class="tab-content">
                 <!-- Basic Statistics Overview -->
                 <div class="section-card">
@@ -342,7 +379,10 @@
 
 
 
-                <!-- Error Distribution -->
+                <!-- ========================================= -->
+                <!-- ERROR DISTRIBUTION ANALYSIS               -->
+                <!-- Visual breakdown of dispensing accuracy   -->
+                <!-- ========================================= -->
                 <div class="section-card">
                     <h3 class="section-title" data-key="errorDistributionHeading">Fejl Fordeling</h3>
                     <div class="error-bars">
@@ -374,17 +414,24 @@
         </main>
     </div>
 
-    <!-- ================================== -->
-    <!-- GLOBAL UI ELEMENTS                -->
-    <!-- ================================== -->
+    <!--═══════════════════════════════════════════════════════════════════════════
+    ║                        GLOBAL UI ELEMENTS                                    ║
+    ║  Persistent UI components visible across all tabs                           ║
+    ╚══════════════════════════════════════════════════════════════════════════════╝-->
     
-    <!-- Connection Status Indicator -->
+    <!-- ========================================= -->
+    <!-- CONNECTION STATUS INDICATOR               -->
+    <!-- Real-time ESP32 connection monitoring     -->
+    <!-- ========================================= -->
     <div id="connectionStatus" class="connection-status">
         <div class="connection-indicator"></div>
         <span>Forbinder...</span>
     </div>
 
-    <!-- Application JavaScript -->
+    <!--═══════════════════════════════════════════════════════════════════════════
+    ║                      APPLICATION JAVASCRIPT                                  ║
+    ║  Main application logic and ESP32 communication                             ║
+    ╚══════════════════════════════════════════════════════════════════════════════╝-->
     <script src="app.js"></script>
 </body>
 </html>
