@@ -1,7 +1,7 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════════════════╗
  * ║                          BeeSMART Honey Dosing System                        ║
- * ║                                 Version 3.0.0                                ║
+ * ║                                 Version 3.1.0                                ║
  * ╚══════════════════════════════════════════════════════════════════════════════╝
  * 
  * @file honeyDosing_v3.ino
@@ -62,10 +62,10 @@
  * AUTHOR: Mogens Groth Nicolaisen 
  * 
  * LICENSE: Open Source - Please maintain attribution
- * DATE: October 2025
+ * DATE: November 2025
  * 
  * ╔══════════════════════════════════════════════════════════════════════════════╗
- * ║  For support and updates, visit: https://github.com/beesmart-honey-dosing    ║
+ * ║  For support and updates, visit: https://github.com/nic6911/BeeSMART         ║
  * ╚══════════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -131,21 +131,50 @@ uint16_t glasWeight = 0;          // Empty glass weight (grams)
 uint8_t stateMachine = 4;         // Main dosing state (0-4)
 uint8_t calStateMachine = 0;      // Calibration state (0-4)
 
+// Stop condition safety variables
+uint8_t stopConditionCount = 0;   // Counter for stable stop condition
+const uint8_t STOP_CONFIRM_CYCLES = 3; // Require 3 consecutive cycles before stopping
+
+// Rolling average for stable weight readings
+const uint8_t WEIGHT_SAMPLES = 5;     // Number of samples for rolling average
+int16_t weightSamples[WEIGHT_SAMPLES]; // Circular buffer for weight samples
+uint8_t sampleIndex = 0;              // Current position in circular buffer
+bool samplesInitialized = false;      // Flag to track if buffer is filled
+int32_t weightSum = 0;                // Sum of current samples for quick calculation
+
 // System configuration
-uint8_t gainSelector = 0;         // Current viscosity preset (0-3)
+uint8_t gainSelector = 2;         // Current viscosity preset (0-3), default: Medium viscosity
+
+//──────────────────────────────────────────────────────────────────────────────
+// Persistent cumulative statistics (across reboots)
+// Added in v3.1.0 - appended to settings file for backward compatibility
+//──────────────────────────────────────────────────────────────────────────────
+uint32_t cumulativeDispensedGrams = 0;  // Sum of all actual dispensed grams
+int32_t  cumulativeTotalError    = 0;   // Sum of (actual - target) grams
+uint32_t cumulativeTargetGrams   = 0;   // Sum of target grams (for alternate metrics)
+
 bool autoState = 0;               // Automatic mode enabled
 int looptime = 20;                // PID loop time in milliseconds
 
-// HTTP client state tracking (for optimization)
-struct ClientData {
-  unsigned long lastUpdate;
-  uint8_t stateMachine;
-  int16_t actualWeight;
-  uint16_t adjustedWeight;
-  uint16_t glasWeight;
-  uint8_t calStateMachine;
+//═══════════════════════════════════════════════════════════════════════════════
+// DISPENSING STATISTICS SYSTEM
+//═══════════════════════════════════════════════════════════════════════════════
+/**
+ * Simple dispensing record structure for tracking performance metrics.
+ * Maintains basic statistics without complex learning algorithms.
+ */
+struct DispensingRecord {
+  float targetWeight;                   // Target weight for this cycle
+  float actualWeight;                   // Measured final weight
+  float error;                          // Dispensing error (actual - target)
+  unsigned long timestamp;              // When dispensing was completed
 };
-ClientData lastSentData = {0, 255, -999, 65535, 65535, 255};
+
+// Statistics storage
+DispensingRecord dispensingHistory[10]; // Rolling buffer for recent history
+int historyIndex = 0;                   // Current position in circular buffer
+int historyCount = 0;                   // Number of valid records (max 10)
+int totalDispensingCycles = 0;          // Total lifetime dispensing count
 
 //═══════════════════════════════════════════════════════════════════════════════
 // SYSTEM LIMITS AND CONFIGURATION
@@ -154,11 +183,11 @@ ClientData lastSentData = {0, 255, -999, 65535, 65535, 255};
 uint16_t minWeight = 50;          // Minimum dosing amount (grams)
 uint16_t maxWeight = 1000;        // Default maximum dosing amount (grams) 
 uint16_t maxWeightLim = 20000;    // Absolute maximum weight limit (grams)
-int stopHysteresis = 5;           // Stop dosing X grams before target
+int stopHysteresis = 2;           // Stop dosing X grams before target (reduced for better accuracy)
 int minGlassWeight = 10;          // Minimum glass weight for detection (grams)
 
 // Servo configuration
-int servoMin = 90;                // Servo minimum position (degrees)
+int servoMin = 0;                // Servo minimum position (degrees)
 int servoMax = 90;                // Servo maximum position (degrees)
 
 // Language and user interface
@@ -187,15 +216,24 @@ bool calAveraging = false;        // Calibration averaging in progress
 String calWeight = "250";         // Calibration weight value (grams)
 uint8_t cnt = 0;                  // General purpose counter
 
+// Servo test mode variables  
+bool servoTestMode = false;       // Servo test mode active flag
+float servoTestOutput = 0.0;      // Test output value (0.0-1.0)
+unsigned long servoTestStartTime = 0; // Test start time for timeout
+
+// Calibration timing variables
+bool tareInProgress = false;      // Tare operation in progress
+unsigned long tareStartTime = 0;  // Tare operation start time
+
 //═══════════════════════════════════════════════════════════════════════════════
 // PERSISTENT SETTINGS SYSTEM
 //═══════════════════════════════════════════════════════════════════════════════
 // Settings string format: kP0,Ti0,kD0,kP1,Ti1,kD1,kP2,Ti2,kD2,kP3,Ti3,kD3,
 //                        desiredAmount,servoMin,servoMax,lang,hysteresis,
-//                        glasWeight,maxWeight,viscosity
-String settings = "8,10,5,8,10,5,8,7,2,10,0,1,300,1,180,0,5,10,1000,0";
+//                        glasWeight,maxWeight,totalCycles,viscosity
+String settings = "8,10,5,8,10,5,8,7,2,10,0,1,300,1,180,0,5,10,1000,0,0";
 String array;                     // File read buffer
-int indx[20];                     // Index array for settings parsing
+int indx[25];                     // Index array for settings parsing (increased for safety)
 String desiredAmount = String(minWeight + maxWeight/2);  // Current target weight
 
 //═══════════════════════════════════════════════════════════════════════════════
@@ -296,13 +334,14 @@ void readFile(fs::FS &fs, const char * path) {
     }
     file.close();
     
-    // Parse comma-separated values (CSV format)
-    // Settings format: kP0,Ti0,kD0,kP1,Ti1,kD1,kP2,Ti2,kD2,kP3,Ti3,kD3,
-    //                  amount,servoMin,servoMax,lang,hysteresis,glassWeight,maxWeight,viscosity
-    indx[0] = 0;
-    for (int i = 1; i <= 19; i++) {
-        indx[i] = array.indexOf(',', indx[i-1] + 1);
-    }
+  // Parse comma-separated values (CSV format)
+  // Legacy format (<=v3.0.0): kP0,Ti0,kD0,kP1,Ti1,kD1,kP2,Ti2,kD2,kP3,Ti3,kD3,
+  //                            amount,servoMin,servoMax,lang,hysteresis,glassWeight,maxWeight,totalCycles,viscosity
+  // Extended format (>=v3.1.0) appends: cumulativeDispensedGrams,cumulativeTotalError,cumulativeTargetGrams
+  indx[0] = 0;
+  for (int i = 1; i <= 24; i++) { // allow room for new fields
+    indx[i] = array.indexOf(',', indx[i-1] + 1);
+  }
     
     // Load PID parameters for all 4 viscosity presets
     // Set 0: User Defined, Set 1: Low, Set 2: Medium, Set 3: High
@@ -321,11 +360,30 @@ void readFile(fs::FS &fs, const char * path) {
     stopHysteresis = array.substring(indx[16] + 1, indx[17]).toInt();
     minGlassWeight = array.substring(indx[17] + 1, indx[18]).toInt();
     maxWeight = array.substring(indx[18] + 1, indx[19]).toInt();
+    totalDispensingCycles = array.substring(indx[19] + 1, indx[20]).toInt();
     
-    // Load viscosity preset selector (optional parameter)
-    if (indx[19] != -1) {
-        gainSelector = array.substring(indx[19] + 1).toInt();
+  // Load viscosity preset selector (optional parameter)
+  if (indx[20] != -1) {
+    if (indx[21] != -1) {
+      gainSelector = array.substring(indx[20] + 1, indx[21]).toInt();
+    } else {
+      gainSelector = array.substring(indx[20] + 1).toInt();
     }
+  }
+
+  // Load cumulative statistics if present (require at least indices 21-23)
+  if (indx[21] != -1 && indx[22] != -1 && indx[23] != -1) {
+    cumulativeDispensedGrams = array.substring(indx[21] + 1, indx[22]).toInt();
+    cumulativeTotalError    = array.substring(indx[22] + 1, indx[23]).toInt();
+    if (indx[24] != -1) {
+      cumulativeTargetGrams = array.substring(indx[23] + 1, indx[24]).toInt();
+    } else {
+      cumulativeTargetGrams = array.substring(indx[23] + 1).toInt();
+    }
+    Serial.println("Loaded cumulative stats: disp=" + String(cumulativeDispensedGrams) + "g errSum=" + String(cumulativeTotalError) + "g tgt=" + String(cumulativeTargetGrams) + "g");
+  } else {
+    Serial.println("Legacy settings file - cumulative stats start at zero");
+  }
     
     Serial.println("Settings loaded successfully from: " + String(path));
 }
@@ -398,15 +456,19 @@ void saveSettings() {
     }
     
     // Construct complete settings string
-    settings = pidParams + "," + 
-               desiredAmount + "," + 
-               String(servoMin) + "," + 
-               String(servoMax) + "," + 
-               String(lang) + "," + 
-               String(stopHysteresis) + "," + 
-               String(minGlassWeight) + "," + 
-               String(maxWeight) + "," + 
-               String(gainSelector);
+  settings = pidParams + "," + 
+         desiredAmount + "," + 
+         String(servoMin) + "," + 
+         String(servoMax) + "," + 
+         String(lang) + "," + 
+         String(stopHysteresis) + "," + 
+         String(minGlassWeight) + "," + 
+         String(maxWeight) + "," + 
+         String(totalDispensingCycles) + "," + 
+         String(gainSelector) + "," +
+         String(cumulativeDispensedGrams) + "," +
+         String(cumulativeTotalError) + "," +
+         String(cumulativeTargetGrams);
     
     // Write to persistent storage
     writeFile(LittleFS, "/data.txt", settings);
@@ -442,6 +504,143 @@ void checkAutoSave() {
     if (settingsChanged && (millis() - lastSettingChange >= AUTOSAVE_DELAY)) {
         saveSettings();
         Serial.println("Auto-saved settings after " + String(AUTOSAVE_DELAY/1000) + " second delay");
+    }
+}
+
+/**
+ * @brief Record basic dispensing statistics
+ * 
+ * Records dispensing data for performance tracking and statistics display.
+ * Uses a circular buffer to maintain the last 10 dispensing cycles.
+ */
+void recordDispensingStats() {
+    if (setpoint > 0) {
+        // Create new record
+        DispensingRecord newRecord;
+        newRecord.targetWeight = setpoint;
+        newRecord.actualWeight = adjustedWeight;
+        newRecord.error = adjustedWeight - setpoint;
+        newRecord.timestamp = millis();
+        
+        // Store in circular buffer
+        dispensingHistory[historyIndex] = newRecord;
+        historyIndex = (historyIndex + 1) % 10;
+        
+        if (historyCount < 10) {
+            historyCount++;
+        }
+        
+    // Increment total cycle count
+    totalDispensingCycles++;
+
+    // Update cumulative persistent statistics
+    cumulativeDispensedGrams += (uint32_t)adjustedWeight;
+    cumulativeTargetGrams   += (uint32_t)setpoint;
+    cumulativeTotalError    += (int32_t)(adjustedWeight - setpoint);
+        
+    // Trigger settings save to preserve statistics (debounced)
+    if(!(totalDispensingCycles % 20)){
+      markSettingsChanged();
+    }
+    }
+}
+
+/**
+ * @brief Calculate basic statistics from dispensing history
+ * 
+ * @param avgError Pointer to store average error in grams
+ * @param totalDispensed Pointer to store total dispensed weight in kg
+ * 
+ * Calculates basic performance metrics from the circular buffer history.
+ */
+void calculateBasicStats(float* avgError, float* totalDispensed) {
+    *avgError = 0.0;
+    *totalDispensed = 0.0;
+    
+    if (historyCount == 0) return;
+    
+    float totalError = 0.0;
+    
+    for (int i = 0; i < historyCount; i++) {
+        totalError += dispensingHistory[i].error;
+        *totalDispensed += dispensingHistory[i].actualWeight;
+    }
+    
+    *avgError = totalError / historyCount;
+    *totalDispensed = *totalDispensed / 1000.0; // Convert grams to kg
+}
+
+/**
+ * @brief Initialize weight sampling system
+ * 
+ * Sets up the rolling average buffer for stable weight readings.
+ * Should be called during system startup.
+ */
+void initializeWeightSampling() {
+    sampleIndex = 0;
+    samplesInitialized = false;
+    weightSum = 0;
+    
+    // Clear sample buffer
+    for (int i = 0; i < WEIGHT_SAMPLES; i++) {
+        weightSamples[i] = 0;
+    }
+    
+    Serial.println("Weight sampling system initialized with " + String(WEIGHT_SAMPLES) + " sample rolling average");
+}
+
+/**
+ * @brief Get stable weight reading using rolling average
+ * 
+ * @return Averaged weight reading from the last WEIGHT_SAMPLES readings
+ * 
+ * Takes multiple rapid samples from the HX711 and maintains a rolling average
+ * to provide stable, noise-free weight readings.
+ */
+int16_t getStableWeight() {
+    // Get new raw reading from scale
+    int16_t newReading = scale.get_units(1); // Single reading for speed
+    
+    // Add new reading to circular buffer
+    if (samplesInitialized) {
+        // Remove old sample from sum
+        weightSum -= weightSamples[sampleIndex];
+    }
+    
+    // Add new sample
+    weightSamples[sampleIndex] = newReading;
+    weightSum += newReading;
+    
+    // Move to next position in circular buffer
+    sampleIndex = (sampleIndex + 1) % WEIGHT_SAMPLES;
+    
+    // Check if we've filled the buffer for the first time
+    if (!samplesInitialized && sampleIndex == 0) {
+        samplesInitialized = true;
+        Serial.println("Weight sampling buffer filled - stable readings available");
+    }
+    
+    // Return average if buffer is full, otherwise return current reading
+    if (samplesInitialized) {
+        return weightSum / WEIGHT_SAMPLES;
+    } else {
+        return newReading; // Use direct reading until buffer is full
+    }
+}
+
+/**
+ * @brief Initialize statistics system
+ * 
+ * Clears all dispensing history and resets counters to zero.
+ * Called during system startup or when statistics are reset.
+ */
+void initializeStats() {
+    historyCount = 0;
+    historyIndex = 0;
+    
+    // Clear history buffer
+    for (int i = 0; i < 10; i++) {
+        dispensingHistory[i] = {0, 0, 0, 0};
     }
 }
 
@@ -489,52 +688,27 @@ void stopSystem() {
     autoState = 0;           // Disable automatic mode
     output = 0;              // Close dispensing valve
     stateMachine = 4;        // Set to idle state
+    stopConditionCount = 0;  // Reset stop condition counter
     
-    // Notify connected clients of status change
-    sendStatusUpdate();
-    
-    Serial.println("Dosing system stopped and reset to safe state");
+    Serial.println("SYSTEM STOPPED - Auto-start disabled. Weight: " + String(adjustedWeight) + "g, Target: " + String(setpoint) + "g");
 }
 
 //═══════════════════════════════════════════════════════════════════════════════
 // COMMUNICATION SYSTEM (HTTP POLLING ARCHITECTURE)
 //═══════════════════════════════════════════════════════════════════════════════
-
 /**
- * @brief Placeholder for status updates (HTTP polling model)
+ * HTTP Polling Architecture:
  * 
- * In the HTTP polling architecture, data is pulled by the client every 200ms
- * rather than pushed via WebSocket. This ensures maximum compatibility and
- * stability across different network conditions and devices.
+ * This system uses HTTP polling instead of WebSocket connections for maximum
+ * compatibility and reliability. The web interface polls the /api/status endpoint
+ * every 200ms for real-time weight updates, and /api/settings endpoint as needed.
+ * 
+ * This approach ensures:
+ * - Better compatibility across all devices and browsers
+ * - No connection drops or reconnection issues
+ * - Simpler implementation and debugging
+ * - Reliable operation in various network environments
  */
-void sendStatusUpdate() {
-    // Status data is provided via GET /api/status endpoint
-    // Client polls every 200ms for real-time updates
-}
-
-/**
- * @brief Placeholder for weight updates (HTTP polling model)
- */
-void sendWeightUpdate() {
-    // Weight data is included in status endpoint response
-    // Updated every 200ms via HTTP polling
-}
-
-/**
- * @brief Placeholder for settings updates (HTTP polling model)
- */
-void sendSettingsUpdate() {
-    // Settings data is provided via GET /api/settings endpoint
-    // Retrieved when needed by client interface
-}
-
-/**
- * @brief Placeholder for calibration updates (HTTP polling model)
- */
-void sendCalibrationUpdate() {
-    // Calibration status is included in status endpoint response
-    // Updated in real-time via HTTP polling
-}
 
 //═══════════════════════════════════════════════════════════════════════════════
 // HTTP REST API SYSTEM
@@ -565,16 +739,22 @@ void handleCORS() {
     server.send(200, "text/plain", "");
 }
 
-// HTTP API handlers
+/**
+ * @brief Handle /api/status endpoint - provides real-time system status
+ * 
+ * Returns JSON with current system state, weights, calibration status,
+ * statistics, and user messages. Called every 200ms by web interface.
+ */
 void handleApiStatus() {
+  // Determine appropriate status message based on system state
   String statusMsg = "";
   switch(stateMachine) {
-    case 1: statusMsg = step2Text[lang]; break;
+    case 1: statusMsg = step2Text[lang]; break;              // Place glass
     case 2:
-    case 3: statusMsg = step3Text[lang]; break;
+    case 3: statusMsg = step3Text[lang]; break;              // Filling
     case 4: statusMsg = (actualWeight < minGlassWeight && autoState == 1) ? step1Text[lang] : 
-                        (actualWeight < minGlassWeight) ? step1Text[lang] : step4Text[lang]; break;
-    default: statusMsg = step1Text[lang]; break;
+                        (actualWeight < minGlassWeight) ? step1Text[lang] : step4Text[lang]; break; // Ready/Complete
+    default: statusMsg = step1Text[lang]; break;             // Press start
   }
   
   String json = "{\"running\":" + String(stateMachine != 4 ? "true" : "false") + 
@@ -585,16 +765,88 @@ void handleApiStatus() {
                 ",\"honey\":" + String(adjustedWeight) + 
                 ",\"glass\":" + String(glasWeight) + "}";
   
+  // Add basic statistics information
+  float avgError, totalDispensed;
+  calculateBasicStats(&avgError, &totalDispensed);
+  
+  json += ",\"statistics\":{";
+  json += "\"totalCycles\":" + String(totalDispensingCycles);
+  json += ",\"totalDispensed\":" + String(totalDispensed, 2);
+  json += ",\"averageError\":" + String(avgError, 1);
+  // Add cumulative persistent statistics
+  if (totalDispensingCycles > 0) {
+    float cumulativeAvgErr = (float)cumulativeTotalError / totalDispensingCycles;
+    json += ",\"cumulativeDispensed\":" + String(cumulativeDispensedGrams);
+    json += ",\"cumulativeAverageError\":" + String(cumulativeAvgErr, 1);
+  } else {
+    json += ",\"cumulativeDispensed\":0,\"cumulativeAverageError\":0";
+  }
+  
+  // Add recent dispensing history for statistics
+  // Serialize circular buffer from oldest -> newest so frontend receives newest last
+  json += ",\"recentHistory\":[";
+  int start = (historyIndex - historyCount + 10) % 10;
+  for (int i = 0; i < historyCount; i++) {
+    if (i > 0) json += ",";
+    DispensingRecord record = dispensingHistory[(start + i) % 10];
+    json += "{\"target\":" + String(record.targetWeight, 1);
+    json += ",\"actual\":" + String(record.actualWeight, 1);
+    json += ",\"error\":" + String(record.error, 1) + "}";
+  }
+  json += "]";
+  json += "}";
+  
   // Add calibration info
   String calMsg = "";
   switch(calStateMachine) {
-    case 0: calMsg = calStep1Text[lang]; break;
+    case 0: 
+      // Check if system is actually calibrated
+      if (LittleFS.exists("/cal.txt")) {
+        calMsg = calStep1Text[lang]; // System is calibrated, ready for re-calibration
+      } else {
+        calMsg = "System skal kalibreres, tryk Kalibrer for at starte"; // System needs calibration
+      }
+      break;
     case 1: calMsg = calStep2Text[lang]; break;
     case 2:
     case 4: calMsg = calStep3Text[lang]; break;
     case 3: calMsg = calStep4Text[lang]; break;
   }
-  json += ",\"calibration\":{\"message\":\"" + calMsg + "\",\"state\":" + String(calStateMachine) + "}";
+  
+  json += ",\"calibration\":{\"message\":\"" + calMsg + "\",\"state\":" + String(calStateMachine);
+  
+  // Add calibration progress information
+  if (calAveraging && calStateMachine == 4) {
+    // During sampling: progress from 10% to 100% (90% range for sampling)
+    int samplingProgress = (calCount * 90) / calSamples;  // 0-90% for sampling
+    int totalProgress = 10 + samplingProgress;  // Add 10% from tare operation
+    json += ",\"progress\":{";
+    json += "\"active\":true";
+    json += ",\"percent\":" + String(totalProgress);
+    json += ",\"current\":" + String(calCount + 10);  // Add offset for tare step
+    json += ",\"total\":" + String(calSamples + 10);
+    json += "}";
+  } else if (calStateMachine == 2 && tareInProgress) {
+    // During tare operation: 0-10% progress
+    json += ",\"progress\":{";
+    json += "\"active\":true";
+    json += ",\"percent\":5";  // Show 5% progress during tare (halfway)
+    json += ",\"current\":5";
+    json += ",\"total\":110";  // Total includes tare + sampling
+    json += "}";
+  } else if (calStateMachine == 3) {
+    // Waiting for calibration weight: stay at 10% (tare completed)
+    json += ",\"progress\":{";
+    json += "\"active\":true";
+    json += ",\"percent\":10";
+    json += ",\"current\":10";
+    json += ",\"total\":110";
+    json += "}";
+  } else {
+    json += ",\"progress\":{\"active\":false}";
+  }
+  
+  json += "}";
   
   // Add save message if available
   if (hasSaveMessage) {
@@ -608,6 +860,12 @@ void handleApiStatus() {
   server.send(200, "application/json", json);
 }
 
+/**
+ * @brief Handle /api/settings endpoint - provides current system configuration
+ * 
+ * Returns JSON with all user-configurable settings including PID parameters,
+ * servo limits, system thresholds, and language preferences.
+ */
 void handleApiSettings() {
   String json = "{\"desiredAmount\":" + desiredAmount + 
                 ",\"kp\":" + String(kP[gainSelector]) +
@@ -626,6 +884,12 @@ void handleApiSettings() {
   server.send(200, "application/json", json);
 }
 
+/**
+ * @brief Handle /api/command endpoint - processes user commands
+ * 
+ * Accepts POST requests with JSON payload containing command and parameters.
+ * Processes system control commands (start, stop, settings changes, etc.)
+ */
 void handleApiCommand() {
   if (server.method() != HTTP_POST) {
     server.send(405, "text/plain", "Method Not Allowed");
@@ -721,20 +985,32 @@ void handleApiCommand() {
   }
   else if (command == "servoTest") {
     String position = payload["position"];
+    servoTestMode = true;
+    servoTestStartTime = millis(); // Reset timer on each button press
     if (position == "min") {
-      output = 0;
+      servoTestOutput = 0.0;
     } else if (position == "max") {
-      output = 1;
+      servoTestOutput = 1.0;
     }
   }
   else if (command == "calibrate") {
     if (calStateMachine == 0) {
-      calStateMachine = 1;
+      // Start calibration immediately - go directly to tare step
+      calStateMachine = 2;
     } else if (calStateMachine == 1) {
       calStateMachine = 2;
     } else if (calStateMachine == 3) {
       calStateMachine = 4;
     }
+  }
+  else if (command == "resetStatistics") {
+    // Clear basic statistics
+    totalDispensingCycles = 0;
+    initializeStats();
+    cumulativeDispensedGrams = 0;
+    cumulativeTotalError = 0;
+    cumulativeTargetGrams = 0;
+    saveSettings(); // Immediately save reset statistics (critical event)
   }
 
   
@@ -892,12 +1168,8 @@ void initWebServer() {
 void setup(void) {
     Serial.begin(115200);
     Serial.println("\n" + String('═', 80));
-    Serial.println("BeeSMART Honey Dosing System v3.0.0 - Initializing...");
+    Serial.println("BeeSMART Honey Dosing System v3.1.0 - Initializing...");
     Serial.println(String('═', 80));
-    
-    // Initialize communication system state
-    lastSentData = {0, 255, -999, 65535, 65535, 255};
-    Serial.println("HTTP polling system initialized");
     
     // Initialize file system for persistent storage
     if (!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED)) {
@@ -909,6 +1181,8 @@ void setup(void) {
     // Load system configuration and calibration
     readCal(LittleFS, "/cal.txt");   // Load scale calibration factor
     readFile(LittleFS, "/data.txt"); // Load system settings
+    initializeStats();               // Initialize basic statistics
+    initializeWeightSampling();      // Initialize weight averaging system
     
     // Initialize hardware components
     Serial.println("Initializing hardware components...");
@@ -956,7 +1230,7 @@ void setup(void) {
     Serial.println("Scale tared and system reset to idle state");
     
     Serial.println(String('═', 80));
-    Serial.println("BeeSMART Honey Dosing System v3.0.0 Ready!");
+    Serial.println("BeeSMART Honey Dosing System v3.1.0 Ready!");
     Serial.println("Connect to WiFi: " + String(ap_ssid));
     Serial.println("Open browser - captive portal will redirect automatically");
     Serial.println(String('═', 80) + "\n");
@@ -969,130 +1243,150 @@ void setup(void) {
 /**
  * @brief Main system control loop
  * 
- * Executes continuously and handles:
- * 1. Network communication (DNS and HTTP requests)
- * 2. Auto-save system with debouncing
- * 3. Weight measurement and processing
- * 4. Calibration state machine
- * 5. Main dosing state machine
- * 6. PID control execution
- * 7. Servo position control
+ * Continuously executes the following tasks:
+ * 1. Handle network communication (DNS and HTTP requests)
+ * 2. Process auto-save with debouncing to protect flash memory
+ * 3. Read and process weight measurements
+ * 4. Execute calibration state machine
+ * 5. Execute main dosing state machine with PID control
+ * 6. Control servo position based on PID output
  * 
- * Loop timing is optimized for 20ms PID control cycles while maintaining
- * responsive network communication and user interface updates.
+ * Optimized for 20ms PID control cycles while maintaining responsive
+ * network communication and real-time weight updates.
  */
+void loop(void) {
+  static unsigned long lastLoopTime = 0;
+  unsigned long now = millis();
+  if (now - lastLoopTime >= looptime) {
+    lastLoopTime = now;
+    // Handle network tasks
+    dnsServer.processNextRequest();
+    server.handleClient();
 
-void loop(void)
-{
-  // Handle network tasks
-  dnsServer.processNextRequest();
-  server.handleClient();
-  
-  // Check for auto-save (debounced)
-  checkAutoSave();
-  
-  actualWeight = scale.get_units(); // Current weight reading from scale
-  int16_t temp = (actualWeight-glasWeight);
-  adjustedWeight = max((int16_t)0,temp); // Weight from scale minus glass weight, floored to zero
+    // Check for auto-save (debounced)
+    checkAutoSave();
 
-  // Handle calibration state machine
-  switch(calStateMachine){
-    case 0: // Check if calibration exists
-      if (LittleFS.exists("/cal.txt") == 0){ // No calibration data saved
-        calStateMachine = 1;
-        sendCalibrationUpdate();
-      }
-      break;
+    actualWeight = getStableWeight(); // Get averaged weight reading for stability
+    int16_t temp = (actualWeight-glasWeight);
+    adjustedWeight = max((int16_t)0,temp); // Weight from scale minus glass weight, floored to zero
 
-    case 1: // Wait for calibration button press
-      break;
-
-    case 2: // Perform tare operation
-        scale.set_scale();
-        scale.tare();
-        calStateMachine = 3;
-        sendCalibrationUpdate();
-      break;
-    
-    case 3: // Wait for calibration weight placement and button press
-      break;
-
-    case 4:
-      if (!calAveraging) {
-        calSum = 0;
-        calCount = 0;
-        calAveraging = true;
-      }
-
-      // Take one sample per loop
-      calSum += scale.get_units(1);
-      calCount++;
-
-      if (calCount >= calSamples) {
-        reading = calSum / calSamples;
-        writeFile(LittleFS, "/cal.txt", String((reading / calWeight.toInt())) + ",");
-        scale.set_scale(reading / calWeight.toInt());
-        calAveraging = false;
-        calStateMachine = 0;
-        sendCalibrationUpdate();
-      }
-      break;
-
-    default:
-      break;
-  }  
-
-  // Handle main dosing state machine
-  switch (stateMachine){
-    case 1: // Calibrate glass weight when start is pressed
-      if(actualWeight < minGlassWeight){ // Less than minimum weight - no glass detected
-        cnt = 0;
-      }
-      else{
-        cnt++;
-      }
-      if(cnt > 10){ // Glass presence confirmed after 10 readings
-        glasWeight = actualWeight; // Record glass weight
-        cnt = 0;
-        stateMachine = 2;
-        sendStatusUpdate();
-      }
-      break;
-    case 2: // Start PID control system
-      setpoint = desiredAmount.toInt(); // Lock in selected target weight
-      setpointPI = setpoint/setpoint;
-      myController.start();
-      stateMachine = 3; // Move to filling state
-      sendStatusUpdate();
-      break;
-    case 3: // Fill glass to target weight
-      if(setpoint-adjustedWeight<stopHysteresis){ // When close enough to target (within hysteresis)
-        myController.stop(); 
-        myController.reset();
-        output = 0;
-        stateMachine = 4; // Move to complete state
-        sendStatusUpdate();
-      }
-      break;
-    case 4: // Dosing complete - wait for glass removal
-        myController.stop(); 
-        myController.reset();
-        if(actualWeight < minGlassWeight){ // Glass has been removed
-          if(autoState == 1){
-            stateMachine = 1; // Auto-restart without requiring start button
-            cnt = 0;
-          }
+    // Handle calibration state machine
+    switch(calStateMachine){
+      case 0: // Check if calibration exists
+        if (LittleFS.exists("/cal.txt") == 0){ // No calibration data saved
+          calStateMachine = 1;
         }
-      break;
-    default:
-      break;
-  }
+        break;
 
-  input = adjustedWeight/setpoint; // Calculate PID input: current weight ratio (0.0-1.0)
-  myController.compute();
-  myservo.write(servoMin+output*(servoMax-servoMin)); // Set servo position based on PID output
-  
-  // No periodic updates needed - data is pulled by HTTP polling
-  // Small delay to prevent watchdog issues
-  delay(10);
+      case 1: // Wait for calibration button press
+        break;
+
+      case 2: // Perform tare operation
+          if (!tareInProgress) {
+            tareInProgress = true;
+            tareStartTime = millis();
+          }
+          // Simulate tare progress for better user feedback
+          if (millis() - tareStartTime > 1000) { // 1 second delay
+            scale.set_scale();
+            scale.tare();
+            calStateMachine = 3;
+            tareInProgress = false;
+          }
+        break;
+      case 3: // Wait for calibration weight placement and button press
+        break;
+
+      case 4:
+        if (!calAveraging) {
+          calSum = 0;
+          calCount = 0;
+          calAveraging = true;
+        }
+
+        // Take one sample per loop
+        calSum += scale.get_units(1);
+        calCount++;
+
+        if (calCount >= calSamples) {
+          reading = calSum / calSamples;
+          writeFile(LittleFS, "/cal.txt", String((reading / calWeight.toInt())) + ",");
+          scale.set_scale(reading / calWeight.toInt());
+          calAveraging = false;
+          calStateMachine = 0;
+        }
+        break;
+
+      default:
+        break;
+    }  
+
+    // Handle main dosing state machine
+    switch (stateMachine){
+      case 1: // Calibrate glass weight when start is pressed
+        if(actualWeight < minGlassWeight){ // Less than minimum weight - no glass detected
+          cnt = 0;
+        }
+        else{
+          cnt++;
+        }
+        if(cnt > 10){ // Glass presence confirmed after 10 readings
+          glasWeight = actualWeight; // Record glass weight
+          cnt = 0;
+          stateMachine = 2;
+        }
+        break;
+      case 2: // Start PID control system
+        setpoint = desiredAmount.toInt(); // Lock in selected target weight
+        setpointPI = setpoint/setpoint;
+        myController.start();
+        stateMachine = 3; // Move to filling state
+        break;
+      case 3: // Fill glass to target weight
+        if(setpoint-adjustedWeight<stopHysteresis){ // When close enough to target (within hysteresis)
+          stopConditionCount++; // Increment counter for stable condition
+          if(stopConditionCount >= STOP_CONFIRM_CYCLES) {
+            // Record basic statistics
+            recordDispensingStats();
+            myController.stop(); 
+            myController.reset();
+            output = 0;
+            stateMachine = 4; // Move to complete state
+            stopConditionCount = 0; // Reset counter
+            Serial.println("Dosing completed - target weight reached");
+          }
+        } else {
+          stopConditionCount = 0; // Reset counter if condition not met
+        }
+        break;
+      case 4: // Dosing complete - wait for glass removal
+          myController.stop(); 
+          myController.reset();
+          if(actualWeight < minGlassWeight){ // Glass has been removed
+            if(autoState == 1){
+              stateMachine = 1; // Auto-restart without requiring start button
+              cnt = 0;
+            }
+          }
+        break;
+      default:
+        break;
+    }
+
+    input = adjustedWeight/setpoint; // Calculate PID input: current weight ratio (0.0-1.0)
+    myController.compute();
+
+    // Handle servo test mode with auto-timeout
+    if (servoTestMode) {
+      if (millis() - servoTestStartTime > 3000) { // 3 second timeout for responsive testing
+        servoTestMode = false;
+        servoTestOutput = 0.0;
+      } else {
+        output = servoTestOutput; // Override PID output during test
+      }
+    }
+
+    // Update servo position based on PID output or test mode
+    myservo.write(servoMin + output * (servoMax - servoMin));
+  }
 }
