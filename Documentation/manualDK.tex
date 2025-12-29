@@ -1,0 +1,504 @@
+% ======================================================================
+% BeeSMART Manual (Print-Optimized LaTeX Version)
+% Style B — Clean, professional, BeeSMART color palette + fonts
+% ======================================================================
+
+\documentclass[11pt,a4paper]{article}
+
+% ---------------------------------------------------------
+% Packages
+% ---------------------------------------------------------
+\usepackage{fontspec}
+\usepackage{titlesec}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{tocloft}
+\usepackage{parskip}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage[danish]{babel}
+\usepackage[table]{xcolor}
+
+% ---------------------------------------------------------
+% Page Setup
+% ---------------------------------------------------------
+\geometry{
+    a4paper,
+    margin=2.2cm
+}
+
+\setstretch{1.25}
+
+% ---------------------------------------------------------
+% BeeSMART Color Palette (translated from CSS)
+% ---------------------------------------------------------
+\definecolor{primary}{HTML}{DAA520}        % Golden Rod
+\definecolor{primarylight}{HTML}{F4D03F}   % Light golden
+\definecolor{primarydark}{HTML}{B7950B}    % Dark golden
+\definecolor{secondary}{HTML}{FF8C00}      % Dark orange
+\definecolor{accent}{HTML}{FFE135}         % Bright yellow
+\definecolor{success}{HTML}{8FBC8F}        % Muted green
+\definecolor{destructive}{HTML}{CD853F}    % Peru
+\definecolor{warning}{HTML}{F0E68C}        % Khaki
+\definecolor{textprimary}{HTML}{2F2F2F}    % Dark gray
+\definecolor{textsecondary}{HTML}{8B7355}  % Warm brown-gray
+\definecolor{separator}{HTML}{DDD3C0}      % Beige
+
+% ---------------------------------------------------------
+% Fonts (Cooper Black + Fredoka One)
+% ---------------------------------------------------------
+\setmainfont{Segoe UI}[
+    Ligatures=TeX
+]
+
+\newfontfamily\cooper{Cooper Black}
+\newfontfamily\fredoka{Fredoka One}
+
+% ---------------------------------------------------------
+% Heading Styles
+% ---------------------------------------------------------
+\titleformat{\section}
+  {\large\bfseries\cooper\color{primarydark}}
+  {\thesection}{1em}{}
+
+\titleformat{\subsection}
+  {\normalsize\bfseries\fredoka\color{secondary}}
+  {\thesubsection}{1em}{}
+
+\titleformat{\subsubsection}
+  {\normalsize\bfseries\color{textprimary}}
+  {\thesubsubsection}{1em}{}
+
+% ---------------------------------------------------------
+% Table of Contents Styling
+% ---------------------------------------------------------
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+% ---------------------------------------------------------
+% Hyperlink Colors
+% ---------------------------------------------------------
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primarydark,
+    urlcolor=secondary
+}
+
+% ---------------------------------------------------------
+% Headers and Footers
+% ---------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{} % clear all
+\lhead{\textcolor{textsecondary}{BeeSMART Manual}}
+\rhead{\textcolor{textsecondary}{\leftmark}}
+\cfoot{\textcolor{textsecondary}{\thepage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{separator}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\footrulewidth}{0pt}
+
+% ---------------------------------------------------------
+% Document Start
+% ---------------------------------------------------------
+\begin{document}
+
+% ---------------------------------------------------------
+% Cover Page
+% ---------------------------------------------------------
+\begin{titlepage}
+    \centering
+    {\cooper\fontsize{28}{32}\selectfont BeeSMART Manual}\\[1.5em]
+    {\fredoka\Large Wi-Fi styret tappe-/fyldemaskine}\\[1em]
+    {\large Version 3.0}\\[3em]
+
+    \includegraphics[width=0.6\textwidth]{images/beesmart_bee3.png}\\[3em]
+
+    {\small Udviklet af Mogens Groth Nicolaisen}\\
+    {\small Senest opdateret: December 2025}
+
+\end{titlepage}
+
+\newpage
+
+% ---------------------------------------------------------
+% Table of Contents
+% ---------------------------------------------------------
+\tableofcontents
+\newpage
+
+% ---------------------------------------------------------
+% 1. Introduktion
+% ---------------------------------------------------------
+\section{Introduktion}
+
+BeeSMART er et Wi-Fi baseret tappesystem til honning med fokus på få komponenter, enkel betjening og en relativt lav pris. Systemet kan naturligvis også anvendes til andre væsker, hvor vægtbaseret fyldning er ønsket.
+
+Systemet er browserbaseret og kræver ingen app. Du tilgår det via PC, tablet eller smartphone, så længe enheden kan tilsluttes BeeSMARTs Wi-Fi.
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{images/Billede1.png}
+\end{center}
+
+Systemet består typisk af:
+\begin{itemize}[leftmargin=*]
+    \item BeeSMART modul med integreret WiFi-styring og servo
+    \item Servo horn og trækstang
+    \item BeeSMART vægt (5 kg)
+    \item USB-C strømforsyning
+    \item Monteringsbeslag og indlæg til forskellige tappehaner
+\end{itemize}
+
+Monteringsbeslaget passer til tappehaner med en krave på ca. 54 mm i diameter og mindst 10 mm i bredden. Der medfølger indlæg til 40 mm diameter krave.
+
+\newpage
+
+% ---------------------------------------------------------
+% 2. Stykliste
+% ---------------------------------------------------------
+\section{Stykliste}
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{images/Billede2.png}
+\end{center}
+
+Standardindhold i et BeeSMART sæt:
+
+\begin{center}
+	\renewcommand{\arraystretch}{1.3}
+	
+	\begin{tabular}{ll}
+		\rowcolor{primarylight!40}
+		{\fredoka\textbf{Antal}} & {\fredoka\textbf{Komponent}} \\
+		
+		\rowcolor{primarylight!15}
+		2 × & M3 selvlåsende møtrik \\
+		
+		\rowcolor{primarylight!5}
+		2 × & M4 møtrik \\
+		
+		\rowcolor{primarylight!15}
+		1 × & M3 × 16 bolt \\
+		
+		\rowcolor{primarylight!5}
+		1 × & M3 × 25 bolt \\
+		
+		\rowcolor{primarylight!15}
+		2 × & M4 × 25 bolt \\
+		
+		\rowcolor{primarylight!5}
+		1 × & BeeSMART modul m. servo og WiFi-styring \\
+		
+		\rowcolor{primarylight!15}
+		1 × & Trækstang \\
+		
+		\rowcolor{primarylight!5}
+		1 × & Servo horn, forlænger og skrue \\
+		
+		\rowcolor{primarylight!15}
+		2 × & Indlæg til 40 mm tappehane \\
+		
+		\rowcolor{primarylight!5}
+		1 × & 5 kg BeeSMART vægt \\
+		
+		\rowcolor{primarylight!15}
+		1 × & USB-C strømforsyning \\
+		
+	\end{tabular}
+\end{center}
+\newpage
+
+% ---------------------------------------------------------
+% 3. Video materiale
+% ---------------------------------------------------------
+\section{Video materiale}
+
+Til BeeSMART findes videomateriale med:
+
+\begin{itemize}[leftmargin=*]
+    \item Samling og montering af BeeSMART
+    \item Demonstration af tappefunktioner
+    \item Eksempler på brug med forskellige indstillinger
+\end{itemize}
+
+Videoerne er særligt nyttige ved første opsætning og til finjustering af servo og kontrolparametre.
+
+\begin{center}
+	\begin{tabular}{cc}
+		
+		% ------------------ Row 1, Col 1 ------------------
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\href{https://youtu.be/7Y-k81tILdg}{%
+				\includegraphics[width=0.65\linewidth]{images/demo1.png}%
+			}\\[-0.5em] 
+			{\fredoka\color{primarydark}\Large Demo 1}\\[-0.2em]
+			{\small BeeSMART i brug}
+		\end{minipage}
+		&
+		% ------------------ Row 1, Col 2 ------------------
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\href{https://youtube.com/shorts/xE0CEP3kYTg}{%
+				\includegraphics[width=0.65\linewidth]{images/demo2.png}%
+			}\\[-0.5em]
+			{\fredoka\color{primarydark}\Large Demo 2}\\[-0.2em]
+			{\small BeeSMART i brug}
+		\end{minipage}
+		
+		\\[8em]
+		
+		% ------------------ Row 2, Col 1 ------------------
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\href{https://youtu.be/kUqcvOjCH5E}{%
+				\includegraphics[width=0.65\linewidth]{images/demo3.png}%
+			}\\[-0.5em]
+			{\fredoka\color{primarydark}\Large Demo 3}\\[-0.2em]
+			{\small Avancerede funktioner i 3.0}
+		\end{minipage}
+		&
+		% ------------------ Row 2, Col 2 ------------------
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\href{https://youtu.be/ojsv-gZ6waY}{%
+				\includegraphics[width=0.65\linewidth]{images/montering.png}%
+			}\\[-0.5em]
+			{\fredoka\color{primarydark}\Large Montering}\\[-0.2em]
+			{\small Tappehane og beslag}
+		\end{minipage}
+		
+	\end{tabular}
+\end{center}
+
+\newpage
+
+% ---------------------------------------------------------
+% 4. Brugsvejledning
+% ---------------------------------------------------------
+\section{Brugsvejledning}
+
+\subsection{Tilslutning og adgang}
+
+Efter tilslutning af USB-strømforsyning, servo og vægt vil BeeSMART oprette et Wi-Fi Access Point. Dette bør fremkomme inden for ca. 30 sekunder. Hvis ikke, tryk kort på reset-knappen på modulet.
+
+\begin{center}
+\includegraphics[width=0.5\textwidth]{images/Billede3.png}
+\end{center}
+
+Tilslut til det viste BeeSMART-netværk fra PC, tablet eller smartphone. I mange tilfælde åbnes en browser automatisk med BeeSMART-interfacet. Sker dette ikke, åbnes en browser manuelt, og følgende adresse indtastes:
+
+\begin{verbatim}
+192.168.4.1
+\end{verbatim}
+
+\subsection{Hovedskærm}
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{images/Billede4.png}
+\end{center}
+
+Hovedskærmen giver overblik over:
+
+\begin{itemize}[leftmargin=*]
+    \item Ønsket mængde, der tappes (uden glas)
+    \item Aktuel vægt på vægten
+    \item Status-tekst nederst, der beskriver hvad systemet gør
+\end{itemize}
+
+Knappen \textbf{Start} starter en tapning, mens \textbf{Stop} afbryder en igangværende tapning.
+
+Funktionen \textbf{Automatisk start af tapning} kan aktiveres via en switch. Når denne er slået til, vil BeeSMART automatisk starte en ny tapning, når et nyt tomt glas registreres på vægten.
+
+\subsection{Indstillinger}
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{images/Billede5.png}
+\end{center}
+
+På \textit{Indstillinger}-siden kan følgende konfigureres:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Ønsket mængde} (honning uden glas)
+    \item \textbf{Luk hanen når der mangler X g}
+    \item \textbf{Glasregistrering: Glas vejer mere end}
+    \item \textbf{Max tappemængde}
+    \item \textbf{Tare} (nulstilling af vægt)
+    \item \textbf{Sprogvalg} (fx Dansk, Deutsch, English)
+\end{itemize}
+
+\subsubsection*{Luk hanen når der mangler X g}
+
+Denne indstilling angiver, hvor mange gram før den ønskede mængde, hanen lukkes helt. Den bruges til at kompensere for \textit{dryp} og den sidste honning, der løber ud efter lukning.
+
+\subsubsection*{Glasregistrering}
+
+Grænsen for glasvægt angiver, hvor tungt et tomt glas mindst skal være, for at blive registreret. Dette forhindrer tapning uden glas på vægten.
+
+\subsubsection*{Max tappemængde}
+
+Denne værdi øger maksimum for slideren \textit{Ønsket mængde}, hvis der er behov for at tappe større mængder. Standard maksimum som vægten kan håndtere er 5 kg.
+
+\subsubsection*{Tare}
+
+\textbf{Tare} nulstiller vægten. Bruges med tom vægt.
+
+\newpage
+
+% ---------------------------------------------------------
+% 5. Avanceret
+% ---------------------------------------------------------
+\section{Avanceret}
+
+På siden \textit{Avanceret} kan kontrolparametre (PID), servoens vandring og vægtens kalibrering justeres.
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{images/Billede6.png}
+\end{center}
+
+Vægten er kalibreret fra start, så kalibrering er normalt ikke nødvendig, med mindre der observeres tydelige afvigelser.
+
+\subsection{PID kontrolparametre}
+
+BeeSMART bruger PID-lignende kontrolparametre til at styre servoens åbning i forhold til den målte vægt. Der kan vælges mellem foruddefinerede viskositetsprofiler:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Lav} – til tyndere honning/væske
+    \item \textbf{Medium} – standardindstilling
+    \item \textbf{Høj} – til meget tyk honning
+    \item \textbf{Brugerdefineret} – fri justering af Kp, Ti og Kd
+\end{itemize}
+
+Standardværdierne, der ofte fungerer godt, er:
+\begin{itemize}[leftmargin=*]
+    \item Kp = 8
+    \item Ti = 7
+    \item Kd = 2
+\end{itemize}
+
+\subsubsection*{Kp (Proportionalled)}
+
+Kp ganges på forskellen mellem den ønskede vægt og den aktuelle vægt i glasset — altså den mængde, der mangler. En lille Kp vil give en lille åbning af tappehanen, mens en større Kp vil give en større åbning for samme fejl.
+
+\begin{itemize}[leftmargin=*]
+    \item Større Kp betyder typisk hurtigere fyldning.
+    \item For stor Kp øger risikoen for at tappe over den ønskede vægt.
+\end{itemize}
+
+\subsubsection*{Ti (Integral/Tidskonstant)}
+
+Ti beskriver systemets \textit{tålmodighed}. En lav Ti betyder, at systemet reagerer hurtigt på, at der mangler honning i glasset, og dermed åbner mere op. En stor Ti betyder omvendt, at systemet reagerer langsommere.
+
+\begin{itemize}[leftmargin=*]
+    \item Mindre Ti giver hurtigere opregulering.
+    \item For lille Ti kan føre til overskydning og ustabilitet.
+\end{itemize}
+
+\subsubsection*{Kd (Differentialled)}
+
+Kd reagerer på, hvor hurtigt vægten ændrer sig. Hvis glasset fyldes meget hurtigt, vil Kd bidrage til at reducere servoens åbning midlertidigt, så farten sættes ned. Når vægtændringen igen bliver mindre, vil Kd miste sin effekt, og hanen kan åbne mere igen.
+
+\begin{itemize}[leftmargin=*]
+    \item For høj Kd kan resultere i en \textit{åbne–lukke–åbne}-adfærd.
+    \item Kd kan være nyttig for at undgå overskydning, når tønden er helt fuld, eller honningen er relativt tynd.
+    \item Generelt kan Kd ofte sættes til 0, med mindre der er behov for ekstra dæmpning.
+\end{itemize}
+
+\subsubsection*{Overordnede anbefalinger}
+
+\begin{itemize}[leftmargin=*]
+    \item Større Kp = hurtigere fyldning, men større risiko for at komme over ønsket vægt.
+    \item Mindre Ti = hurtigere fyldning, men større risiko for overskydning.
+    \item Kd bør kun øges forsigtigt og ofte kun lidt eller slet ikke.
+\end{itemize}
+
+\subsection{Servoindstilling}
+
+På samme side kan \textit{Servo Minimum} og \textit{Servo Maximum} indstilles. Der findes knapper til at køre servoen til henholdsvis min- og max-positionen, så indstillingen kan testes.
+
+\subsubsection*{Indstilling af servo vandring}
+
+\begin{enumerate}[leftmargin=*]
+    \item Afmonter servo-hornet fra servoen.
+    \item Sørg for, at tappehanen er fysisk lukket.
+    \item Sæt \textit{Servo Minimum} til en passende værdi, og kør servoen til min-position.
+    \item Monter servo-hornet, så hanen netop er lukket i min-position, og spænd skruen.
+    \item Øg \textit{Servo Maximum} gradvist, mens du tester åbningsgraden, indtil du finder en passende fuld åbning.
+\end{enumerate}
+
+\begin{center}
+	\begin{minipage}{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{images/Billede7.png}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{images/Billede8.png}
+	\end{minipage}
+\end{center}
+
+
+\subsection{Vægtkalibrering}
+
+Vægten leveres kalibreret. Kalibrering er normalt kun nødvendig, hvis der gentagne gange måles systematiske afvigelser.
+
+På siden vælges en kalibreringsvægt (f.eks. 50 g, 283 g eller 1000 g), hvorefter kalibreringsproceduren følges. HUSK ! Vægten skal være tom når der trykkes "Kalibrer". Det anbefales at bruge en så præcis referencevægt som muligt.
+
+\newpage
+
+% ---------------------------------------------------------
+% 6. Kontrolparametre – Detaljer
+% ---------------------------------------------------------
+\section{Kontrolparametre – Detaljer}
+
+Kontrolparametrene Kp, Ti og Kd arbejder sammen om at styre tappehastigheden og sikre, at den ønskede vægt rammes så præcist som muligt.
+
+\subsection*{Når du justerer parametre}
+
+\begin{itemize}[leftmargin=*]
+    \item Start altid med standardværdierne.
+    \item Juster kun én parameter ad gangen.
+    \item Brug statistik-siden til at evaluere resultatet over flere tapninger.
+\end{itemize}
+
+\subsection*{Typiske scenarier}
+
+\begin{itemize}[leftmargin=*]
+    \item Hvis tapningerne typisk ender under den ønskede vægt, kan Kp eller Ti øges.
+    \item Hvis der ofte tappes for meget, kan Kp sænkes, og/eller Ti øges, og eventuelt Kd øges lidt.
+    \item Ved meget tyk honning kan en større Kp være nødvendig for at få en god gennemstrømning.
+\end{itemize}
+
+\newpage
+
+% ---------------------------------------------------------
+% 7. Statistik
+% ---------------------------------------------------------
+\section{Statistik}
+
+Statistik-siden giver et overblik over, hvordan tapningerne har ramt i forhold til den ønskede vægt.
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{images/Billede9.png}
+\end{center}
+
+Typisk vises:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Total tappet mængde} (f.eks. i kg)
+    \item \textbf{Antal glas fyldt}
+    \item \textbf{Gennemsnitlig afvigelse} i gram
+    \item \textbf{Graf over de sidste 10 tapninger} (ønsket vs. faktisk vægt)
+    \item \textbf{Fejlfordeling} – andel af overskydning, underskydning og \textit{perfekt} tapning
+\end{itemize}
+
+Disse data kan bruges til at:
+
+\begin{itemize}[leftmargin=*]
+    \item Evaluere om kontrolparametrene er passende
+    \item Finde ud af, om der systematisk tappes for meget eller for lidt
+    \item Understøtte dokumentation af produktion og mængder
+\end{itemize}
+
+\end{document}

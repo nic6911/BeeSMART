@@ -1,0 +1,503 @@
+% ======================================================================
+% BeeSMART Handbuch (Für den Druck optimierte LaTeX-Version)
+% Stil B — Sauber, professionell, BeeSMART Farbpalette + Schriftarten
+% ======================================================================
+
+\documentclass[11pt,a4paper]{article}
+
+% ---------------------------------------------------------
+% Packages
+% ---------------------------------------------------------
+\usepackage{fontspec}
+\usepackage{titlesec}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{tocloft}
+\usepackage{parskip}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage[ngerman]{babel}
+\usepackage[table]{xcolor}
+
+% ---------------------------------------------------------
+% Page Setup
+% ---------------------------------------------------------
+\geometry{
+    a4paper,
+    margin=2.2cm
+}
+
+\setstretch{1.25}
+
+% ---------------------------------------------------------
+% BeeSMART Color Palette (übersetzt aus CSS)
+% ---------------------------------------------------------
+\definecolor{primary}{HTML}{DAA520}        % Golden Rod
+\definecolor{primarylight}{HTML}{F4D03F}   % Helles Gold
+\definecolor{primarydark}{HTML}{B7950B}    % Dunkles Gold
+\definecolor{secondary}{HTML}{FF8C00}      % Dunkles Orange
+\definecolor{accent}{HTML}{FFE135}         % Leuchtendes Gelb
+\definecolor{success}{HTML}{8FBC8F}        % Gedämpftes Grün
+\definecolor{destructive}{HTML}{CD853F}    % Peru
+\definecolor{warning}{HTML}{F0E68C}        % Khaki
+\definecolor{textprimary}{HTML}{2F2F2F}    % Dunkelgrau
+\definecolor{textsecondary}{HTML}{8B7355}  % Warmes Braun-Grau
+\definecolor{separator}{HTML}{DDD3C0}      % Beige
+
+% ---------------------------------------------------------
+% Fonts (Cooper Black + Fredoka One)
+% ---------------------------------------------------------
+\setmainfont{Segoe UI}[
+    Ligatures=TeX
+]
+
+\newfontfamily\cooper{Cooper Black}
+\newfontfamily\fredoka{Fredoka One}
+
+% ---------------------------------------------------------
+% Heading Styles
+% ---------------------------------------------------------
+\titleformat{\section}
+  {\large\bfseries\cooper\color{primarydark}}
+  {\thesection}{1em}{}
+
+\titleformat{\subsection}
+  {\normalsize\bfseries\fredoka\color{secondary}}
+  {\thesubsection}{1em}{}
+
+\titleformat{\subsubsection}
+  {\normalsize\bfseries\color{textprimary}}
+  {\thesubsubsection}{1em}{}
+
+% ---------------------------------------------------------
+% Table of Contents Styling
+% ---------------------------------------------------------
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+% ---------------------------------------------------------
+% Hyperlink Colors
+% ---------------------------------------------------------
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primarydark,
+    urlcolor=secondary
+}
+
+% ---------------------------------------------------------
+% Headers and Footers
+% ---------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{} % clear all
+\lhead{\textcolor{textsecondary}{BeeSMART Handbuch}}
+\rhead{\textcolor{textsecondary}{\leftmark}}
+\cfoot{\textcolor{textsecondary}{\thepage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{separator}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\footrulewidth}{0pt}
+
+% ---------------------------------------------------------
+% Document Start
+% ---------------------------------------------------------
+\begin{document}
+
+% ---------------------------------------------------------
+% Cover Page
+% ---------------------------------------------------------
+\begin{titlepage}
+    \centering
+    {\cooper\fontsize{28}{32}\selectfont BeeSMART Handbuch}\\[1.5em]
+    {\fredoka\Large Wi-Fi gesteuerte Zapf-/Füllmaschine}\\[1em]
+    {\large Version 3.0}\\[3em]
+
+    \includegraphics[width=0.6\textwidth]{images/beesmart_bee3.png}\\[3em]
+
+    {\small Entwickelt von Mogens Groth Nicolaisen}\\
+    {\small Zuletzt aktualisiert: Dezember 2025}
+
+\end{titlepage}
+
+\newpage
+
+% ---------------------------------------------------------
+% Table of Contents
+% ---------------------------------------------------------
+\tableofcontents
+\newpage
+
+% ---------------------------------------------------------
+% 1. Einführung
+% ---------------------------------------------------------
+\section{Einführung}
+
+BeeSMART ist ein Wi‑Fi‑basiertes Zapfsystem für Honig mit Fokus auf wenige Komponenten, einfache Bedienung und relativ niedrigen Kosten. Das System kann selbstverständlich auch für andere Flüssigkeiten verwendet werden, bei denen gewichtsbasiertes Befüllen gewünscht ist.
+
+Das System ist browserbasiert und erfordert keine App. Sie greifen über PC, Tablet oder Smartphone darauf zu, sofern das Gerät mit dem BeeSMART‑Wi‑Fi verbunden ist.
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{images/Billede1.png}
+\end{center}
+
+Das System besteht typischerweise aus:
+\begin{itemize}[leftmargin=*]
+    \item BeeSMART Modul mit integrierter Wi‑Fi‑Steuerung und Servo
+    \item Servo‑Horn und Zugstange
+    \item BeeSMART Waage (5 kg)
+    \item USB‑C Netzteil
+    \item Montagehalterung und Einsätze für verschiedene Zapfhähne
+\end{itemize}
+
+Die Montagehalterung passt für Zapfhähne mit einem Kragen von ca. 54 mm Durchmesser und mindestens 10 mm Breite. Einsätze für 40 mm Kragen werden mitgeliefert.
+
+\newpage
+
+% ---------------------------------------------------------
+% 2. Stückliste
+% ---------------------------------------------------------
+\section{Stückliste}
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{images/Billede2.png}
+\end{center}
+
+Standardinhalt eines BeeSMART‑Sets:
+
+\begin{center}
+    \renewcommand{\arraystretch}{1.3}
+    
+    \begin{tabular}{ll}
+        \rowcolor{primarylight!40}
+        {\fredoka\textbf{Anzahl}} & {\fredoka\textbf{Komponente}} \\
+        
+        \rowcolor{primarylight!15}
+        2 × & M3 selbstsichernde Mutter \\
+        
+        \rowcolor{primarylight!5}
+        2 × & M4 Mutter \\
+        
+        \rowcolor{primarylight!15}
+        1 × & M3 × 16 Schraube \\
+        
+        \rowcolor{primarylight!5}
+        1 × & M3 × 25 Schraube \\
+        
+        \rowcolor{primarylight!15}
+        2 × & M4 × 25 Schraube \\
+        
+        \rowcolor{primarylight!5}
+        1 × & BeeSMART Modul mit Servo und Wi‑Fi‑Steuerung \\
+        
+        \rowcolor{primarylight!15}
+        1 × & Zugstange \\
+        
+        \rowcolor{primarylight!5}
+        1 × & Servo‑Horn, Verlängerung und Schraube \\
+        
+        \rowcolor{primarylight!15}
+        2 × & Einsätze für 40 mm Zapfhahn \\
+        
+        \rowcolor{primarylight!5}
+        1 × & 5 kg BeeSMART Waage \\
+        
+        \rowcolor{primarylight!15}
+        1 × & USB‑C Netzteil \\
+        
+    \end{tabular}
+\end{center}
+\newpage
+
+% ---------------------------------------------------------
+% 3. Videomaterial
+% ---------------------------------------------------------
+\section{Videomaterial}
+
+Zu BeeSMART gibt es Videomaterial mit:
+
+\begin{itemize}[leftmargin=*]
+    \item Montage und Befestigung von BeeSMART
+    \item Demonstration der Zapffunktionen
+    \item Anwendungsbeispiele mit verschiedenen Einstellungen
+\end{itemize}
+
+Die Videos sind besonders nützlich bei der ersten Einrichtung und zur Feinabstimmung von Servo und Steuerparametern.
+
+\begin{center}
+    \begin{tabular}{cc}
+        
+        % ------------------ Row 1, Col 1 ------------------
+        \begin{minipage}{0.45\textwidth}
+            \centering
+            \href{https://youtu.be/7Y-k81tILdg}{%
+                \includegraphics[width=0.65\linewidth]{images/demo1.png}%
+            }\\[-0.5em] 
+            {\fredoka\color{primarydark}\Large Demo 1}\\[-0.2em]
+            {\small BeeSMART in Betrieb}
+        \end{minipage}
+        &
+        % ------------------ Row 1, Col 2 ------------------
+        \begin{minipage}{0.45\textwidth}
+            \centering
+            \href{https://youtube.com/shorts/xE0CEP3kYTg}{%
+                \includegraphics[width=0.65\linewidth]{images/demo2.png}%
+            }\\[-0.5em]
+            {\fredoka\color{primarydark}\Large Demo 2}\\[-0.2em]
+            {\small BeeSMART in Betrieb}
+        \end{minipage}
+        
+        \\[8em]
+        
+        % ------------------ Row 2, Col 1 ------------------
+        \begin{minipage}{0.45\textwidth}
+            \centering
+            \href{https://youtu.be/kUqcvOjCH5E}{%
+                \includegraphics[width=0.65\linewidth]{images/demo3.png}%
+            }\\[-0.5em]
+            {\fredoka\color{primarydark}\Large Demo 3}\\[-0.2em]
+            {\small Erweiterte Funktionen in 3.0}
+        \end{minipage}
+        &
+        % ------------------ Row 2, Col 2 ------------------
+        \begin{minipage}{0.45\textwidth}
+            \centering
+            \href{https://youtu.be/ojsv-gZ6waY}{%
+                \includegraphics[width=0.65\linewidth]{images/montering.png}%
+            }\\[-0.5em]
+            {\fredoka\color{primarydark}\Large Montage}\\[-0.2em]
+            {\small Zapfhahn und Halterung}
+        \end{minipage}
+        
+    \end{tabular}
+\end{center}
+
+\newpage
+
+% ---------------------------------------------------------
+% 4. Bedienungsanleitung
+% ---------------------------------------------------------
+\section{Bedienungsanleitung}
+
+\subsection{Anschluss und Zugriff}
+
+Nach Anschluss von USB‑Stromversorgung, Servo und Waage erstellt BeeSMART einen Wi‑Fi Access Point. Dies sollte innerhalb von ca. 30 Sekunden erfolgen. Falls nicht, drücken Sie kurz die Reset‑Taste am Modul.
+
+\begin{center}
+\includegraphics[width=0.5\textwidth]{images/Billede3.png}
+\end{center}
+
+Verbinden Sie sich mit dem angezeigten BeeSMART‑Netzwerk von PC, Tablet oder Smartphone. In vielen Fällen öffnet sich automatisch ein Browser mit der BeeSMART‑Benutzeroberfläche. Falls dies nicht geschieht, öffnen Sie den Browser manuell und geben folgende Adresse ein:
+
+\begin{verbatim}
+192.168.4.1
+\end{verbatim}
+
+\subsection{Hauptbildschirm}
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{images/Billede4.png}
+\end{center}
+
+Der Hauptbildschirm bietet Übersicht über:
+
+\begin{itemize}[leftmargin=*]
+    \item Gewünschte Menge, die abgefüllt wird (ohne Glas)
+    \item Aktuelles Gewicht auf der Waage
+    \item Status‑Text unten, der beschreibt, was das System gerade macht
+\end{itemize}
+
+Die Schaltfläche \textbf{Start} startet einen Zapfvorgang, während \textbf{Stopp} einen laufenden Zapfvorgang unterbricht.
+
+Die Funktion \textbf{Automatischer Start des Zapfens} kann über einen Schalter aktiviert werden. Ist diese aktiviert, startet BeeSMART automatisch einen neuen Zapfvorgang, wenn ein neues leeres Glas auf der Waage erkannt wird.
+
+\subsection{Einstellungen}
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{images/Billede5.png}
+\end{center}
+
+Auf der Seite \textit{Einstellungen} können folgende Optionen konfiguriert werden:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Gewünschte Menge} (Honig ohne Glas)
+    \item \textbf{Schließe Hahn, wenn noch X g fehlen}
+    \item \textbf{Glaserkennung: Glas wiegt mehr als}
+    \item \textbf{Maximale Zapfmenge}
+    \item \textbf{Tara} (Zurücksetzen der Waage)
+    \item \textbf{Sprachauswahl} (z. B. Dänisch, Deutsch, Englisch)
+\end{itemize}
+
+\subsubsection*{Schließe Hahn, wenn noch X g fehlen}
+
+Diese Einstellung gibt an, wie viele Gramm vor der gewünschten Menge der Hahn vollständig geschlossen wird. Sie dient dazu, für Tropfen und die letzte verbleibende Honigmenge nach dem Schließen zu kompensieren.
+
+\subsubsection*{Glaserkennung}
+
+Die Grenze für das Glasgewicht gibt an, wie schwer ein leeres Glas mindestens sein muss, um erkannt zu werden. Dies verhindert ein Befüllen ohne Glas auf der Waage.
+
+\subsubsection*{Maximale Zapfmenge}
+
+Dieser Wert erhöht das Maximum des Schiebereglers \textit{Gewünschte Menge}, wenn größere Mengen abgefüllt werden sollen. Standard‑Maximum, das die Waage handhaben kann, ist 5 kg.
+
+\subsubsection*{Tara}
+
+\textbf{Tara} setzt die Waage zurück. Wird bei leerer Waage verwendet.
+
+\newpage
+
+% ---------------------------------------------------------
+% 5. Erweitert
+% ---------------------------------------------------------
+\section{Erweitert}
+
+Auf der Seite \textit{Erweitert} können Regelparameter (PID), der Hub des Servos und die Kalibrierung der Waage angepasst werden.
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{images/Billede6.png}
+\end{center}
+
+Die Waage ist von Werk aus kalibriert. Eine Neukalibrierung ist normalerweise nur erforderlich, wenn deutliche Abweichungen beobachtet werden.
+
+\subsection{PID Regelparameter}
+
+BeeSMART verwendet PID‑ähnliche Regelparameter, um die Öffnung des Servos in Bezug auf das gemessene Gewicht zu steuern. Es stehen vordefinierte Viskositätsprofile zur Auswahl:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Niedrig} – für dünneren Honig/Flüssigkeit
+    \item \textbf{Medium} – Standardeinstellung
+    \item \textbf{Hoch} – für sehr zähflüssigen Honig
+    \item \textbf{Benutzerdefiniert} – freie Einstellung von Kp, Ti und Kd
+\end{itemize}
+
+Die Standardwerte, die häufig gut funktionieren, sind:
+\begin{itemize}[leftmargin=*]
+    \item Kp = 8
+    \item Ti = 7
+    \item Kd = 2
+\end{itemize}
+
+\subsubsection*{Kp (Proportionaler Anteil)}
+
+Kp wird mit der Differenz zwischen gewünschtem Gewicht und aktuellem Gewicht im Glas multipliziert — also mit der fehlenden Menge. Ein kleines Kp führt zu einer kleinen Hahnöffnung, während ein größeres Kp für denselben Fehler eine größere Öffnung bewirkt.
+
+\begin{itemize}[leftmargin=*]
+    \item Größeres Kp bedeutet in der Regel schnelleres Befüllen.
+    \item Zu großes Kp erhöht das Risiko eines Überschreitens der gewünschten Menge.
+\end{itemize}
+
+\subsubsection*{Ti (Integral/Zeitenkonstante)}
+
+Ti beschreibt die \textit{Geduld} des Systems. Ein kleines Ti bedeutet, dass das System schneller auf fehlende Honigmenge reagiert und stärker öffnet. Ein großes Ti führt zu langsameren Reaktionen.
+
+\begin{itemize}[leftmargin=*]
+    \item Kleineres Ti führt zu schnellerer Hochregelung.
+    \item Zu kleines Ti kann zu Überschwingungen und Instabilität führen.
+\end{itemize}
+
+\subsubsection*{Kd (Differentialanteil)}
+
+Kd reagiert auf die Geschwindigkeit der Gewichtszunahme. Füllt das Glas sehr schnell, trägt Kd dazu bei, die Servoöffnung vorübergehend zu reduzieren, damit die Füllgeschwindigkeit sinkt. Wenn die Gewichtszunahme wieder kleiner wird, verliert Kd seine Wirkung und der Hahn kann wieder weiter öffnen.
+
+\begin{itemize}[leftmargin=*]
+    \item Zu hohes Kd kann ein \textit{öffnen–schließen–öffnen} Verhalten verursachen.
+    \item Kd kann nützlich sein, um Überschreitungen zu vermeiden, wenn das Fass sehr voll ist oder der Honig relativ dünnflüssig ist.
+    \item In der Regel kann Kd oft auf 0 gesetzt werden, es sei denn, eine zusätzliche Dämpfung ist erforderlich.
+\end{itemize}
+
+\subsubsection*{Allgemeine Empfehlungen}
+
+\begin{itemize}[leftmargin=*]
+    \item Größeres Kp = schnelleres Befüllen, aber größeres Risiko für Überschreiten.
+    \item Kleineres Ti = schnelleres Befüllen, aber größeres Risiko für Überschwingen.
+    \item Kd sollte nur vorsichtig und in kleinen Schritten erhöht werden.
+\end{itemize}
+
+\subsection{Servo‑Einstellung}
+
+Auf derselben Seite können \textit{Servo Minimum} und \textit{Servo Maximum} eingestellt werden. Es gibt Tasten, um den Servo auf Minimum bzw. Maximum zu fahren, damit die Einstellung getestet werden kann.
+
+\subsubsection*{Einstellung des Servo‑Hubes}
+
+\begin{enumerate}[leftmargin=*]
+    \item Entfernen Sie das Servo‑Horn vom Servo.
+    \item Stellen Sie sicher, dass der Zapfhahn physisch geschlossen ist.
+    \item Setzen Sie \textit{Servo Minimum} auf einen geeigneten Wert und fahren Sie den Servo zur Minimalposition.
+    \item Montieren Sie das Servo‑Horn so, dass der Hahn in der Minimalposition gerade geschlossen ist, und ziehen Sie die Schraube fest.
+    \item Erhöhen Sie \textit{Servo Maximum} schrittweise, während Sie die Öffnung testen, bis eine passende Vollöffnung erreicht ist.
+\end{enumerate}
+
+\begin{center}
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/Billede7.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/Billede8.png}
+    \end{minipage}
+\end{center}
+
+\subsection{Waagenkalibrierung}
+
+Die Waage wird kalibriert geliefert. Eine Kalibrierung ist normalerweise nur erforderlich, wenn wiederholt systematische Abweichungen gemessen werden.
+
+Auf der Seite wird ein Kalibrierungsgewicht gewählt (z. B. 50 g, 283 g oder 1000 g), wonach dem Kalibrierungsverfahren gefolgt wird. HINWEIS: Die Waage muss leer sein, wenn \textit{Kalibrieren} gedrückt wird. Es wird empfohlen, ein möglichst genaues Referenzgewicht zu verwenden.
+
+\newpage
+
+% ---------------------------------------------------------
+% 6. Regelparameter – Details
+% ---------------------------------------------------------
+\section{Regelparameter – Details}
+
+Die Regelparameter Kp, Ti und Kd arbeiten zusammen, um die Füllgeschwindigkeit zu steuern und sicherzustellen, dass das gewünschte Gewicht so genau wie möglich erreicht wird.
+
+\subsection*{Beim Anpassen der Parameter}
+
+\begin{itemize}[leftmargin=*]
+    \item Beginnen Sie immer mit den Standardwerten.
+    \item Passen Sie jeweils nur einen Parameter an.
+    \item Verwenden Sie die Statistik‑Seite, um die Ergebnisse über mehrere Zapfvorgänge zu bewerten.
+\end{itemize}
+
+\subsection*{Typische Szenarien}
+
+\begin{itemize}[leftmargin=*]
+    \item Wenn die Zapfvorgänge typischerweise unter dem gewünschten Gewicht enden, können Kp oder Ti erhöht werden.
+    \item Wenn häufig zu viel abgefüllt wird, kann Kp verringert und/oder Ti erhöht werden; ggf. kann Kd leicht erhöht werden.
+    \item Bei sehr zähem Honig kann ein größeres Kp erforderlich sein, um einen guten Durchfluss zu erreichen.
+\end{itemize}
+
+\newpage
+
+% ---------------------------------------------------------
+% 7. Statistiken
+% ---------------------------------------------------------
+\section{Statistiken}
+
+Die Statistik‑Seite gibt einen Überblick darüber, wie genau die Zapfvorgänge im Verhältnis zum gewünschten Gewicht lagen.
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{images/Billede9.png}
+\end{center}
+
+Typischerweise werden angezeigt:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Gesamte abgefüllte Menge} (z. B. in kg)
+    \item \textbf{Anzahl gefüllter Gläser}
+    \item \textbf{Durchschnittliche Abweichung} in Gramm
+    \item \textbf{Diagramm der letzten 10 Zapfvorgänge} (gewünscht vs. tatsächlich)
+    \item \textbf{Fehlerverteilung} – Anteil von Überschreitungen, Unterschreitungen und \textit{perfekten} Füllungen
+\end{itemize}
+
+Diese Daten können verwendet werden, um:
+
+\begin{itemize}[leftmargin=*]
+    \item Zu bewerten, ob die Regelparameter passend sind
+    \item Zu erkennen, ob systematisch zu viel oder zu wenig abgefüllt wird
+    \item Die Produktionsdokumentation und Mengenaufzeichnung zu unterstützen
+\end{itemize}
+
+\end{document}

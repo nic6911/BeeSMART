@@ -46,7 +46,7 @@ Montage: https://youtu.be/ojsv-gZ6waY
 
 ### Specs
 Leverer inden for +/- 5g. Doseringsmængden kan indstilles mellem 50g og 20kg (Vær opmærksom på vægtens max belastning som kan være væsentligt mindre end 20kg !).
-Se manual for funktionalitet: https://github.com/nic6911/BeeSMART/blob/main/BeeSMART_manual.pdf
+Se manual for funktionalitet: https://github.com/nic6911/BeeSMART/blob/develop/Documentation/manualDK.pdf
 
 --- 
 
@@ -61,7 +61,7 @@ Montage: https://youtu.be/ojsv-gZ6waY
 
 ### Specs
 Es ist möglich mit einer Genauigkeit von +/- 5g zu erreichen. Der Menge kann zwischen 50g und 20kg eingestellt werden (Achte auf die maximale Belastung der Waage, die möglicherweise deutlich weniger als 20 kg beträgt !).
-Für detaillierte Beschreibung von Funktionalität bitte lesen sie das Manual hier: https://github.com/nic6911/BeeSMART/blob/main/DE_BeeSMART_manual.pdf
+Für detaillierte Beschreibung von Funktionalität bitte lesen sie das Manual hier: https://github.com/nic6911/BeeSMART/blob/develop/Documentation/manualDE.pdf
 
 ---
 
@@ -75,7 +75,7 @@ Assembly: https://youtu.be/ojsv-gZ6waY
 
 ### Specs
 An accuracy of +/- 5g is achievable. The amount to fill can be selected in the range from 50g to 20kg (Be mindful of the scale's maximum load, which may be significantly less than 20kg !).
-See the user manual for more information: https://github.com/nic6911/BeeSMART/blob/main/EN_BeeSMART_manual.pdf
+See the user manual for more information: https://github.com/nic6911/BeeSMART/blob/develop/Documentation/manualEN.pdf
 
 ---
 
