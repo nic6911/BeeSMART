@@ -1,0 +1,522 @@
+% ======================================================================
+% BeeSMART Manual (Print-Optimized LaTeX Version)
+% Style B 
+% ======================================================================
+
+\documentclass[11pt,a4paper]{article}
+
+% ---------------------------------------------------------
+% Packages
+% ---------------------------------------------------------
+\usepackage{fontspec}
+\usepackage{titlesec}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{tocloft}
+\usepackage{parskip}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage[english]{babel}
+\usepackage[table]{xcolor}
+\usepackage{qrcode}
+
+% ---------------------------------------------------------
+% Page Setup
+% ---------------------------------------------------------
+\geometry{
+    a4paper,
+    margin=2.2cm
+}
+
+\setstretch{1.25}
+
+% ---------------------------------------------------------
+% BeeSMART Color Palette (translated from CSS)
+% ---------------------------------------------------------
+\definecolor{primary}{HTML}{DAA520}        % Golden Rod
+\definecolor{primarylight}{HTML}{F4D03F}   % Light golden
+\definecolor{primarydark}{HTML}{B7950B}    % Dark golden
+\definecolor{secondary}{HTML}{FF8C00}      % Dark orange
+\definecolor{accent}{HTML}{FFE135}         % Bright yellow
+\definecolor{success}{HTML}{8FBC8F}        % Muted green
+\definecolor{destructive}{HTML}{CD853F}    % Peru
+\definecolor{warning}{HTML}{F0E68C}        % Khaki
+\definecolor{textprimary}{HTML}{2F2F2F}    % Dark gray
+\definecolor{textsecondary}{HTML}{8B7355}  % Warm brown-gray
+\definecolor{separator}{HTML}{DDD3C0}      % Beige
+
+% ---------------------------------------------------------
+% Fonts (Cooper Black + Fredoka One)
+% ---------------------------------------------------------
+\setmainfont{Segoe UI}[
+    Ligatures=TeX
+]
+
+\newfontfamily\cooper{Cooper Black}
+\newfontfamily\fredoka{Fredoka One}
+
+% ---------------------------------------------------------
+% Heading Styles
+% ---------------------------------------------------------
+\titleformat{\section}
+  {\large\bfseries\cooper\color{primarydark}}
+  {\thesection}{1em}{}
+
+\titleformat{\subsection}
+  {\normalsize\bfseries\fredoka\color{secondary}}
+  {\thesubsection}{1em}{}
+
+\titleformat{\subsubsection}
+  {\normalsize\bfseries\color{textprimary}}
+  {\thesubsubsection}{1em}{}
+
+% ---------------------------------------------------------
+% Table of Contents Styling
+% ---------------------------------------------------------
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+% ---------------------------------------------------------
+% Hyperlink Colors
+% ---------------------------------------------------------
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primarydark,
+    urlcolor=secondary
+}
+
+% ---------------------------------------------------------
+% Headers and Footers
+% ---------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{} % clear all
+\lhead{\textcolor{textsecondary}{BeeSMART Manual}}
+\rhead{\textcolor{textsecondary}{\leftmark}}
+\cfoot{\textcolor{textsecondary}{\thepage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{separator}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\footrulewidth}{0pt}
+
+% ---------------------------------------------------------
+% Document Start
+% ---------------------------------------------------------
+\begin{document}
+
+% ---------------------------------------------------------
+% Cover Page
+% ---------------------------------------------------------
+\begin{titlepage}
+    \centering
+    {\cooper\fontsize{28}{32}\selectfont BeeSMART Manual}\\[1.5em]
+    {\fredoka\Large Wi-Fi controlled tap/fill machine}\\[1em]
+    {\large Version 3.0}\\[3em]
+
+    \includegraphics[width=0.6\textwidth]{images/beesmart_bee3.png}\\[3em]
+
+    {\small Developed by Mogens Groth Nicolaisen}\\
+    {\small Last updated: December 2025}
+
+\end{titlepage}
+
+\newpage
+
+% ---------------------------------------------------------
+% Table of Contents
+% ---------------------------------------------------------
+\tableofcontents
+\newpage
+
+% ---------------------------------------------------------
+% 1. Introduction
+% ---------------------------------------------------------
+\section{Introduction}
+
+BeeSMART is a Wi\u2009Fi based honey dispensing system focused on few components, simple operation and relatively low cost. The system can of course also be used for other liquids where weight-based filling is desired.
+
+The system is browser-based and requires no app. Access it from a PC, tablet or smartphone as long as the device can connect to the BeeSMART Wi\u2009Fi.
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{images/Billede1.png}
+\end{center}
+
+The system typically consists of:
+\begin{itemize}[leftmargin=*]
+    \item BeeSMART module with integrated Wi\u2009Fi control and servo
+    \item Servo horn and pushrod
+    \item BeeSMART scale (5 kg)
+    \item USB-C power supply
+    \item Mounting bracket and inserts for different taps
+\end{itemize}
+
+The mounting bracket fits taps with a collar of about 54 mm diameter and at least 10 mm width. Inserts for 40 mm collars are included.
+
+\newpage
+
+% ---------------------------------------------------------
+% 2. Parts List
+% ---------------------------------------------------------
+\section{Parts List}
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{images/Billede2.png}
+\end{center}
+
+Contents of a standard BeeSMART kit:
+
+\begin{center}
+    \renewcommand{\arraystretch}{1.3}
+    
+    \begin{tabular}{ll}
+        \rowcolor{primarylight!40}
+        {\fredoka\textbf{Quantity}} & {\fredoka\textbf{Component}} \\
+        
+        \rowcolor{primarylight!15}
+        2 × & M3 self-locking nut \\
+        
+        \rowcolor{primarylight!5}
+        2 × & M4 nut \\
+        
+        \rowcolor{primarylight!15}
+        1 × & M3 × 16 screw \\
+        
+        \rowcolor{primarylight!5}
+        1 × & M3 × 25 screw \\
+        
+        \rowcolor{primarylight!15}
+        2 × & M4 × 25 screw \\
+        
+        \rowcolor{primarylight!5}
+        1 × & BeeSMART module with servo and Wi\u2009Fi control \\
+        
+        \rowcolor{primarylight!15}
+        1 × & Pushrod \\
+        
+        \rowcolor{primarylight!5}
+        1 × & Servo horn, extension and screw \\
+        
+        \rowcolor{primarylight!15}
+        2 × & Inserts for 40 mm tap \\
+        
+        \rowcolor{primarylight!5}
+        1 × & 5 kg BeeSMART scale \\
+        
+        \rowcolor{primarylight!15}
+        1 × & USB-C power supply \\
+        
+    \end{tabular}
+\end{center}
+\newpage
+
+% ---------------------------------------------------------
+% 3. Video material
+% ---------------------------------------------------------
+\section{Video material}
+
+There are videos for BeeSMART covering:
+
+\begin{itemize}[leftmargin=*]
+    \item Assembly and mounting of BeeSMART
+    \item Demonstration of dispensing functions
+    \item Usage examples with different settings
+\end{itemize}
+
+\vspace{2em}
+The videos are especially useful during initial setup and for fine-tuning the servo and control parameters.
+\vspace{2em}
+
+\begin{center}
+	\begin{tabular}{cc}
+		
+		% ------------------ Row 1, Col 1 ------------------
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\qrcode[height=3.5cm]{https://youtu.be/7Y-k81tILdg}\\[0.3em]
+			
+			\href{https://youtu.be/7Y-k81tILdg}{%
+				{\fredoka\color{primarydark}\Large Demo 1}%
+			}\\[-0.2em]
+			
+			\href{https://youtu.be/7Y-k81tILdg}{%
+				{\small BeeSMART in use}%
+			}
+		\end{minipage}
+		&
+		% ------------------ Row 1, Col 2 ------------------
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\qrcode[height=3.5cm]{https://youtube.com/shorts/xE0CEP3kYTg}\\[0.3em]
+			
+			\href{https://youtube.com/shorts/xE0CEP3kYTg}{%
+				{\fredoka\color{primarydark}\Large Demo 2}%
+			}\\[-0.2em]
+			
+			\href{https://youtube.com/shorts/xE0CEP3kYTg}{%
+				{\small BeeSMART in use}%
+			}
+		\end{minipage}
+		
+		\\[8em]
+		
+		% ------------------ Row 2, Col 1 ------------------
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\qrcode[height=3.5cm]{https://youtu.be/kUqcvOjCH5E}\\[0.3em]
+			
+			\href{https://youtu.be/kUqcvOjCH5E}{%
+				{\fredoka\color{primarydark}\Large Demo 3}%
+			}\\[-0.2em]
+			
+			\href{https://youtu.be/kUqcvOjCH5E}{%
+				{\small Advanced features in 3.0}%
+			}
+		\end{minipage}
+		&
+		% ------------------ Row 2, Col 2 ------------------
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\qrcode[height=3.5cm]{https://youtu.be/ojsv-gZ6waY}\\[0.3em]
+			
+			\href{https://youtu.be/ojsv-gZ6waY}{%
+				{\fredoka\color{primarydark}\Large Mounting}%
+			}\\[-0.2em]
+			
+			\href{https://youtu.be/ojsv-gZ6waY}{%
+				{\small Tap and bracket}%
+			}
+		\end{minipage}
+		
+	\end{tabular}
+\end{center}
+
+\newpage
+
+% ---------------------------------------------------------
+% 4. User guide
+% ---------------------------------------------------------
+\section{User guide}
+
+\subsection{Connection and access}
+
+After connecting USB power, the servo and the scale, BeeSMART will create a Wi\u2009Fi Access Point. This should appear within approximately 30 seconds. If not, briefly press the reset button on the module.
+
+\begin{center}
+\includegraphics[width=0.5\textwidth]{images/Billede3.png}
+\end{center}
+
+Connect to the displayed BeeSMART network from a PC, tablet or smartphone. In many cases a browser will open automatically with the BeeSMART interface. If this does not happen, open a browser manually and enter the following address:
+
+\begin{verbatim}
+192.168.4.1
+\end{verbatim}
+
+\subsection{Main screen}
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{images/Billede4.png}
+\end{center}
+
+The main screen provides an overview of:
+
+\begin{itemize}[leftmargin=*]
+    \item Desired quantity to be dispensed (excluding jar)
+    \item Current weight on the scale
+    \item Status text at the bottom describing what the system is doing
+\end{itemize}
+
+The \textbf{Start} button begins a dispense cycle, while \textbf{Stop} interrupts a running dispense.
+
+The \textbf{Automatic start of dispensing} feature can be enabled via a switch. When enabled, BeeSMART will automatically start a new dispense when a new empty jar is detected on the scale.
+
+\subsection{Settings}
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{images/Billede5.png}
+\end{center}
+
+On the \textit{Settings} page you can configure:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Desired quantity} (honey without jar)
+    \item \textbf{Close tap when X g remain}
+    \item \textbf{Jar detection: Jar weighs more than}
+    \item \textbf{Max dispense quantity}
+    \item \textbf{Tare} (reset scale)
+    \item \textbf{Language selection} (e.g. Danish, German, English)
+\end{itemize}
+
+\subsubsection*{Close tap when X g remain}
+
+This setting specifies how many grams before the desired quantity the tap is fully closed. It compensates for dripping and the last honey remaining after closing.
+
+\subsubsection*{Jar detection}
+
+The jar weight threshold sets how heavy an empty jar must be to be detected. This prevents dispensing without a jar on the scale.
+
+\subsubsection*{Max dispense quantity}
+
+This value increases the maximum of the \textit{Desired quantity} slider if larger fills are needed. The default maximum the scale can handle is 5 kg.
+
+\subsubsection*{Tare}
+
+\textbf{Tare} resets the scale. Use with an empty scale.
+
+\newpage
+
+% ---------------------------------------------------------
+% 5. Advanced
+% ---------------------------------------------------------
+\section{Advanced}
+
+On the \textit{Advanced} page you can adjust control parameters (PID), the servo travel and the scale calibration.
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{images/Billede6.png}
+\end{center}
+
+The scale is calibrated at the factory. Calibration is normally not required unless significant deviations are observed.
+
+\subsection{PID control parameters}
+
+BeeSMART uses PID-like control parameters to control servo opening relative to measured weight. Predefined viscosity profiles are available:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Low} – for thinner honey/liquid
+    \item \textbf{Medium} – default
+    \item \textbf{High} – for very thick honey
+    \item \textbf{Custom} – free adjustment of Kp, Ti and Kd
+\end{itemize}
+
+Typical default values that often work well are:
+\begin{itemize}[leftmargin=*]
+    \item Kp = 8
+    \item Ti = 7
+    \item Kd = 2
+\end{itemize}
+
+\subsubsection*{Kp (Proportional)}
+
+Kp is multiplied by the difference between desired weight and current weight in the jar — i.e. the missing amount. A small Kp yields a small tap opening, while a larger Kp yields a larger opening for the same error.
+
+\begin{itemize}[leftmargin=*]
+    \item Larger Kp typically means faster filling.
+    \item Too large Kp increases the risk of overfilling.
+\end{itemize}
+
+\subsubsection*{Ti (Integral/time constant)}
+
+Ti describes the system's \textit{patience}. A small Ti means the system reacts quickly to missing honey and opens more. A large Ti causes slower reactions.
+
+\begin{itemize}[leftmargin=*]
+    \item Smaller Ti leads to faster correction.
+    \item Too small Ti can cause overshoot and instability.
+\end{itemize}
+
+\subsubsection*{Kd (Derivative)}
+
+Kd reacts to how fast the weight is changing. If the jar fills very fast, Kd helps temporarily reduce servo opening so the rate slows. When the weight change becomes smaller again, Kd loses effect and the tap can open more.
+
+\begin{itemize}[leftmargin=*]
+    \item Too high Kd can cause an \textit{open–close–open} behavior.
+    \item Kd can help avoid overshoot when the source is nearly empty or the honey is relatively thin.
+    \item Generally Kd can often be set to 0 unless extra damping is needed.
+\end{itemize}
+
+\subsubsection*{General recommendations}
+
+\begin{itemize}[leftmargin=*]
+    \item Larger Kp = faster filling, but higher risk of overshoot.
+    \item Smaller Ti = faster filling, but higher risk of overshoot.
+    \item Increase Kd only cautiously and in small steps.
+\end{itemize}
+
+\subsection{Servo setup}
+
+On the same page you can set \textit{Servo Minimum} and \textit{Servo Maximum}. Buttons are provided to move the servo to min and max positions for testing.
+
+\subsubsection*{Setting servo travel}
+
+\begin{enumerate}[leftmargin=*]
+    \item Remove the servo horn from the servo.
+    \item Ensure the tap is physically closed.
+    \item Set \textit{Servo Minimum} to a suitable value and move the servo to the min position.
+    \item Mount the servo horn so the tap is just closed in the min position and tighten the screw.
+    \item Increase \textit{Servo Maximum} gradually while testing the opening until a suitable full opening is reached.
+\end{enumerate}
+
+\begin{center}
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/Billede7.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/Billede8.png}
+    \end{minipage}
+\end{center}
+
+\subsection{Scale calibration}
+
+The scale is delivered calibrated. Calibration is normally only necessary if systematic deviations are repeatedly observed.
+
+On the page select a calibration weight (e.g. 50 g, 283 g or 1000 g) and follow the calibration procedure. NOTE: The scale must be empty when pressing "Calibrate". Use a as-accurate reference weight as possible.
+
+\newpage
+
+% ---------------------------------------------------------
+% 6. Control parameters — Details
+% ---------------------------------------------------------
+\section{Control parameters — Details}
+
+The control parameters Kp, Ti and Kd work together to control fill speed and ensure the desired weight is reached as accurately as possible.
+
+\subsection*{When adjusting parameters}
+
+\begin{itemize}[leftmargin=*]
+    \item Always start from the default values.
+    \item Adjust only one parameter at a time.
+    \item Use the Statistics page to evaluate results over multiple fills.
+\end{itemize}
+
+\subsection*{Typical scenarios}
+
+\begin{itemize}[leftmargin=*]
+    \item If fills typically end below the desired weight, increase Kp or Ti.
+    \item If often overfilled, decrease Kp and/or increase Ti; consider slightly increasing Kd.
+    \item Very thick honey may require larger Kp to maintain good flow.
+\end{itemize}
+
+\newpage
+
+% ---------------------------------------------------------
+% 7. Statistics
+% ---------------------------------------------------------
+\section{Statistics}
+
+The Statistics page provides an overview of how fills performed relative to the desired weight.
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{images/Billede9.png}
+\end{center}
+
+Typically shown:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Total dispensed volume} (e.g. in kg)
+    \item \textbf{Number of jars filled}
+    \item \textbf{Average deviation} in grams
+    \item \textbf{Graph of last 10 fills} (desired vs actual)
+    \item \textbf{Error distribution} — share of overfills, underfills and \textit{perfect} fills
+\end{itemize}
+
+These data can be used to:
+
+\begin{itemize}[leftmargin=*]
+    \item Evaluate if control parameters are suitable
+    \item Identify systematic overfilling or underfilling
+    \item Support production documentation and quantity tracking
+\end{itemize}
+
+\end{document}
