@@ -39,8 +39,7 @@
 /*═══════════════════════════════════════════════════════════════════════════════
   EXTERNAL FONT IMPORTS
 ══════════════════════════════════════════════════════════════════════════════*/
-@import url('https://fonts.googleapis.com/css2?family=Cooper+Black&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&display=swap');
+/* Google Fonts removed — no internet on ESP32 AP network. CSS fallbacks are used. */
 
 /*═══════════════════════════════════════════════════════════════════════════════
   CSS CUSTOM PROPERTIES (DESIGN TOKENS)
@@ -333,6 +332,11 @@ body {
     background: var(--primary-color);
     color: white;
     transform: translateY(-2px);
+}
+
+.secondary-button.active {
+    background: var(--primary-color);
+    color: white;
 }
 
 .large {
