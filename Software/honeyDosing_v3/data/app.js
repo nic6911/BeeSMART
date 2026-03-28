@@ -1,7 +1,7 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════════════════╗
  * ║                  BeeSMART Honey Dosing System - Web Interface                ║
- * ║                                Version 3.1.0                                 ║
+ * ║                                Version 3.2.0                                 ║
  * ╚══════════════════════════════════════════════════════════════════════════════╝
  * 
  * @file app.js
@@ -211,12 +211,28 @@ class BeeSMART {
             prestopTextHeading: ["Luk hanen når der mangler", "Hahn schließen wenn fehlt", "Close valve when missing"],
             minGlassWeightTextHeading: ["Glasregistrering: Glas vejer mere end", "Glaserkennung: Glas wiegt mehr als", "Glass detection: Glass weighs more than"],
             maxWeightTextHeading: ["Max tappemængde", "Max Abfüllmenge", "Max dispensing amount"],
-            tareTextHeading: ["Tare kun med tom vægt !", "Nur mit leerem Gewicht tarieren!", "Tare with empty scale only!"]
+            tareTextHeading: ["Tare kun med tom vægt !", "Nur mit leerem Gewicht tarieren!", "Tare with empty scale only!"],
+            
+            // Connection status
+            connectedText: ["Forbundet", "Verbunden", "Connected"],
+            connectingText: ["Forbinder...", "Verbinde...", "Connecting..."]
         };
 
         //═══════════════════════════════════════════════════════════════════════
         // APPLICATION INITIALIZATION
         //═══════════════════════════════════════════════════════════════════════
+        // Debounce helper to reduce HTTP traffic from slider drag events
+        this._commandTimers = {};
+        this._debouncedSendCommand = (command, payload, delay = 250) => {
+            if (this._commandTimers[command]) {
+                clearTimeout(this._commandTimers[command]);
+            }
+            this._commandTimers[command] = setTimeout(() => {
+                this.sendCommand(command, payload);
+                delete this._commandTimers[command];
+            }, delay);
+        };
+
         this.init();
     }
 
@@ -234,7 +250,6 @@ class BeeSMART {
         this.initializeStatistics();
         this.startPolling();
         this.updateLanguage();
-        this.loadStatisticsFromStorage();
     }
     
     //═══════════════════════════════════════════════════════════════════════════
@@ -284,7 +299,7 @@ class BeeSMART {
                 this.settings.desiredAmount = value;
                 document.getElementById('sliderValue').textContent = value + 'g';
                 if (amountInput) amountInput.value = value;
-                this.sendCommand('setAmount', { value });
+                this._debouncedSendCommand('setAmount', { value });
             });
         }
         
@@ -335,7 +350,7 @@ class BeeSMART {
                 this.settings.servoMin = value;
                 e.target.value = value;
                 document.getElementById('servoMinValue').textContent = value + '°';
-                this.sendCommand('setServoMin', { value });
+                this._debouncedSendCommand('setServoMin', { value });
             });
         }
 
@@ -345,17 +360,27 @@ class BeeSMART {
                 this.settings.servoMax = value;
                 e.target.value = value;
                 document.getElementById('servoMaxValue').textContent = value + '°';
-                this.sendCommand('setServoMax', { value });
+                this._debouncedSendCommand('setServoMax', { value });
             });
         }
 
-        // Servo test buttons
-        document.getElementById('servoMinButton')?.addEventListener('click', () => {
+        // Servo test buttons - track which was last pressed
+        const servoMinBtn = document.getElementById('servoMinButton');
+        const servoMaxBtn = document.getElementById('servoMaxButton');
+
+        // Min position is the initial/default state
+        if (servoMinBtn) servoMinBtn.classList.add('active');
+
+        servoMinBtn?.addEventListener('click', () => {
             this.sendCommand('servoTest', { position: 'min' });
+            servoMinBtn.classList.add('active');
+            servoMaxBtn?.classList.remove('active');
         });
 
-        document.getElementById('servoMaxButton')?.addEventListener('click', () => {
+        servoMaxBtn?.addEventListener('click', () => {
             this.sendCommand('servoTest', { position: 'max' });
+            servoMaxBtn.classList.add('active');
+            servoMinBtn?.classList.remove('active');
         });
 
         // Other input controls
@@ -397,7 +422,7 @@ class BeeSMART {
                 this.settings.calWeight = value;
                 document.getElementById('calSliderValue').textContent = value + 'g';
                 if (calWeightInput) calWeightInput.value = value;
-                this.sendCommand('setCalWeight', { value });
+                this._debouncedSendCommand('setCalWeight', { value });
             });
         }
 
@@ -452,7 +477,6 @@ class BeeSMART {
     }
 
     /**
-     * Update PID parameter input editability based on viscosity selection
      * Only User Defined (viscosity 0) allows manual PID parameter editing
      * @returns {void}
      */
@@ -494,7 +518,10 @@ class BeeSMART {
         }, 200);
 
         // Fetch settings less frequently (every 2 seconds)
-        setInterval(() => {
+        if (this.settingsInterval) {
+            clearInterval(this.settingsInterval);
+        }
+        this.settingsInterval = setInterval(() => {
             this.fetchSettings();
         }, 2000);
     }
@@ -606,9 +633,18 @@ class BeeSMART {
         if (typeof data.language !== 'undefined' && typeof data.lang === 'undefined') {
             data.lang = data.language; // mirror into expected internal field
         }
-        // Update settings object
+        // Map setting keys to their debounced command names
+        const settingToCommand = {
+            desiredAmount: 'setAmount',
+            servoMin: 'setServoMin',
+            servoMax: 'setServoMax',
+            calWeight: 'setCalWeight'
+        };
+        // Update settings object, but skip keys with pending debounced commands
         Object.keys(data).forEach(key => {
             if (this.settings.hasOwnProperty(key)) {
+                const cmd = settingToCommand[key];
+                if (cmd && this._commandTimers[cmd]) return; // pending local change
                 this.settings[key] = data[key];
             }
         });
@@ -635,9 +671,11 @@ class BeeSMART {
      * @returns {void}
      */
     updateSliders() {
+        const focused = document.activeElement;
+
         const amountSlider = document.getElementById('amountSlider');
         if (amountSlider) {
-            amountSlider.value = this.settings.desiredAmount;
+            if (amountSlider !== focused) amountSlider.value = this.settings.desiredAmount;
             amountSlider.max = this.settings.maxWeight;
             document.getElementById('sliderValue').textContent = this.settings.desiredAmount + 'g';
             document.getElementById('maxWeightDisplay').textContent = this.settings.maxWeight + 'g';
@@ -653,14 +691,14 @@ class BeeSMART {
         const servoMaxSlider = document.getElementById('servoMaxSlider');
         
         if (servoMinSlider) {
-            servoMinSlider.value = this.settings.servoMin;
+            if (servoMinSlider !== focused) servoMinSlider.value = this.settings.servoMin;
             servoMinSlider.min = 0;   // Fixed range: 0-90 degrees
             servoMinSlider.max = 90;
             document.getElementById('servoMinValue').textContent = this.settings.servoMin + '°';
         }
         
         if (servoMaxSlider) {
-            servoMaxSlider.value = this.settings.servoMax;
+            if (servoMaxSlider !== focused) servoMaxSlider.value = this.settings.servoMax;
             servoMaxSlider.min = 90;  // Fixed range: 90-180 degrees  
             servoMaxSlider.max = 180;
             document.getElementById('servoMaxValue').textContent = this.settings.servoMax + '°';
@@ -668,7 +706,7 @@ class BeeSMART {
 
         const calWeightSlider = document.getElementById('calWeightSlider');
         if (calWeightSlider) {
-            calWeightSlider.value = this.settings.calWeight;
+            if (calWeightSlider !== focused) calWeightSlider.value = this.settings.calWeight;
             document.getElementById('calSliderValue').textContent = this.settings.calWeight + 'g';
         }
     }
@@ -689,9 +727,11 @@ class BeeSMART {
             'calWeightInput': this.settings.calWeight
         };
 
+        const focused = document.activeElement;
+
         Object.entries(inputs).forEach(([id, value]) => {
             const element = document.getElementById(id);
-            if (element && element.value != value) {
+            if (element && element !== focused && element.value != value) {
                 element.value = value;
             }
         });
@@ -1096,10 +1136,10 @@ class BeeSMART {
         
         if (connected) {
             statusElement?.classList.add('connected');
-            if (text) text.textContent = 'Forbundet';
+            if (text) text.textContent = this.languages.connectedText[this.currentLanguage];
         } else {
             statusElement?.classList.remove('connected');
-            if (text) text.textContent = 'Forbinder...';
+            if (text) text.textContent = this.languages.connectingText[this.currentLanguage];
         }
     }
 

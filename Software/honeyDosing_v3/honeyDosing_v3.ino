@@ -1,7 +1,7 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════════════════╗
  * ║                          BeeSMART Honey Dosing System                        ║
- * ║                                 Version 3.1.0                                ║
+ * ║                                 Version 3.2.0                                ║
  * ╚══════════════════════════════════════════════════════════════════════════════╝
  * 
  * @file honeyDosing_v3.ino
@@ -74,6 +74,7 @@
 //═══════════════════════════════════════════════════════════════════════════════
 #include <DNSServer.h>       // Captive portal DNS redirection
 #include <WiFi.h>            // ESP32 WiFi functionality  
+#include <ESPmDNS.h>         // mDNS for beesmart.local hostname
 #include <WebServer.h>       // HTTP server for REST API
 #include <ArduinoJson.h>     // JSON parsing and generation
 #include "ArduPID.h"         // Advanced PID control library
@@ -147,7 +148,7 @@ uint8_t gainSelector = 2;         // Current viscosity preset (0-3), default: Me
 
 //──────────────────────────────────────────────────────────────────────────────
 // Persistent cumulative statistics (across reboots)
-// Added in v3.1.0 - appended to settings file for backward compatibility
+// Added in v3.1.0 (kept in v3.2.0) - appended to settings file for backward compatibility
 //──────────────────────────────────────────────────────────────────────────────
 uint32_t cumulativeDispensedGrams = 0;  // Sum of all actual dispensed grams
 int32_t  cumulativeTotalError    = 0;   // Sum of (actual - target) grams
@@ -182,7 +183,7 @@ int totalDispensingCycles = 0;          // Total lifetime dispensing count
 // Weight limits for safety and validation
 uint16_t minWeight = 50;          // Minimum dosing amount (grams)
 uint16_t maxWeight = 1000;        // Default maximum dosing amount (grams) 
-uint16_t maxWeightLim = 20000;    // Absolute maximum weight limit (grams)
+uint16_t maxWeightLim = 25000;    // Absolute maximum weight limit (grams)
 int stopHysteresis = 2;           // Stop dosing X grams before target (reduced for better accuracy)
 int minGlassWeight = 10;          // Minimum glass weight for detection (grams)
 
@@ -215,6 +216,7 @@ const int calSamples = 100;       // Number of samples for calibration
 bool calAveraging = false;        // Calibration averaging in progress
 String calWeight = "250";         // Calibration weight value (grams)
 uint8_t cnt = 0;                  // General purpose counter
+unsigned long glassDetectStart = 0; // Timestamp when glass was first detected
 
 // Servo test mode variables  
 bool servoTestMode = false;       // Servo test mode active flag
@@ -337,7 +339,7 @@ void readFile(fs::FS &fs, const char * path) {
   // Parse comma-separated values (CSV format)
   // Legacy format (<=v3.0.0): kP0,Ti0,kD0,kP1,Ti1,kD1,kP2,Ti2,kD2,kP3,Ti3,kD3,
   //                            amount,servoMin,servoMax,lang,hysteresis,glassWeight,maxWeight,totalCycles,viscosity
-  // Extended format (>=v3.1.0) appends: cumulativeDispensedGrams,cumulativeTotalError,cumulativeTargetGrams
+  // Extended format (>=v3.1.0, kept in v3.2.0) appends: cumulativeDispensedGrams,cumulativeTotalError,cumulativeTargetGrams
   indx[0] = 0;
   for (int i = 1; i <= 24; i++) { // allow room for new fields
     indx[i] = array.indexOf(',', indx[i-1] + 1);
@@ -347,7 +349,8 @@ void readFile(fs::FS &fs, const char * path) {
     // Set 0: User Defined, Set 1: Low, Set 2: Medium, Set 3: High
     for (int set = 0; set < 4; set++) {
         int baseIdx = set * 3;
-        kP[set] = array.substring(indx[baseIdx], indx[baseIdx + 1]).toDouble();
+        int startPos = (baseIdx == 0) ? 0 : indx[baseIdx] + 1;
+        kP[set] = array.substring(startPos, indx[baseIdx + 1]).toDouble();
         Ti[set] = array.substring(indx[baseIdx + 1] + 1, indx[baseIdx + 2]).toDouble();
         kD[set] = array.substring(indx[baseIdx + 2] + 1, indx[baseIdx + 3]).toDouble();
     }
@@ -436,7 +439,6 @@ void writeFile(fs::FS &fs, const char * path, String message) {
     
     file.print(message);
     file.close();
-    delay(100); // Ensure write completion
 }
 
 /**
@@ -661,7 +663,7 @@ void initPID(float lowlim, float highlim) {
     // Configure PID with current viscosity preset parameters
     myController.begin(&input, &output, &setpointPI, 
                       kP[gainSelector]/10,        // Proportional gain (scaled)
-                      0.01/Ti[gainSelector],      // Integral coefficient  
+                      (Ti[gainSelector] > 0) ? (0.01/Ti[gainSelector]) : 0,  // Integral coefficient (guard div-by-zero)
                       kD[gainSelector]);          // Derivative gain
     
     // Set control loop timing and constraints
@@ -689,6 +691,8 @@ void stopSystem() {
     output = 0;              // Close dispensing valve
     stateMachine = 4;        // Set to idle state
     stopConditionCount = 0;  // Reset stop condition counter
+    cnt = 0;                 // Reset glass detection counter
+    glassDetectStart = 0;    // Reset glass detection timer
     
     Serial.println("SYSTEM STOPPED - Auto-start disabled. Weight: " + String(adjustedWeight) + "g, Target: " + String(setpoint) + "g");
 }
@@ -804,7 +808,7 @@ void handleApiStatus() {
       if (LittleFS.exists("/cal.txt")) {
         calMsg = calStep1Text[lang]; // System is calibrated, ready for re-calibration
       } else {
-        calMsg = "System skal kalibreres, tryk Kalibrer for at starte"; // System needs calibration
+        calMsg = calStep2Text[lang]; // System needs calibration - use translated text
       }
       break;
     case 1: calMsg = calStep2Text[lang]; break;
@@ -898,14 +902,17 @@ void handleApiCommand() {
   
   String body = server.arg("plain");
   DynamicJsonDocument doc(1024);
-  deserializeJson(doc, body);
+  if (deserializeJson(doc, body)) {
+    server.send(400, "application/json", "{\"error\":\"Invalid JSON\"}");
+    return;
+  }
   
   String command = doc["command"];
   JsonObject payload = doc["payload"];
   
   // Handle commands (same logic as before)
   if (command == "start") {
-    if (stateMachine == 4) {
+    if (stateMachine == 4 && calStateMachine == 0) {
       stateMachine = 1;
     }
   }
@@ -920,35 +927,35 @@ void handleApiCommand() {
     markSettingsChanged(); // Auto-save after delay
   }
   else if (command == "setAmount") {
-    desiredAmount = String((int)payload["value"]);
+    desiredAmount = String(constrain((int)payload["value"], (int)minWeight, (int)maxWeight));
     markSettingsChanged(); // Auto-save after delay
   }
   else if (command == "setServoMin") {
-    servoMin = payload["value"];
+    servoMin = constrain((int)payload["value"], 0, 90);
     markSettingsChanged(); // Auto-save after delay
   }
   else if (command == "setServoMax") {
-    servoMax = payload["value"];
+    servoMax = constrain((int)payload["value"], 90, 180);
     markSettingsChanged(); // Auto-save after delay
   }
   else if (command == "setStopHysteresis") {
-    stopHysteresis = payload["value"];
+    stopHysteresis = constrain((int)payload["value"], 0, 500);
     markSettingsChanged(); // Auto-save after delay
   }
   else if (command == "setMinGlassWeight") {
-    minGlassWeight = payload["value"];
+    minGlassWeight = constrain((int)payload["value"], 1, 500);
     markSettingsChanged(); // Auto-save after delay
   }
   else if (command == "setMaxWeight") {
-    maxWeight = payload["value"];
+    maxWeight = constrain((int)payload["value"], (int)minWeight, (int)maxWeightLim);
     markSettingsChanged(); // Auto-save after delay
   }
   else if (command == "setCalWeight") {
-    calWeight = String((int)payload["value"]);
+    calWeight = String(max(1, (int)payload["value"]));
     markSettingsChanged(); // Auto-save after delay
   }
   else if (command == "setViscosity") {
-    gainSelector = payload["value"];
+    gainSelector = constrain((int)payload["value"], 0, 3);
     
     // Reset preset viscosity levels to their default values
     if (gainSelector == 1) { // Low viscosity
@@ -964,7 +971,7 @@ void handleApiCommand() {
     saveSettings(); // Save viscosity setting and any preset resets
   }
   else if (command == "setLanguage") {
-    lang = payload["value"];
+    lang = constrain((int)payload["value"], 0, 2);
     saveSettings(); // Immediately save critical setting
   }
   else if (command == "setPID") {
@@ -1012,15 +1019,16 @@ void handleApiCommand() {
     cumulativeTargetGrams = 0;
     saveSettings(); // Immediately save reset statistics (critical event)
   }
+  else {
+    server.send(400, "application/json", "{\"success\":false,\"error\":\"Unknown command\"}");
+    return;
+  }
 
-  
   server.send(200, "application/json", "{\"success\":true}");
 }
 
 // Handle captive portal detection and redirect to main interface
 void handleCaptivePortal() {
-  String host = server.hostHeader();
-  
   // Check if this is a captive portal detection request
   if (server.uri() == "/generate_204" || 
       server.uri() == "/fwlink" || 
@@ -1035,14 +1043,8 @@ void handleCaptivePortal() {
     return;
   }
   
-  // For any other unhandled request, redirect to main interface
-  if (host != "192.168.4.1" && host != "beesmart.local") {
-    server.sendHeader("Location", "http://192.168.4.1/");
-    server.send(302, "text/html", "");
-    return;
-  }
-  
-  // If already on correct host, serve main page
+  // For any other unhandled request, serve main page directly
+  // (DNS wildcard + mDNS means any hostname resolves here)
   File file = LittleFS.open("/index.html", "r");
   if (file) {
     server.streamFile(file, "text/html");
@@ -1086,6 +1088,7 @@ void initWebServer() {
   server.on("/styles.css", [](){
     File file = LittleFS.open("/styles.css", "r");
     if (file) {
+      server.sendHeader("Cache-Control", "no-cache");
       server.streamFile(file, "text/css");
       file.close();
     } else {
@@ -1096,6 +1099,7 @@ void initWebServer() {
   server.on("/app.js", [](){
     File file = LittleFS.open("/app.js", "r");
     if (file) {
+      server.sendHeader("Cache-Control", "no-cache");
       server.streamFile(file, "application/javascript");
       file.close();
     } else {
@@ -1168,7 +1172,7 @@ void initWebServer() {
 void setup(void) {
     Serial.begin(115200);
     Serial.println("\n" + String('═', 80));
-    Serial.println("BeeSMART Honey Dosing System v3.1.0 - Initializing...");
+    Serial.println("BeeSMART Honey Dosing System v3.2.0 - Initializing...");
     Serial.println(String('═', 80));
     
     // Initialize file system for persistent storage
@@ -1209,8 +1213,8 @@ void setup(void) {
     for (int i = 0; i < 17; i = i + 8) {
         chipid |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
     }
-    char ap_ssid[25];
-    snprintf(ap_ssid, 26, "BeeSMART-%08X", chipid);
+    char ap_ssid[26];
+    snprintf(ap_ssid, sizeof(ap_ssid), "BeeSMART-%08X", chipid);
     WiFi.softAP(ap_ssid);
     
     Serial.println("WiFi AP created: " + String(ap_ssid));
@@ -1221,6 +1225,12 @@ void setup(void) {
     dnsServer.start(DNS_PORT, "*", apIP);
     Serial.println("DNS server started for captive portal");
     
+    // Start mDNS so beesmart.local works in any browser
+    if (MDNS.begin("beesmart")) {
+        MDNS.addService("http", "tcp", 80);
+        Serial.println("mDNS started: http://beesmart.local");
+    }
+    
     // Initialize HTTP web server and REST API
     initWebServer();
     
@@ -1230,7 +1240,7 @@ void setup(void) {
     Serial.println("Scale tared and system reset to idle state");
     
     Serial.println(String('═', 80));
-    Serial.println("BeeSMART Honey Dosing System v3.1.0 Ready!");
+    Serial.println("BeeSMART Honey Dosing System v3.2.0 Ready!");
     Serial.println("Connect to WiFi: " + String(ap_ssid));
     Serial.println("Open browser - captive portal will redirect automatically");
     Serial.println(String('═', 80) + "\n");
@@ -1255,13 +1265,14 @@ void setup(void) {
  * network communication and real-time weight updates.
  */
 void loop(void) {
+  // Handle network tasks every iteration for responsive HTTP
+  dnsServer.processNextRequest();
+  server.handleClient();
+
   static unsigned long lastLoopTime = 0;
   unsigned long now = millis();
   if (now - lastLoopTime >= looptime) {
     lastLoopTime = now;
-    // Handle network tasks
-    dnsServer.processNextRequest();
-    server.handleClient();
 
     // Check for auto-save (debounced)
     checkAutoSave();
@@ -1310,8 +1321,9 @@ void loop(void) {
 
         if (calCount >= calSamples) {
           reading = calSum / calSamples;
-          writeFile(LittleFS, "/cal.txt", String((reading / calWeight.toInt())) + ",");
-          scale.set_scale(reading / calWeight.toInt());
+          int cw = max(1L, calWeight.toInt());
+          writeFile(LittleFS, "/cal.txt", String((reading / cw)) + ",");
+          scale.set_scale(reading / cw);
           calAveraging = false;
           calStateMachine = 0;
         }
@@ -1326,19 +1338,22 @@ void loop(void) {
       case 1: // Calibrate glass weight when start is pressed
         if(actualWeight < minGlassWeight){ // Less than minimum weight - no glass detected
           cnt = 0;
+          glassDetectStart = 0;
         }
         else{
+          if(glassDetectStart == 0) glassDetectStart = millis();
           cnt++;
         }
-        if(cnt > 10){ // Glass presence confirmed after 10 readings
+        if(cnt > 0 && (millis() - glassDetectStart >= 2000)){ // Glass stable for 2 seconds
           glasWeight = actualWeight; // Record glass weight
           cnt = 0;
+          glassDetectStart = 0;
           stateMachine = 2;
         }
         break;
       case 2: // Start PID control system
         setpoint = desiredAmount.toInt(); // Lock in selected target weight
-        setpointPI = setpoint/setpoint;
+        setpointPI = 1.0;
         myController.start();
         stateMachine = 3; // Move to filling state
         break;
@@ -1373,7 +1388,7 @@ void loop(void) {
         break;
     }
 
-    input = adjustedWeight/setpoint; // Calculate PID input: current weight ratio (0.0-1.0)
+    input = (setpoint > 0) ? ((double)adjustedWeight / setpoint) : 0.0; // Calculate PID input (guard div-by-zero)
     myController.compute();
 
     // Handle servo test mode with auto-timeout
