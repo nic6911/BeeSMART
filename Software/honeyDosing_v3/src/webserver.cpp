@@ -162,6 +162,7 @@ void handleApiCommand() {
             stateMachine = 1;
         }
     } else if (command == "stop") {
+        autoState = 0;
         stopSystem();
     } else if (command == "tare") {
         scale.tare();

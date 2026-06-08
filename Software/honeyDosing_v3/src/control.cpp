@@ -22,12 +22,11 @@ void initPID(float lowlim, float highlim) {
 void stopSystem() {
     myController.stop();
     myController.reset();
-    autoState = 0;
     output = 0;
     stateMachine = 4;
     stopConditionCount = 0;
 
-    Serial.println("SYSTEM STOPPED - Auto-start disabled. Weight: " + String(adjustedWeight) + "g, Target: " + String(setpoint) + "g");
+    Serial.println("SYSTEM STOPPED. Weight: " + String(adjustedWeight) + "g, Target: " + String(setpoint) + "g");
 }
 
 void runCalibrationStateMachine() {
