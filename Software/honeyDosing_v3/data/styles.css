@@ -1,7 +1,7 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════════════════╗
  * ║              BeeSMART Honey Dosing System - Modern Responsive Styling        ║
- * ║                                 Version 3.1.0                                ║
+ * ║                                Version 3.3.0                                ║
  * ╚══════════════════════════════════════════════════════════════════════════════╝
  * 
  * @file styles.css
@@ -35,11 +35,6 @@
  * @license Open Source - Please maintain attribution
  * @date November 2025
  */
-
-/*═══════════════════════════════════════════════════════════════════════════════
-  EXTERNAL FONT IMPORTS
-══════════════════════════════════════════════════════════════════════════════*/
-/* Google Fonts removed — no internet on ESP32 AP network. CSS fallbacks are used. */
 
 /*═══════════════════════════════════════════════════════════════════════════════
   CSS CUSTOM PROPERTIES (DESIGN TOKENS)
@@ -337,6 +332,7 @@ body {
 .secondary-button.active {
     background: var(--primary-color);
     color: white;
+    box-shadow: 0 0 0 2px var(--primary-color), 0 0 0 4px white;
 }
 
 .large {
@@ -844,54 +840,6 @@ body {
 /* SPECIALIZED FEATURES               */
 /* ================================== */
 
-/* Performance indicators with user-friendly colors */
-.performance-indicator {
-    font-weight: 700;
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--radius-sm);
-    transition: all var(--transition-normal);
-}
-
-.precision-learning {
-    background: rgba(255, 140, 0, 0.15);
-    color: var(--secondary-color);
-}
-
-.precision-good {
-    background: rgba(218, 165, 32, 0.15);
-    color: var(--primary-color);
-}
-
-.precision-very-good {
-    background: rgba(143, 188, 143, 0.15);
-    color: var(--success-color);
-}
-
-.precision-excellent {
-    background: rgba(50, 205, 50, 0.15);
-    color: #32CD32;
-}
-
-.experience-new {
-    background: rgba(135, 206, 235, 0.15);
-    color: #4682B4;
-}
-
-.experience-learning {
-    background: rgba(255, 140, 0, 0.15);
-    color: var(--secondary-color);
-}
-
-.experience-experienced {
-    background: rgba(218, 165, 32, 0.15);
-    color: var(--primary-color);
-}
-
-.experience-expert {
-    background: rgba(50, 205, 50, 0.15);
-    color: #32CD32;
-}
-
 /* Info notes styling */
 .info-note, .performance-note {
     margin-top: var(--spacing-sm);
@@ -904,28 +852,6 @@ body {
 .info-note small, .performance-note small {
     color: var(--text-secondary);
     line-height: 1.4;
-}
-
-/* Enhanced button styling for system reset */
-#resetSystemButton {
-    background: linear-gradient(135deg, var(--destructive-color), #D2691E);
-    border: none;
-    transition: all var(--transition-normal);
-}
-
-#resetSystemButton:hover {
-    background: linear-gradient(135deg, #D2691E, var(--destructive-color));
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-lg);
-}
-
-
-
-/* Control Mode Selection */
-input[name="controlMode"]:checked + label {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-    color: white;
-    border-color: var(--primary-dark);
 }
 
 
@@ -994,113 +920,9 @@ input[name="controlMode"]:checked + label {
     opacity: 0.8;
 }
 
-/* Legacy PID card specific styling */
-#legacyPidParametersCard {
-    border-left: 3px solid #FF6B35;
-}
-
-#legacyPidParametersCard .section-title {
-    color: #FF6B35;
-}
-
-/* Calibration Status with Progress Background */
+/* Calibration Status Container */
 .calibration-status-container {
     margin: 16px 0;
-}
-
-.calibration-progress-bg {
-    position: relative;
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid #E5D5B7;
-    border-radius: 8px;
-    padding: 16px;
-    text-align: center;
-    min-height: 24px;
-}
-
-.calibration-progress-fill {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, 
-        rgba(218, 165, 32, 0.2) 0%, 
-        rgba(218, 165, 32, 0.4) 50%,
-        rgba(218, 165, 32, 0.6) 100%);
-    border-radius: 8px;
-    transition: width 0.3s ease-in-out;
-    z-index: 1;
-}
-
-.calibration-status-text {
-    position: relative;
-    z-index: 2;
-    color: #8B7355;
-    font-weight: 600;
-    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
-}
-
-/* Calibration Progress Bar (keep for compatibility) */
-.progress-container {
-    margin: 1rem 0;
-    padding: 1rem;
-    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1));
-    border: 1px solid rgba(255, 193, 7, 0.3);
-    border-radius: var(--radius-md);
-}
-
-.progress-label {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.75rem;
-    font-weight: 600;
-    color: var(--text-color);
-    font-size: 0.9rem;
-}
-
-.progress-bar {
-    width: 100%;
-    height: 12px;
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 6px;
-    overflow: hidden;
-    margin-bottom: 0.5rem;
-    position: relative;
-}
-
-.progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #FFC107, #FF9800);
-    border-radius: 6px;
-    transition: width 0.3s ease;
-    width: 0%;
-    position: relative;
-}
-
-.progress-fill::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    animation: progress-shimmer 2s infinite;
-}
-
-@keyframes progress-shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-}
-
-.progress-details {
-    text-align: center;
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    opacity: 0.8;
 }
 
 /* Chart Container - Dark Theme */
@@ -1159,94 +981,6 @@ input[name="controlMode"]:checked + label {
     width: 12px;
     height: 12px;
     border-radius: 2px;
-}
-
-/* Recent History */
-.history-list {
-    max-height: 300px;
-    overflow-y: auto;
-}
-
-.history-empty {
-    text-align: center;
-    color: var(--text-secondary);
-    font-style: italic;
-    padding: var(--spacing-xl);
-}
-
-.history-item {
-    display: grid;
-    grid-template-columns: 1fr auto auto;
-    gap: var(--spacing-md);
-    align-items: center;
-    padding: var(--spacing-md);
-    border-bottom: 1px solid var(--separator-color);
-    transition: background-color var(--transition-fast);
-}
-
-.history-item:hover {
-    background: rgba(218, 165, 32, 0.05);
-}
-
-.history-item.perfect {
-    border-left: 3px solid var(--success-color);
-    background: rgba(143, 188, 143, 0.05);
-}
-
-.history-item.overshoot {
-    border-left: 3px solid var(--destructive-color);
-    background: rgba(205, 133, 63, 0.05);
-}
-
-.history-item.undershoot {
-    border-left: 3px solid var(--secondary-color);
-    background: rgba(255, 140, 0, 0.05);
-}
-
-.history-weights {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    font-weight: 600;
-}
-
-.history-weights .target {
-    color: var(--primary-color);
-}
-
-.history-weights .arrow {
-    color: var(--text-secondary);
-    font-size: 14px;
-}
-
-.history-weights .actual {
-    color: var(--success-color);
-}
-
-.history-error {
-    font-weight: 700;
-    font-size: 14px;
-    text-align: right;
-    min-width: 60px;
-}
-
-.history-item.perfect .history-error {
-    color: var(--success-color);
-}
-
-.history-item.overshoot .history-error {
-    color: var(--destructive-color);
-}
-
-.history-item.undershoot .history-error {
-    color: var(--secondary-color);
-}
-
-.history-time {
-    font-size: 12px;
-    color: var(--text-secondary);
-    text-align: right;
-    min-width: 70px;
 }
 
 /* Error Distribution Bars */

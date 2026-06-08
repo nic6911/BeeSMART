@@ -1,5 +1,37 @@
 # Changelog
 
+## v3.3.0
+
+### Improvements
+
+- **Modular project structure** — Monolithic 1462-line `.ino` file split into `src/` modules:
+  `globals`, `filesystem`, `statistics`, `control`, `webserver`. The `.ino` entry point
+  is now 134 lines (setup + loop only).
+- **WebSocket broadcast tiers** — Lightweight weight-only JSON (25 Hz) replaces full
+  status broadcasts every loop cycle. Full status (including statistics) broadcasts
+  once per second, reducing browser parsing load.
+- **Immediate auto-off on stop** — Pressing the Stop button now immediately unchecks the
+  "Auto Start" toggle locally, eliminating the 10-second polling delay.
+- **WebP logo** — `beesmart_bee.png` (521 KB) compressed to `beesmart_bee.webp` (62 KB)
+  using quality 80, reducing the LittleFS data directory from 640 KB to 188 KB.
+- **Immediate viscosity PID update** — Changing the viscosity preset now calls
+  `fetchSettings()` immediately, eliminating the 10-second delay for PID field updates
+  in the UI.
+- **LittleFS image builder** — `build_merge.bat` builds the filesystem image from the
+  `data/` directory. Flash it at offset `0x290000`.
+
+### Bug Fixes
+
+- **Stop button does not toggle auto start off** — The client-side stop handler now
+  immediately sets `autoState = false` and updates the toggle, and the WebSocket
+  handler syncs `autoState` from incoming data for consistency.
+- **Input validation regressions** — Restored `setAmount` clamping to `[minWeight, maxWeight]`,
+  `setLanguage` range constraint to 0–2, and `start` command now checks `calStateMachine == 0`.
+- **Unknown API commands return 400** — Unknown commands no longer silently return success.
+- **Slider snap-back race condition** — Debounced slider commands are tracked; settings
+  updates from the server skip fields with pending local changes. Slider values are not
+  overwritten while the user is dragging (focus-aware).
+
 ## v3.2.0
 
 ### Bug Fixes

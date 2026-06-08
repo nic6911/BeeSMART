@@ -4,7 +4,7 @@
     <!--═══════════════════════════════════════════════════════════════════════════
     ║                    BeeSMART Honey Dosing System                              ║
     ║                         Web User Interface                                   ║
-    ║                           Version 3.2.0                                      ║
+    ║                           Version 3.3.0                                      ║
     ╠══════════════════════════════════════════════════════════════════════════════╣
     ║  Modern, responsive web interface for precision honey dispensing control     ║
     ║  Supports multi-language operation and real-time weight monitoring          ║
@@ -53,10 +53,10 @@
         ╚══════════════════════════════════════════════════════════════════════════╝-->
         <header class="app-header">
             <div class="header-content">
-                <img src="beesmart_bee.png" alt="BeeSMART Logo" class="app-logo">
+                <img src="beesmart_bee.webp" alt="BeeSMART Logo" class="app-logo">
                 <div class="header-text">
                     <h1 class="app-title">BeeSMART</h1>
-                    <div class="version">v3.2.0</div>
+                    <div class="version">v3.3.0</div>
                 </div>
             </div>
         </header>
@@ -167,7 +167,7 @@
                 <div class="section-card">
                     <h3 class="section-title" data-key="maxWeightTextHeading">Max tappemængde</h3>
                     <div class="input-group">
-                        <input type="number" id="maxWeightInput" class="modern-input" min="50" max="25000" value="1000">
+                        <input type="number" id="maxWeightInput" class="modern-input" min="50" max="20000" value="1000">
                     </div>
                 </div>
 
@@ -180,9 +180,9 @@
                         </div>
                     </div>
                     <div style="text-align: center;">
-                        <button id="tareButton" class="secondary-button large">
+                        <button id="tareButton" class="secondary-button large" data-key="tareButton">
                             <span class="button-icon">⚖️</span>
-                            <span data-key="tareButton">Tare</span>
+                            Tare
                         </button>
                     </div>
                 </div>
@@ -255,12 +255,12 @@
                         <div class="slider-group">
                             <label data-key="servoMinLabel">Servo Minimum</label>
                             <input type="range" id="servoMinSlider" class="modern-slider" min="0" max="90" value="0">
-                            <div class="slider-value" id="servoMinValue">45°</div>
+                            <div class="slider-value" id="servoMinValue">0°</div>
                         </div>
                         <div class="slider-group">
                             <label data-key="servoMaxLabel">Servo Maximum</label>
                             <input type="range" id="servoMaxSlider" class="modern-slider" min="90" max="180" value="90">
-                            <div class="slider-value" id="servoMaxValue">135°</div>
+                            <div class="slider-value" id="servoMaxValue">90°</div>
                         </div>
                     </div>
                     <div class="servo-button-group">
@@ -309,9 +309,9 @@
                         </div>
                         
                         <div class="control-group" style="justify-content: center; margin-top: 16px;">
-                            <button id="calibrateButton" class="primary-button">
+                            <button id="calibrateButton" class="primary-button" data-key="calButtonText">
                                 <span class="button-icon">⚖️</span>
-                                <span data-key="calButtonText">Kalibrer</span>
+                                <span>Kalibrer</span>
                             </button>
                         </div>
                     </div>
@@ -352,9 +352,9 @@
                     </div>
                     
                     <div class="control-group" style="justify-content: center; margin-top: 20px;">
-                        <button id="resetStatisticsButton" class="secondary-button">
+                        <button id="resetStatisticsButton" class="secondary-button" data-key="resetStatisticsButton">
                             <span class="button-icon">🔄</span>
-                            <span data-key="resetStatisticsButton">Nulstil Statistik</span>
+                            <span>Nulstil Statistik</span>
                         </button>
                     </div>
                 </div>
@@ -430,7 +430,7 @@
 
     <!--═══════════════════════════════════════════════════════════════════════════
     ║                      APPLICATION JAVASCRIPT                                  ║
-    ║  Main application logic and ESP32 communication                             ║
+    ║  WebSocket real-time updates + HTTP for commands & settings                 ║
     ╚══════════════════════════════════════════════════════════════════════════════╝-->
     <script src="app.js"></script>
 </body>
