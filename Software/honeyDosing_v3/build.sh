@@ -61,6 +61,14 @@ PARTITIONS="$BUILD_DIR/$SKETCH.partitions.bin"
 APP="$BUILD_DIR/$SKETCH.bin"
 LITTLEFS="$BUILD_DIR/littlefs.bin"
 
+# Find boot_app0.bin from the ESP32 core package (required OTA data initializer at 0xe000)
+ESP32_CORE=$(ls -d ~/.arduino15/packages/esp32/hardware/esp32/*/ 2>/dev/null | sort -V | tail -1)
+BOOTAPP0="${ESP32_CORE}tools/partitions/boot_app0.bin"
+if [ ! -f "$BOOTAPP0" ]; then
+    echo "ERROR: boot_app0.bin not found at $BOOTAPP0"
+    exit 1
+fi
+
 python3 -m esptool --chip esp32c3 merge-bin \
     --flash-mode "$FLASH_MODE" \
     --flash-freq "$FLASH_FREQ" \
@@ -68,6 +76,7 @@ python3 -m esptool --chip esp32c3 merge-bin \
     --output "$COMBINED_BIN" \
     0x00000 "$BOOTLOADER" \
     0x08000 "$PARTITIONS" \
+    0x0e000 "$BOOTAPP0" \
     0x10000 "$APP" \
     0x290000 "$LITTLEFS"
 
