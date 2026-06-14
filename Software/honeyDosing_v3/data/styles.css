@@ -346,10 +346,6 @@ body {
     justify-content: center;
 }
 
-.button-icon {
-    font-size: 1.2em;
-}
-
 /* Control Groups */
 .control-group {
     display: flex;
