@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BeeSMART Screenshot Template</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: linear-gradient(135deg, #F4D03F 0%, #FF8C00 100%);
+  color: #2F2F2F;
+  padding: 20px;
+}
+
+.lang-nav {
+  display: flex; gap: 8px; justify-content: center; margin-bottom: 20px;
+}
+.lang-btn {
+  padding: 10px 24px; cursor: pointer; border: none; border-radius: 10px;
+  font-size: 0.9rem; font-weight: 600; background: #DDD3C0; color: #8B7355;
+  transition: all 0.3s;
+}
+.lang-btn.active { background: #FFFEF7; color: #DAA520; box-shadow: 0 1px 6px rgba(0,0,0,0.1); }
+
+.lang-content { display: none; }
+.lang-content.active { display: block; }
+
+.mockup-wrapper {
+  display: inline-block;
+  margin: 24px;
+  border: 1px solid #DDD3C0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #FFF8DC;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  width: 960px;
+  max-width: 100%;
+  vertical-align: top;
+}
+
+.browser-chrome {
+  background: #DDD3C0; color: #2F2F2F; padding: 8px 16px;
+  font-size: 0.85rem; font-weight: 600;
+  display: flex; align-items: center; gap: 10px;
+}
+.browser-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.browser-dot.red { background: #FF5F56; }
+.browser-dot.yellow { background: #FFBD2E; }
+.browser-dot.green { background: #27C93F; }
+
+.browser-navbar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 16px; background: #F0EDE0; border-bottom: 1px solid #DDD3C0;
+}
+.browser-url {
+  flex: 1; background: #fff; border: 1px solid #DDD3C0;
+  border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; color: #8B7355;
+}
+
+/* Web App styles - matching real app */
+.web-header {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  padding: 20px 16px; color: #2C1810; text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.web-header-row {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+}
+.web-header-logo {
+  width: 72px; height: 72px; flex-shrink: 0; object-fit: contain;
+}
+.web-header-title {
+  font-family: 'Cooper Black', 'Fredoka One', 'Arial Black', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 1.6rem; font-weight: 900; letter-spacing: -0.5px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+.web-version { font-size: 0.8rem; opacity: 0.7; color: #8B4513; font-weight: 500; margin-top: 2px; }
+
+.web-tab-bar {
+  display: flex; background: #FFFEF7; border-bottom: 1px solid #DDD3C0;
+}
+.web-tab {
+  flex: 1; text-align: center; padding: 12px 8px;
+  font-size: 0.8rem; font-weight: 500; color: #8B7355; cursor: default;
+  position: relative;
+}
+.web-tab.active { color: #DAA520; }
+.web-tab.active::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 3px; background: #DAA520; border-radius: 2px 2px 0 0;
+}
+
+.web-content { padding: 16px; background: #FFF8DC; }
+
+.web-section-card {
+  background: #FFFEF7; border: 1px solid #DDD3C0;
+  border-radius: 16px; padding: 20px; margin-bottom: 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.web-section-title {
+  font-size: 1rem; font-weight: 600; color: #2F2F2F; margin-bottom: 14px;
+}
+
+.web-control-group { display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.web-control-group > * { flex: 1; min-width: 120px; }
+
+.web-btn-primary {
+  display: inline-block;
+  background: linear-gradient(135deg, #DAA520, #B7950B);
+  color: #fff; border: none; border-radius: 12px; padding: 12px 28px;
+  font-size: 0.9rem; font-weight: 600; cursor: default;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  min-height: 44px; text-align: center;
+}
+.web-btn-large { font-size: 1rem; padding: 16px 32px; min-height: 56px; }
+
+.web-btn-secondary {
+  display: inline-block;
+  background: #FFFEF7; color: #DAA520; border: 2px solid #DAA520;
+  border-radius: 12px; padding: 12px 28px; font-size: 0.9rem;
+  font-weight: 600; cursor: default; text-align: center; min-height: 44px;
+}
+
+.web-toggle-group {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
+}
+.web-toggle-label { font-weight: 500; color: #2F2F2F; font-size: 0.85rem; }
+.web-toggle-track {
+  width: 50px; height: 30px; background: #DDD3C0;
+  border-radius: 15px; position: relative; cursor: default; flex-shrink: 0;
+}
+.web-toggle-track::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 26px; height: 26px; background: #fff;
+  border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.web-toggle-track.on { background: #FF8C00; }
+.web-toggle-track.on::after { left: 22px; }
+
+.web-info-display { margin-bottom: 12px; }
+.web-info-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid #DDD3C0;
+}
+.web-info-item:last-child { border-bottom: none; }
+.web-info-label { font-weight: 500; color: #2F2F2F; font-size: 0.85rem; }
+.web-info-value { font-weight: 600; color: #DAA520; font-size: 1rem; }
+
+.web-status-msg {
+  background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+  color: #DAA520; padding: 12px 16px;
+  border-radius: 0 12px 12px 0; border-left: 4px solid #DAA520;
+  text-align: center; font-weight: 500; font-size: 0.85rem;
+}
+
+.web-input {
+  width: 100%; padding: 10px 14px; border: 1px solid #DDD3C0;
+  border-radius: 12px; font-size: 0.85rem; background: #FFFEF7;
+  color: #2F2F2F; min-height: 38px;
+}
+.web-input-group { margin-bottom: 14px; }
+.web-input-group label { display: block; font-size: 0.85rem; font-weight: 500; color: #2F2F2F; margin-bottom: 4px; }
+
+.web-slider-group { margin-bottom: 14px; }
+.web-slider-track {
+  width: 100%; height: 6px; background: #DDD3C0;
+  border-radius: 3px; margin-bottom: 6px; position: relative;
+}
+.web-slider-thumb {
+  position: absolute; top: -9px; width: 24px; height: 24px;
+  background: #DAA520; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.web-slider-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: #8B7355; }
+.web-slider-value { text-align: center; font-size: 0.85rem; font-weight: 600; color: #DAA520; }
+
+.web-segmented {
+  display: flex; background: #DDD3C0; border-radius: 10px; padding: 2px; margin-bottom: 14px;
+}
+.web-seg-item {
+  flex: 1; text-align: center; padding: 8px; font-size: 0.72rem;
+  color: #8B7355; border-radius: 8px; cursor: default;
+}
+.web-seg-item.active { background: #FFFEF7; color: #DAA520; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+.web-pid-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.web-pid-item label { display: block; font-size: 0.75rem; color: #8B7355; margin-bottom: 4px; }
+
+/* Servo section */
+.servo-controls { display: flex; gap: 16px; margin-bottom: 10px; }
+.servo-item { flex: 1; }
+.servo-btn-group { display: flex; gap: 10px; }
+.servo-btn-group > * { flex: 1; }
+
+/* Calibration section */
+.cal-section { border: 2px solid #DAA520; }
+.cal-progress {
+  position: relative;
+  background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+  color: #DAA520; padding: 12px 16px;
+  border-left: 4px solid #DAA520;
+  border-radius: 0 12px 12px 0;
+  text-align: center; font-weight: 500; font-size: 0.85rem;
+  margin-bottom: 14px; overflow: hidden;
+}
+.cal-progress-bar {
+  position: absolute; top: 0; left: 0; height: 100%;
+  background: linear-gradient(90deg, #DAA520, #FF8C00);
+  opacity: 0.25; pointer-events: none;
+}
+.cal-progress-text { position: relative; z-index: 2; }
+
+/* Stats section */
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
+.stat-card {
+  background: linear-gradient(135deg, rgba(218,165,32,0.08), rgba(244,208,63,0.05));
+  border: 1px solid #DDD3C0; border-radius: 12px; padding: 14px; text-align: center;
+}
+.stat-icon { font-size: 28px; margin-bottom: 6px; text-align: center; }
+.stat-label { color: #8B7355; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-value { color: #2F2F2F; font-size: 20px; font-weight: 700; }
+
+.chart-area {
+  background: #2A2A2A; border: 1px solid #404040; border-radius: 12px;
+  padding: 16px; margin: 12px 0; height: 140px; position: relative; overflow: hidden;
+}
+.chart-grid { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
+.chart-grid-line { border-top: 1px solid #3A3A3A; position: absolute; left: 0; right: 0; }
+.chart-line-target {
+  position: absolute; bottom: 30%; left: 5%; right: 5%; height: 3px;
+  background: #007AFF; border-radius: 2px;
+}
+.chart-line-actual {
+  position: absolute; bottom: 30%; left: 5%; right: 5%; height: 3px;
+  background: #4CAF50; border-radius: 2px;
+}
+.chart-legend {
+  display: flex; gap: 20px; justify-content: center; font-size: 0.75rem; color: #8B7355; margin-top: 8px;
+}
+.legend-color { width: 12px; height: 12px; border-radius: 3px; display: inline-block; vertical-align: middle; margin-right: 4px; }
+
+.error-bars { margin-top: 12px; }
+.error-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.error-label { font-size: 0.85rem; color: #2F2F2F; width: 100px; flex-shrink: 0; }
+.error-visual { flex: 1; height: 20px; background: #DDD3C0; border-radius: 10px; overflow: hidden; }
+.error-fill { height: 100%; background: #DAA520; border-radius: 10px; }
+.error-fill.perfect { background: #8FBC8F; }
+.error-value { font-size: 0.85rem; color: #2F2F2F; width: 40px; text-align: right; }
+
+/* Language selector */
+.lang-selector { display: flex; background: #DDD3C0; border-radius: 10px; padding: 2px; }
+.lang-selector-item {
+  flex: 1; text-align: center; padding: 8px; font-size: 0.72rem;
+  color: #8B7355; border-radius: 8px; cursor: default;
+}
+.lang-selector-item.active { background: #FFFEF7; color: #DAA520; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+@media (max-width: 600px) {
+  .mockup-wrapper { width: 340px; }
+  .stats-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="lang-nav" id="langNav">
+  <button class="lang-btn active" data-lang="DA">Dansk</button>
+  <button class="lang-btn" data-lang="EN">English</button>
+  <button class="lang-btn" data-lang="DE">Deutsch</button>
+</div>
+
+<!-- ═══════════════ DANISH ═══════════════ -->
+<div class="lang-content active" id="lang-DA">
+
+<!-- Billede4 - Tapning (Filling tab) -->
+<div class="mockup-wrapper" id="mockup-Billede4-DA">
+  <div class="browser-chrome">
+    <span class="browser-dot red"></span>
+    <span class="browser-dot yellow"></span>
+    <span class="browser-dot green"></span>
+    <span style="margin-left:10px;">Safari</span>
+    <span style="flex:1;text-align:right;font-size:0.7rem;opacity:0.6;">Fil Redigér Vis</span>
+  </div>
+  <div class="browser-navbar">
+    <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+    <div class="browser-url">http://beesmart.local</div>
+  </div>
+  <div class="web-header">
+    <div class="web-header-row">
+      <img class="web-header-logo" src="images/beesmart_bee1.png" alt="BeeSMART">
+      <div class="web-header-text">
+        <div class="web-header-title">BeeSMART</div>
+        <div class="web-version">v3.3.0</div>
+      </div>
+    </div>
+  </div>
+  <div class="web-tab-bar">
+    <div class="web-tab active">Tapning</div>
+    <div class="web-tab">Indstillinger</div>
+    <div class="web-tab">Avanceret</div>
+    <div class="web-tab">Statistik</div>
+  </div>
+  <div class="web-content">
+    <div class="web-section-card">
+      <div class="web-control-group">
+        <div class="web-btn-primary web-btn-large">Start</div>
+        <div class="web-btn-secondary web-btn-large">Stop</div>
+      </div>
+      <div class="web-toggle-group">
+        <span class="web-toggle-label">Automatisk start af tapning</span>
+        <div class="web-toggle-track on"></div>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-info-display">
+        <div class="web-info-item">
+          <span class="web-info-label">Ønsket Mængde:</span>
+          <span class="web-info-value">300 g</span>
+        </div>
+        <div class="web-info-item">
+          <span class="web-info-label">Aktuel Honning Vægt (uden glas):</span>
+          <span class="web-info-value">0 g</span>
+        </div>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-status-msg">Tryk start</div>
+    </div>
+  </div>
+</div>
+
+<!-- Billede5 - Indstillinger (Settings tab) -->
+<div class="mockup-wrapper" id="mockup-Billede5-DA">
+  <div class="browser-chrome">
+    <span class="browser-dot red"></span>
+    <span class="browser-dot yellow"></span>
+    <span class="browser-dot green"></span>
+    <span style="margin-left:10px;">Safari</span>
+    <span style="flex:1;text-align:right;font-size:0.7rem;opacity:0.6;">Fil Redigér Vis</span>
+  </div>
+  <div class="browser-navbar">
+    <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+    <div class="browser-url">http://beesmart.local</div>
+  </div>
+  <div class="web-header">
+    <div class="web-header-row">
+      <img class="web-header-logo" src="images/beesmart_bee1.png" alt="BeeSMART">
+      <div class="web-header-text">
+        <div class="web-header-title">BeeSMART</div>
+        <div class="web-version">v3.3.0</div>
+      </div>
+    </div>
+  </div>
+  <div class="web-tab-bar">
+    <div class="web-tab">Tapning</div>
+    <div class="web-tab active">Indstillinger</div>
+    <div class="web-tab">Avanceret</div>
+    <div class="web-tab">Statistik</div>
+  </div>
+  <div class="web-content">
+    <div class="web-section-card">
+      <div class="web-section-title">Ønsket Mængde</div>
+      <div class="web-slider-group">
+        <div class="web-slider-track">
+          <span class="web-slider-thumb" style="left:26%;"></span>
+        </div>
+        <div class="web-slider-labels">
+          <span>50g</span>
+          <span style="color:#DAA520;font-weight:600;">300g</span>
+          <span id="maxWeightDisplay">1000g</span>
+        </div>
+      </div>
+      <div class="web-input-group">
+        <input class="web-input" type="text" value="300" readonly>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Luk hanen når der mangler</div>
+      <div class="web-input-group">
+        <input class="web-input" type="text" value="5" readonly>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Glasregistrering: Glas vejer mere end</div>
+      <div class="web-input-group">
+        <input class="web-input" type="text" value="10" readonly>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Max tappemængde</div>
+      <div class="web-input-group">
+        <input class="web-input" type="text" value="1000" readonly>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Tare kun med tom vægt !</div>
+      <div class="web-info-display">
+        <div class="web-info-item">
+          <span class="web-info-label">Aktuel Vægt:</span>
+          <span class="web-info-value">0 g</span>
+        </div>
+      </div>
+      <div style="text-align:center;">
+        <span class="web-btn-secondary" style="padding:12px 28px;display:inline-block;">
+          Tare
+        </span>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Sprog</div>
+      <div class="lang-selector">
+        <span class="lang-selector-item active">Dansk</span>
+        <span class="lang-selector-item">Deutsch</span>
+        <span class="lang-selector-item">English</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Billede6 - Avanceret (Advanced tab) -->
+<div class="mockup-wrapper" id="mockup-Billede6-DA">
+  <div class="browser-chrome">
+    <span class="browser-dot red"></span>
+    <span class="browser-dot yellow"></span>
+    <span class="browser-dot green"></span>
+    <span style="margin-left:10px;">Safari</span>
+    <span style="flex:1;text-align:right;font-size:0.7rem;opacity:0.6;">Fil Redigér Vis</span>
+  </div>
+  <div class="browser-navbar">
+    <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+    <div class="browser-url">http://beesmart.local</div>
+  </div>
+  <div class="web-header">
+    <div class="web-header-row">
+      <img class="web-header-logo" src="images/beesmart_bee1.png" alt="BeeSMART">
+      <div class="web-header-text">
+        <div class="web-header-title">BeeSMART</div>
+        <div class="web-version">v3.3.0</div>
+      </div>
+    </div>
+  </div>
+  <div class="web-tab-bar">
+    <div class="web-tab">Tapning</div>
+    <div class="web-tab">Indstillinger</div>
+    <div class="web-tab active">Avanceret</div>
+    <div class="web-tab">Statistik</div>
+  </div>
+  <div class="web-content">
+    <div class="web-section-card">
+      <div class="web-section-title">PID Kontrol Parametre</div>
+      <div style="font-size:0.8rem;font-weight:600;color:#8B7355;margin-bottom:8px;">Viskositet</div>
+      <div class="web-segmented">
+        <span class="web-seg-item">Lav</span>
+        <span class="web-seg-item active">Medium</span>
+        <span class="web-seg-item">Høj</span>
+        <span class="web-seg-item">Brugerdefineret</span>
+      </div>
+      <div style="font-size:0.8rem;font-weight:600;color:#8B7355;margin-bottom:8px;">Kontrol Parametre</div>
+      <div class="web-pid-grid">
+        <div class="web-pid-item">
+          <label>Kp</label>
+          <input class="web-input" type="text" value="8" readonly>
+        </div>
+        <div class="web-pid-item">
+          <label>Ti</label>
+          <input class="web-input" type="text" value="10" readonly>
+        </div>
+        <div class="web-pid-item">
+          <label>Kd</label>
+          <input class="web-input" type="text" value="5" readonly>
+        </div>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Indstil min og max Servo position</div>
+      <div class="servo-controls">
+        <div class="servo-item">
+          <div class="web-slider-group">
+            <div style="font-size:0.75rem;color:#8B7355;margin-bottom:4px;">Servo Minimum</div>
+            <div class="web-slider-track">
+              <span class="web-slider-thumb" style="left:0;"></span>
+            </div>
+            <div class="web-slider-value">0°</div>
+          </div>
+        </div>
+        <div class="servo-item">
+          <div class="web-slider-group">
+            <div style="font-size:0.75rem;color:#8B7355;margin-bottom:4px;">Servo Maximum</div>
+            <div class="web-slider-track">
+              <span class="web-slider-thumb" style="left:100%;"></span>
+            </div>
+            <div class="web-slider-value">90°</div>
+          </div>
+        </div>
+      </div>
+      <div class="servo-btn-group">
+        <span class="web-btn-secondary" style="font-size:0.8rem;padding:10px;">Gå til min position</span>
+        <span class="web-btn-secondary" style="font-size:0.8rem;padding:10px;">Gå til max position</span>
+      </div>
+    </div>
+    <div class="web-section-card cal-section">
+      <div class="web-section-title">Vægt Kalibrering</div>
+      <div class="web-info-display">
+        <div class="web-info-item">
+          <span class="web-info-label">Aktuel Vægt:</span>
+          <span class="web-info-value">0 g</span>
+        </div>
+      </div>
+      <div class="cal-progress">
+        <div class="cal-progress-bar" style="width:0%;"></div>
+        <span class="cal-progress-text">System kalibreret, tryk Kalibrer for at starte re-kalibrering</span>
+      </div>
+      <div style="font-size:0.85rem;font-weight:600;color:#2F2F2F;margin-bottom:10px;">Kalibreringsvægt</div>
+      <div class="web-slider-group">
+        <div class="web-slider-track">
+          <span class="web-slider-thumb" style="left:20%;"></span>
+        </div>
+        <div class="web-slider-labels"><span>50g</span><span>250g</span><span>1000g</span></div>
+      </div>
+      <div class="web-input-group">
+        <input class="web-input" type="text" value="250" readonly>
+      </div>
+      <div style="text-align:center;">
+        <span class="web-btn-primary">Kalibrer</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Billede9 - Statistik (Statistics tab) -->
+<div class="mockup-wrapper" id="mockup-Billede9-DA">
+  <div class="browser-chrome">
+    <span class="browser-dot red"></span>
+    <span class="browser-dot yellow"></span>
+    <span class="browser-dot green"></span>
+    <span style="margin-left:10px;">Safari</span>
+    <span style="flex:1;text-align:right;font-size:0.7rem;opacity:0.6;">Fil Redigér Vis</span>
+  </div>
+  <div class="browser-navbar">
+    <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+    <div class="browser-url">http://beesmart.local</div>
+  </div>
+  <div class="web-header">
+    <div class="web-header-row">
+      <img class="web-header-logo" src="images/beesmart_bee1.png" alt="BeeSMART">
+      <div class="web-header-text">
+        <div class="web-header-title">BeeSMART</div>
+        <div class="web-version">v3.3.0</div>
+      </div>
+    </div>
+  </div>
+  <div class="web-tab-bar">
+    <div class="web-tab">Tapning</div>
+    <div class="web-tab">Indstillinger</div>
+    <div class="web-tab">Avanceret</div>
+    <div class="web-tab active">Statistik</div>
+  </div>
+  <div class="web-content">
+    <div class="web-section-card">
+      <div class="web-section-title">Statistik Oversigt</div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">🍯</div>
+          <div class="stat-content"><div class="stat-label">Total Tappet</div>
+          <div class="stat-value">12.5 kg</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🫙</div>
+          <div class="stat-content"><div class="stat-label">Glas Fyldt</div>
+          <div class="stat-value">47</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📏</div>
+          <div class="stat-content"><div class="stat-label">Gennemsnitlig Afvigelse</div>
+          <div class="stat-value">2.3g</div></div>
+        </div>
+      </div>
+      <div style="text-align:center;">
+        <span class="web-btn-secondary" style="font-size:0.8rem;padding:10px 20px;display:inline-block;">
+          Nulstil Statistik
+        </span>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Præcisions Trend</div>
+      <div class="chart-area">
+        <div class="chart-grid">
+          <div class="chart-grid-line" style="top:25%;"></div>
+          <div class="chart-grid-line" style="top:50%;"></div>
+          <div class="chart-grid-line" style="top:75%;"></div>
+        </div>
+        <svg style="position:absolute;bottom:30%;left:5%;right:5%;height:60px;width:90%;" viewBox="0 0 100 60" preserveAspectRatio="none">
+          <polyline points="0,30 12,28 25,32 37,25 50,30 62,27 75,30 87,28 100,30" fill="none" stroke="#007AFF" stroke-width="2"/>
+          <polyline points="0,35 12,30 25,38 37,28 50,35 62,32 75,33 87,30 100,34" fill="none" stroke="#4CAF50" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="chart-legend">
+        <span><span class="legend-color" style="background:#007AFF;"></span>Ønsket Vægt</span>
+        <span><span class="legend-color" style="background:#4CAF50;"></span>Faktisk Vægt</span>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Fejl Fordeling</div>
+      <div class="error-bars">
+        <div class="error-bar">
+          <span class="error-label">Overskydning</span>
+          <div class="error-visual"><div class="error-fill" style="width:15%;"></div></div>
+          <span class="error-value">15%</span>
+        </div>
+        <div class="error-bar">
+          <span class="error-label">Underskydning</span>
+          <div class="error-visual"><div class="error-fill" style="width:10%;"></div></div>
+          <span class="error-value">10%</span>
+        </div>
+        <div class="error-bar">
+          <span class="error-label">Perfekt</span>
+          <div class="error-visual"><div class="error-fill perfect" style="width:75%;"></div></div>
+          <span class="error-value">75%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /lang-DA -->
+
+<!-- ═══════════════ ENGLISH ═══════════════ -->
+<div class="lang-content" id="lang-EN">
+
+<!-- Billede4 - Filling tab -->
+<div class="mockup-wrapper" id="mockup-Billede4-EN">
+  <div class="browser-chrome">
+    <span class="browser-dot red"></span>
+    <span class="browser-dot yellow"></span>
+    <span class="browser-dot green"></span>
+    <span style="margin-left:10px;">Safari</span>
+    <span style="flex:1;text-align:right;font-size:0.7rem;opacity:0.6;">File Edit View</span>
+  </div>
+  <div class="browser-navbar">
+    <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+    <div class="browser-url">http://beesmart.local</div>
+  </div>
+  <div class="web-header">
+    <div class="web-header-row">
+      <img class="web-header-logo" src="images/beesmart_bee1.png" alt="BeeSMART">
+      <div class="web-header-text">
+        <div class="web-header-title">BeeSMART</div>
+        <div class="web-version">v3.3.0</div>
+      </div>
+    </div>
+  </div>
+  <div class="web-tab-bar">
+    <div class="web-tab active">Filling</div>
+    <div class="web-tab">Settings</div>
+    <div class="web-tab">Advanced settings</div>
+    <div class="web-tab">Statistics</div>
+  </div>
+  <div class="web-content">
+    <div class="web-section-card">
+      <div class="web-control-group">
+        <div class="web-btn-primary web-btn-large">Start</div>
+        <div class="web-btn-secondary web-btn-large">Stop</div>
+      </div>
+      <div class="web-toggle-group">
+        <span class="web-toggle-label">Automatic start of filling</span>
+        <div class="web-toggle-track on"></div>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-info-display">
+        <div class="web-info-item">
+          <span class="web-info-label">Desired quantity:</span>
+          <span class="web-info-value">300 g</span>
+        </div>
+        <div class="web-info-item">
+          <span class="web-info-label">Current Honey Weight (ex. glass):</span>
+          <span class="web-info-value">0 g</span>
+        </div>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-status-msg">Press start</div>
+    </div>
+  </div>
+</div>
+
+<!-- Billede5 - Settings tab -->
+<div class="mockup-wrapper" id="mockup-Billede5-EN">
+  <div class="browser-chrome">
+    <span class="browser-dot red"></span>
+    <span class="browser-dot yellow"></span>
+    <span class="browser-dot green"></span>
+    <span style="margin-left:10px;">Safari</span>
+    <span style="flex:1;text-align:right;font-size:0.7rem;opacity:0.6;">File Edit View</span>
+  </div>
+  <div class="browser-navbar">
+    <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+    <div class="browser-url">http://beesmart.local</div>
+  </div>
+  <div class="web-header">
+    <div class="web-header-row">
+      <img class="web-header-logo" src="images/beesmart_bee1.png" alt="BeeSMART">
+      <div class="web-header-text">
+        <div class="web-header-title">BeeSMART</div>
+        <div class="web-version">v3.3.0</div>
+      </div>
+    </div>
+  </div>
+  <div class="web-tab-bar">
+    <div class="web-tab">Filling</div>
+    <div class="web-tab active">Settings</div>
+    <div class="web-tab">Advanced settings</div>
+    <div class="web-tab">Statistics</div>
+  </div>
+  <div class="web-content">
+    <div class="web-section-card">
+      <div class="web-section-title">Desired quantity</div>
+      <div class="web-slider-group">
+        <div class="web-slider-track">
+          <span class="web-slider-thumb" style="left:26%;"></span>
+        </div>
+        <div class="web-slider-labels">
+          <span>50g</span>
+          <span style="color:#DAA520;font-weight:600;">300g</span>
+          <span>1000g</span>
+        </div>
+      </div>
+      <div class="web-input-group">
+        <input class="web-input" type="text" value="300" readonly>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Close valve when missing</div>
+      <div class="web-input-group">
+        <input class="web-input" type="text" value="5" readonly>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Glass detection: Glass weighs more than</div>
+      <div class="web-input-group">
+        <input class="web-input" type="text" value="10" readonly>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Max dispensing amount</div>
+      <div class="web-input-group">
+        <input class="web-input" type="text" value="1000" readonly>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Tare with empty scale only!</div>
+      <div class="web-info-display">
+        <div class="web-info-item">
+          <span class="web-info-label">Current Weight:</span>
+          <span class="web-info-value">0 g</span>
+        </div>
+      </div>
+      <div style="text-align:center;">
+        <span class="web-btn-secondary" style="padding:12px 28px;display:inline-block;">
+          Tare
+        </span>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Language</div>
+      <div class="lang-selector">
+        <span class="lang-selector-item">Dansk</span>
+        <span class="lang-selector-item">Deutsch</span>
+        <span class="lang-selector-item active">English</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Billede6 - Advanced settings tab -->
+<div class="mockup-wrapper" id="mockup-Billede6-EN">
+  <div class="browser-chrome">
+    <span class="browser-dot red"></span>
+    <span class="browser-dot yellow"></span>
+    <span class="browser-dot green"></span>
+    <span style="margin-left:10px;">Safari</span>
+    <span style="flex:1;text-align:right;font-size:0.7rem;opacity:0.6;">File Edit View</span>
+  </div>
+  <div class="browser-navbar">
+    <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+    <div class="browser-url">http://beesmart.local</div>
+  </div>
+  <div class="web-header">
+    <div class="web-header-row">
+      <img class="web-header-logo" src="images/beesmart_bee1.png" alt="BeeSMART">
+      <div class="web-header-text">
+        <div class="web-header-title">BeeSMART</div>
+        <div class="web-version">v3.3.0</div>
+      </div>
+    </div>
+  </div>
+  <div class="web-tab-bar">
+    <div class="web-tab">Filling</div>
+    <div class="web-tab">Settings</div>
+    <div class="web-tab active">Advanced settings</div>
+    <div class="web-tab">Statistics</div>
+  </div>
+  <div class="web-content">
+    <div class="web-section-card">
+      <div class="web-section-title">PID Control Parameters</div>
+      <div style="font-size:0.8rem;font-weight:600;color:#8B7355;margin-bottom:8px;">Viscosity</div>
+      <div class="web-segmented">
+        <span class="web-seg-item">Low</span>
+        <span class="web-seg-item active">Medium</span>
+        <span class="web-seg-item">High</span>
+        <span class="web-seg-item">User Defined</span>
+      </div>
+      <div style="font-size:0.8rem;font-weight:600;color:#8B7355;margin-bottom:8px;">Control Parameters</div>
+      <div class="web-pid-grid">
+        <div class="web-pid-item">
+          <label>Kp</label>
+          <input class="web-input" type="text" value="8" readonly>
+        </div>
+        <div class="web-pid-item">
+          <label>Ti</label>
+          <input class="web-input" type="text" value="10" readonly>
+        </div>
+        <div class="web-pid-item">
+          <label>Kd</label>
+          <input class="web-input" type="text" value="5" readonly>
+        </div>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Set min and max servo position</div>
+      <div class="servo-controls">
+        <div class="servo-item">
+          <div class="web-slider-group">
+            <div style="font-size:0.75rem;color:#8B7355;margin-bottom:4px;">Servo Minimum</div>
+            <div class="web-slider-track">
+              <span class="web-slider-thumb" style="left:0;"></span>
+            </div>
+            <div class="web-slider-value">0°</div>
+          </div>
+        </div>
+        <div class="servo-item">
+          <div class="web-slider-group">
+            <div style="font-size:0.75rem;color:#8B7355;margin-bottom:4px;">Servo Maximum</div>
+            <div class="web-slider-track">
+              <span class="web-slider-thumb" style="left:100%;"></span>
+            </div>
+            <div class="web-slider-value">90°</div>
+          </div>
+        </div>
+      </div>
+      <div class="servo-btn-group">
+        <span class="web-btn-secondary" style="font-size:0.8rem;padding:10px;">Go to min position</span>
+        <span class="web-btn-secondary" style="font-size:0.8rem;padding:10px;">Go to max position</span>
+      </div>
+    </div>
+    <div class="web-section-card cal-section">
+      <div class="web-section-title">Scale Calibration</div>
+      <div class="web-info-display">
+        <div class="web-info-item">
+          <span class="web-info-label">Current Weight:</span>
+          <span class="web-info-value">0 g</span>
+        </div>
+      </div>
+      <div class="cal-progress">
+        <div class="cal-progress-bar" style="width:0%;"></div>
+        <span class="cal-progress-text">System calibrated, press Calibrate to start re-calibration</span>
+      </div>
+      <div style="font-size:0.85rem;font-weight:600;color:#2F2F2F;margin-bottom:10px;">Calibration Weight</div>
+      <div class="web-slider-group">
+        <div class="web-slider-track">
+          <span class="web-slider-thumb" style="left:20%;"></span>
+        </div>
+        <div class="web-slider-labels"><span>50g</span><span>250g</span><span>1000g</span></div>
+      </div>
+      <div class="web-input-group">
+        <input class="web-input" type="text" value="250" readonly>
+      </div>
+      <div style="text-align:center;">
+        <span class="web-btn-primary">Calibrate</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Billede9 - Statistics tab -->
+<div class="mockup-wrapper" id="mockup-Billede9-EN">
+  <div class="browser-chrome">
+    <span class="browser-dot red"></span>
+    <span class="browser-dot yellow"></span>
+    <span class="browser-dot green"></span>
+    <span style="margin-left:10px;">Safari</span>
+    <span style="flex:1;text-align:right;font-size:0.7rem;opacity:0.6;">File Edit View</span>
+  </div>
+  <div class="browser-navbar">
+    <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+    <div class="browser-url">http://beesmart.local</div>
+  </div>
+  <div class="web-header">
+    <div class="web-header-row">
+      <img class="web-header-logo" src="images/beesmart_bee1.png" alt="BeeSMART">
+      <div class="web-header-text">
+        <div class="web-header-title">BeeSMART</div>
+        <div class="web-version">v3.3.0</div>
+      </div>
+    </div>
+  </div>
+  <div class="web-tab-bar">
+    <div class="web-tab">Filling</div>
+    <div class="web-tab">Settings</div>
+    <div class="web-tab">Advanced settings</div>
+    <div class="web-tab active">Statistics</div>
+  </div>
+  <div class="web-content">
+    <div class="web-section-card">
+      <div class="web-section-title">Statistics Overview</div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">🍯</div>
+          <div class="stat-content"><div class="stat-label">Total Dispensed</div>
+          <div class="stat-value">12.5 kg</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🫙</div>
+          <div class="stat-content"><div class="stat-label">Glasses Filled</div>
+          <div class="stat-value">47</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📏</div>
+          <div class="stat-content"><div class="stat-label">Average Deviation</div>
+          <div class="stat-value">2.3g</div></div>
+        </div>
+      </div>
+      <div style="text-align:center;">
+        <span class="web-btn-secondary" style="font-size:0.8rem;padding:10px 20px;display:inline-block;">
+          Reset Statistics
+        </span>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Accuracy Trend</div>
+      <div class="chart-area">
+        <div class="chart-grid">
+          <div class="chart-grid-line" style="top:25%;"></div>
+          <div class="chart-grid-line" style="top:50%;"></div>
+          <div class="chart-grid-line" style="top:75%;"></div>
+        </div>
+        <svg style="position:absolute;bottom:30%;left:5%;right:5%;height:60px;width:90%;" viewBox="0 0 100 60" preserveAspectRatio="none">
+          <polyline points="0,30 12,28 25,32 37,25 50,30 62,27 75,30 87,28 100,30" fill="none" stroke="#007AFF" stroke-width="2"/>
+          <polyline points="0,35 12,30 25,38 37,28 50,35 62,32 75,33 87,30 100,34" fill="none" stroke="#4CAF50" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="chart-legend">
+        <span><span class="legend-color" style="background:#007AFF;"></span>Target Weight</span>
+        <span><span class="legend-color" style="background:#4CAF50;"></span>Actual Weight</span>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Error Distribution</div>
+      <div class="error-bars">
+        <div class="error-bar">
+          <span class="error-label">Overshoot</span>
+          <div class="error-visual"><div class="error-fill" style="width:15%;"></div></div>
+          <span class="error-value">15%</span>
+        </div>
+        <div class="error-bar">
+          <span class="error-label">Undershoot</span>
+          <div class="error-visual"><div class="error-fill" style="width:10%;"></div></div>
+          <span class="error-value">10%</span>
+        </div>
+        <div class="error-bar">
+          <span class="error-label">Perfect</span>
+          <div class="error-visual"><div class="error-fill perfect" style="width:75%;"></div></div>
+          <span class="error-value">75%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /lang-EN -->
+
+<!-- ═══════════════ GERMAN ═══════════════ -->
+<div class="lang-content" id="lang-DE">
+
+<!-- Billede4 - Abfüllung tab -->
+<div class="mockup-wrapper" id="mockup-Billede4-DE">
+  <div class="browser-chrome">
+    <span class="browser-dot red"></span>
+    <span class="browser-dot yellow"></span>
+    <span class="browser-dot green"></span>
+    <span style="margin-left:10px;">Safari</span>
+    <span style="flex:1;text-align:right;font-size:0.7rem;opacity:0.6;">Ablage Bearbeiten Ansicht</span>
+  </div>
+  <div class="browser-navbar">
+    <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+    <div class="browser-url">http://beesmart.local</div>
+  </div>
+  <div class="web-header">
+    <div class="web-header-row">
+      <img class="web-header-logo" src="images/beesmart_bee1.png" alt="BeeSMART">
+      <div class="web-header-text">
+        <div class="web-header-title">BeeSMART</div>
+        <div class="web-version">v3.3.0</div>
+      </div>
+    </div>
+  </div>
+  <div class="web-tab-bar">
+    <div class="web-tab active">Abfüllung</div>
+    <div class="web-tab">Einstellungen</div>
+    <div class="web-tab">Erweiterte Einstellungen</div>
+    <div class="web-tab">Statistiken</div>
+  </div>
+  <div class="web-content">
+    <div class="web-section-card">
+      <div class="web-control-group">
+        <div class="web-btn-primary web-btn-large">Start</div>
+        <div class="web-btn-secondary web-btn-large">Stopp</div>
+      </div>
+      <div class="web-toggle-group">
+        <span class="web-toggle-label">Automatischer Start des Abfüllens</span>
+        <div class="web-toggle-track on"></div>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-info-display">
+        <div class="web-info-item">
+          <span class="web-info-label">Gewünschte Menge:</span>
+          <span class="web-info-value">300 g</span>
+        </div>
+        <div class="web-info-item">
+          <span class="web-info-label">Aktuelles Honig Gewicht (ohne Glas):</span>
+          <span class="web-info-value">0 g</span>
+        </div>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-status-msg">Start drücken</div>
+    </div>
+  </div>
+</div>
+
+<!-- Billede5 - Einstellungen tab -->
+<div class="mockup-wrapper" id="mockup-Billede5-DE">
+  <div class="browser-chrome">
+    <span class="browser-dot red"></span>
+    <span class="browser-dot yellow"></span>
+    <span class="browser-dot green"></span>
+    <span style="margin-left:10px;">Safari</span>
+    <span style="flex:1;text-align:right;font-size:0.7rem;opacity:0.6;">Ablage Bearbeiten Ansicht</span>
+  </div>
+  <div class="browser-navbar">
+    <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+    <div class="browser-url">http://beesmart.local</div>
+  </div>
+  <div class="web-header">
+    <div class="web-header-row">
+      <img class="web-header-logo" src="images/beesmart_bee1.png" alt="BeeSMART">
+      <div class="web-header-text">
+        <div class="web-header-title">BeeSMART</div>
+        <div class="web-version">v3.3.0</div>
+      </div>
+    </div>
+  </div>
+  <div class="web-tab-bar">
+    <div class="web-tab">Abfüllung</div>
+    <div class="web-tab active">Einstellungen</div>
+    <div class="web-tab">Erweiterte Einstellungen</div>
+    <div class="web-tab">Statistiken</div>
+  </div>
+  <div class="web-content">
+    <div class="web-section-card">
+      <div class="web-section-title">Gewünschte Menge</div>
+      <div class="web-slider-group">
+        <div class="web-slider-track">
+          <span class="web-slider-thumb" style="left:26%;"></span>
+        </div>
+        <div class="web-slider-labels">
+          <span>50g</span>
+          <span style="color:#DAA520;font-weight:600;">300g</span>
+          <span>1000g</span>
+        </div>
+      </div>
+      <div class="web-input-group">
+        <input class="web-input" type="text" value="300" readonly>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Hahn schließen wenn fehlt</div>
+      <div class="web-input-group">
+        <input class="web-input" type="text" value="5" readonly>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Glaserkennung: Glas wiegt mehr als</div>
+      <div class="web-input-group">
+        <input class="web-input" type="text" value="10" readonly>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Max Abfüllmenge</div>
+      <div class="web-input-group">
+        <input class="web-input" type="text" value="1000" readonly>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Nur mit leerem Gewicht tarieren!</div>
+      <div class="web-info-display">
+        <div class="web-info-item">
+          <span class="web-info-label">Aktuelles Gewicht:</span>
+          <span class="web-info-value">0 g</span>
+        </div>
+      </div>
+      <div style="text-align:center;">
+        <span class="web-btn-secondary" style="padding:12px 28px;display:inline-block;">
+          Tarieren
+        </span>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Sprache</div>
+      <div class="lang-selector">
+        <span class="lang-selector-item">Dansk</span>
+        <span class="lang-selector-item active">Deutsch</span>
+        <span class="lang-selector-item">English</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Billede6 - Erweiterte Einstellungen tab -->
+<div class="mockup-wrapper" id="mockup-Billede6-DE">
+  <div class="browser-chrome">
+    <span class="browser-dot red"></span>
+    <span class="browser-dot yellow"></span>
+    <span class="browser-dot green"></span>
+    <span style="margin-left:10px;">Safari</span>
+    <span style="flex:1;text-align:right;font-size:0.7rem;opacity:0.6;">Ablage Bearbeiten Ansicht</span>
+  </div>
+  <div class="browser-navbar">
+    <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+    <div class="browser-url">http://beesmart.local</div>
+  </div>
+  <div class="web-header">
+    <div class="web-header-row">
+      <img class="web-header-logo" src="images/beesmart_bee1.png" alt="BeeSMART">
+      <div class="web-header-text">
+        <div class="web-header-title">BeeSMART</div>
+        <div class="web-version">v3.3.0</div>
+      </div>
+    </div>
+  </div>
+  <div class="web-tab-bar">
+    <div class="web-tab">Abfüllung</div>
+    <div class="web-tab">Einstellungen</div>
+    <div class="web-tab active">Erweiterte Einstellungen</div>
+    <div class="web-tab">Statistiken</div>
+  </div>
+  <div class="web-content">
+    <div class="web-section-card">
+      <div class="web-section-title">PID-Steuerungsparameter</div>
+      <div style="font-size:0.8rem;font-weight:600;color:#8B7355;margin-bottom:8px;">Viskosität</div>
+      <div class="web-segmented">
+        <span class="web-seg-item">Niedrig</span>
+        <span class="web-seg-item active">Mittel</span>
+        <span class="web-seg-item">Hoch</span>
+        <span class="web-seg-item">Benutzerdefiniert</span>
+      </div>
+      <div style="font-size:0.8rem;font-weight:600;color:#8B7355;margin-bottom:8px;">Regelparameter</div>
+      <div class="web-pid-grid">
+        <div class="web-pid-item">
+          <label>Kp</label>
+          <input class="web-input" type="text" value="8" readonly>
+        </div>
+        <div class="web-pid-item">
+          <label>Ti</label>
+          <input class="web-input" type="text" value="10" readonly>
+        </div>
+        <div class="web-pid-item">
+          <label>Kd</label>
+          <input class="web-input" type="text" value="5" readonly>
+        </div>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Min und max Servoposition einstellen</div>
+      <div class="servo-controls">
+        <div class="servo-item">
+          <div class="web-slider-group">
+            <div style="font-size:0.75rem;color:#8B7355;margin-bottom:4px;">Servo Minimum</div>
+            <div class="web-slider-track">
+              <span class="web-slider-thumb" style="left:0;"></span>
+            </div>
+            <div class="web-slider-value">0°</div>
+          </div>
+        </div>
+        <div class="servo-item">
+          <div class="web-slider-group">
+            <div style="font-size:0.75rem;color:#8B7355;margin-bottom:4px;">Servo Maximum</div>
+            <div class="web-slider-track">
+              <span class="web-slider-thumb" style="left:100%;"></span>
+            </div>
+            <div class="web-slider-value">90°</div>
+          </div>
+        </div>
+      </div>
+      <div class="servo-btn-group">
+        <span class="web-btn-secondary" style="font-size:0.8rem;padding:10px;">Gehe zu min Position</span>
+        <span class="web-btn-secondary" style="font-size:0.8rem;padding:10px;">Gehe zu max Position</span>
+      </div>
+    </div>
+    <div class="web-section-card cal-section">
+      <div class="web-section-title">Waagen-Kalibrierung</div>
+      <div class="web-info-display">
+        <div class="web-info-item">
+          <span class="web-info-label">Aktuelles Gewicht:</span>
+          <span class="web-info-value">0 g</span>
+        </div>
+      </div>
+      <div class="cal-progress">
+        <div class="cal-progress-bar" style="width:0%;"></div>
+        <span class="cal-progress-text">System kalibriert, für Neukalibrierung drücken Sie Kalibrieren</span>
+      </div>
+      <div style="font-size:0.85rem;font-weight:600;color:#2F2F2F;margin-bottom:10px;">Kalibrierungsgewicht</div>
+      <div class="web-slider-group">
+        <div class="web-slider-track">
+          <span class="web-slider-thumb" style="left:20%;"></span>
+        </div>
+        <div class="web-slider-labels"><span>50g</span><span>250g</span><span>1000g</span></div>
+      </div>
+      <div class="web-input-group">
+        <input class="web-input" type="text" value="250" readonly>
+      </div>
+      <div style="text-align:center;">
+        <span class="web-btn-primary">Kalibrieren</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Billede9 - Statistiken tab -->
+<div class="mockup-wrapper" id="mockup-Billede9-DE">
+  <div class="browser-chrome">
+    <span class="browser-dot red"></span>
+    <span class="browser-dot yellow"></span>
+    <span class="browser-dot green"></span>
+    <span style="margin-left:10px;">Safari</span>
+    <span style="flex:1;text-align:right;font-size:0.7rem;opacity:0.6;">Ablage Bearbeiten Ansicht</span>
+  </div>
+  <div class="browser-navbar">
+    <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+    <div class="browser-url">http://beesmart.local</div>
+  </div>
+  <div class="web-header">
+    <div class="web-header-row">
+      <img class="web-header-logo" src="images/beesmart_bee1.png" alt="BeeSMART">
+      <div class="web-header-text">
+        <div class="web-header-title">BeeSMART</div>
+        <div class="web-version">v3.3.0</div>
+      </div>
+    </div>
+  </div>
+  <div class="web-tab-bar">
+    <div class="web-tab">Abfüllung</div>
+    <div class="web-tab">Einstellungen</div>
+    <div class="web-tab">Erweiterte Einstellungen</div>
+    <div class="web-tab active">Statistiken</div>
+  </div>
+  <div class="web-content">
+    <div class="web-section-card">
+      <div class="web-section-title">Statistik-Übersicht</div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">🍯</div>
+          <div class="stat-content"><div class="stat-label">Gesamt abgefüllt</div>
+          <div class="stat-value">12.5 kg</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🫙</div>
+          <div class="stat-content"><div class="stat-label">Gläser gefüllt</div>
+          <div class="stat-value">47</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📏</div>
+          <div class="stat-content"><div class="stat-label">Durchschnittliche Abweichung</div>
+          <div class="stat-value">2.3g</div></div>
+        </div>
+      </div>
+      <div style="text-align:center;">
+        <span class="web-btn-secondary" style="font-size:0.8rem;padding:10px 20px;display:inline-block;">
+          Statistik zurücksetzen
+        </span>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Genauigkeitstrend</div>
+      <div class="chart-area">
+        <div class="chart-grid">
+          <div class="chart-grid-line" style="top:25%;"></div>
+          <div class="chart-grid-line" style="top:50%;"></div>
+          <div class="chart-grid-line" style="top:75%;"></div>
+        </div>
+        <svg style="position:absolute;bottom:30%;left:5%;right:5%;height:60px;width:90%;" viewBox="0 0 100 60" preserveAspectRatio="none">
+          <polyline points="0,30 12,28 25,32 37,25 50,30 62,27 75,30 87,28 100,30" fill="none" stroke="#007AFF" stroke-width="2"/>
+          <polyline points="0,35 12,30 25,38 37,28 50,35 62,32 75,33 87,30 100,34" fill="none" stroke="#4CAF50" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="chart-legend">
+        <span><span class="legend-color" style="background:#007AFF;"></span>Zielgewicht</span>
+        <span><span class="legend-color" style="background:#4CAF50;"></span>Tatsächliches Gewicht</span>
+      </div>
+    </div>
+    <div class="web-section-card">
+      <div class="web-section-title">Fehlerverteilung</div>
+      <div class="error-bars">
+        <div class="error-bar">
+          <span class="error-label">Überschuss</span>
+          <div class="error-visual"><div class="error-fill" style="width:15%;"></div></div>
+          <span class="error-value">15%</span>
+        </div>
+        <div class="error-bar">
+          <span class="error-label">Unterschuss</span>
+          <div class="error-visual"><div class="error-fill" style="width:10%;"></div></div>
+          <span class="error-value">10%</span>
+        </div>
+        <div class="error-bar">
+          <span class="error-label">Perfekt</span>
+          <div class="error-visual"><div class="error-fill perfect" style="width:75%;"></div></div>
+          <span class="error-value">75%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /lang-DE -->
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var buttons = document.querySelectorAll('.lang-btn');
+  buttons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var lang = this.getAttribute('data-lang');
+      buttons.forEach(function(b){ b.classList.remove('active'); });
+      this.classList.add('active');
+      document.querySelectorAll('.lang-content').forEach(function(c){ c.classList.remove('active'); });
+      document.getElementById('lang-' + lang).classList.add('active');
+    });
+  });
+});
+</script>
+
+</body>
+</html>

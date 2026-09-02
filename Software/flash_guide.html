@@ -1,0 +1,1838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BeeSMART Software Flasher — Guide</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: linear-gradient(135deg, #F4D03F 0%, #FF8C00 100%);
+  color: #2F2F2F;
+  line-height: 1.6;
+  padding: 20px;
+  min-height: 100vh;
+}
+.container { max-width: 1000px; margin: 0 auto; background: #FFF8DC; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); overflow: hidden; }
+.header {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  padding: 30px 40px 20px;
+  color: #2C1810;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.header h1 {
+  font-size: 2rem; font-weight: 900; letter-spacing: -0.5px;
+  font-family: 'Cooper Black', 'Fredoka One', 'Arial Black', 'Helvetica Neue', Arial, sans-serif;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+.header p { font-size: 1rem; opacity: 0.8; margin-top: 4px; }
+
+.lang-nav {
+  display: flex; gap: 0;
+  background: #DDD3C0;
+  border-radius: 12px;
+  padding: 2px;
+  margin: 24px 40px 0;
+  overflow: hidden;
+}
+.lang-btn {
+  flex: 1; text-align: center;
+  padding: 10px 16px; cursor: pointer;
+  border: none; background: transparent;
+  font-size: 0.9rem; font-weight: 600;
+  color: #8B7355;
+  border-radius: 10px;
+  transition: all 0.3s;
+  min-height: 36px;
+  display: flex; align-items: center; justify-content: center;
+}
+.lang-btn.active { background: #FFFEF7; color: #DAA520; box-shadow: 0 1px 6px rgba(0,0,0,0.1); }
+.lang-btn:hover:not(.active) { background: rgba(255,254,247,0.5); }
+
+.content { padding: 30px 40px 40px; }
+.lang-content { display: none; }
+.lang-content.active { display: block; }
+
+.step-card {
+  background: #FFFEF7;
+  border: 1px solid #DDD3C0;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: box-shadow 0.3s;
+}
+.step-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
+.step-number {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #DAA520; color: #fff; font-weight: 700; font-size: 0.9rem;
+  margin-right: 12px; flex-shrink: 0;
+}
+.step-heading {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 1.2rem; font-weight: 700; color: #2F2F2F;
+  margin-bottom: 16px;
+}
+.step-text { color: #4A3F35; margin-bottom: 16px; font-size: 0.95rem; }
+.step-text strong { color: #2F2F2F; }
+
+.mockup {
+  border: 1px solid #DDD3C0;
+  border-radius: 16px;
+  overflow: hidden;
+  margin: 16px 0;
+  background: #FFF8DC;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+.mockup-header {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #2C1810;
+}
+.mockup-header-logo {
+  width: 48px; height: 48px;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; flex-shrink: 0;
+}
+.mockup-header-logo img { width: 48px; height: 48px; object-fit: contain; }
+.mockup-header-text { line-height: 1.25; }
+.mockup-header-text .title {
+  font-size: 1.15rem; font-weight: 900; display: block;
+  font-family: 'Cooper Black', 'Fredoka One', 'Arial Black', 'Helvetica Neue', Arial, sans-serif;
+  letter-spacing: -0.5px;
+}
+.mockup-header-text .sub {
+  font-size: 0.8rem; opacity: 0.7; display: block;
+}
+.mockup-body { padding: 20px 24px; }
+.mockup-label {
+  font-size: 0.8rem; font-weight: 600; color: #8B7355;
+  margin-bottom: 6px;
+}
+.mockup-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+}
+.mockup-field {
+  flex: 1;
+  background: #FFFEF7; border: 1px solid #DDD3C0;
+  border-radius: 12px; padding: 10px 14px;
+  font-size: 0.85rem; color: #8B7355; min-height: 38px;
+}
+.mockup-btn {
+  background: linear-gradient(135deg, #DAA520, #B7950B);
+  color: #fff; font-weight: 600;
+  border: none; border-radius: 12px; padding: 10px 22px;
+  font-size: 0.85rem; white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  min-height: 38px;
+}
+.mockup-progress {
+  height: 8px; background: #DDD3C0; border-radius: 4px; overflow: hidden;
+  margin: 14px 0;
+}
+.mockup-progress-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, #DAA520, #FF8C00);
+  border-radius: 4px; transition: width 0.5s;
+}
+.mockup-progress-fill.p50 { width: 50%; }
+.mockup-progress-fill.p100 { width: 100%; }
+.mockup-status {
+  text-align: center; font-size: 0.9rem; color: #8B7355;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+  border-left: 4px solid #DAA520;
+  border-radius: 0 12px 12px 0;
+  margin: 12px 0;
+  font-weight: 500;
+}
+.mockup-status.success { background: linear-gradient(135deg, #E8F5E9, #C8E6C9); color: #8FBC8F; font-weight: 600; border-left-color: #8FBC8F; }
+.mockup-status.flash { color: #8B7355; background: linear-gradient(135deg, #E3F2FD, #BBDEFB); }
+.mockup-midline { border: none; border-top: 1px solid #DDD3C0; margin: 14px 0; }
+.mockup-footer {
+  text-align: center; font-size: 0.75rem; color: #A09080;
+  padding-top: 12px; border-top: 1px solid #DDD3C0;
+}
+
+.browser-chrome {
+  background: #DDD3C0; color: #2F2F2F; padding: 8px 16px;
+  font-size: 0.85rem; font-weight: 600;
+  display: flex; align-items: center; gap: 10px;
+}
+.browser-navbar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 16px; background: #F0EDE0;
+  border-bottom: 1px solid #DDD3C0;
+}
+.browser-url {
+  flex: 1; background: #fff; border: 1px solid #DDD3C0;
+  border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; color: #8B7355;
+}
+
+.web-header {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  padding: 20px 16px;
+  color: #2C1810;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.web-header-row {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+}
+.web-header-logo { height: 64px; width: auto; object-fit: contain; }
+.web-header-text { text-align: center; }
+.web-header-title {
+  font-family: 'Cooper Black', 'Fredoka One', 'Arial Black', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 1.6rem; font-weight: 900; letter-spacing: -0.5px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+.web-version { font-size: 0.8rem; opacity: 0.7; margin-top: 2px; color: #8B4513; font-weight: 500; }
+
+.web-tab-bar {
+  display: flex; background: #1C1C1E; border-bottom: 1px solid #38383A;
+}
+.web-tab {
+  flex: 1; text-align: center; padding: 12px 8px;
+  font-size: 0.8rem; font-weight: 500; color: #8E8E93;
+  cursor: default; position: relative;
+}
+.web-tab.active { color: #DAA520; }
+.web-tab.active::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 3px; background: #DAA520; border-radius: 2px 2px 0 0;
+}
+.web-content { padding: 16px; background: #000000; }
+.web-section-card {
+  background: #1C1C1E;
+  border: 1px solid #38383A;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.web-section-title {
+  font-size: 1rem; font-weight: 600; color: #FFFFFF;
+  margin-bottom: 14px;
+}
+.web-btn-primary {
+  display: inline-block;
+  background: linear-gradient(135deg, #DAA520, #B7950B);
+  color: #fff; border: none; border-radius: 12px; padding: 12px 28px;
+  font-size: 0.9rem; font-weight: 600; cursor: default;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  min-height: 44px;
+}
+.web-btn-secondary {
+  display: inline-block;
+  background: #1C1C1E;
+  color: #DAA520; border: 2px solid #DAA520;
+  border-radius: 12px; padding: 12px 28px;
+  font-size: 0.9rem; font-weight: 600; cursor: default;
+  min-height: 44px;
+}
+.web-btn-large {
+  font-size: 1rem; padding: 16px 32px; min-height: 56px;
+}
+.web-info-display { margin-bottom: 12px; }
+.web-info-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid #38383A;
+}
+.web-info-item:last-child { border-bottom: none; }
+.web-info-label { font-weight: 500; color: #FFFFFF; font-size: 0.85rem; }
+.web-info-value { font-weight: 600; color: #DAA520; font-size: 1rem; }
+.web-control-group { display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.web-control-group > * { flex: 1; min-width: 120px; }
+.web-toggle-group {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.web-toggle-label { font-weight: 500; color: #FFFFFF; font-size: 0.85rem; }
+.web-toggle-track {
+  width: 44px; height: 26px; background: #38383A;
+  border-radius: 13px; position: relative; cursor: default;
+}
+.web-toggle-track::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 22px; height: 22px; background: #fff;
+  border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.web-toggle-track.on { background: #FF8C00; }
+.web-toggle-track.on::after { left: 20px; }
+.web-status-msg {
+  background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+  color: #DAA520; padding: 12px 16px;
+  border-radius: 0 12px 12px 0;
+  border-left: 4px solid #DAA520;
+  text-align: center; font-weight: 500; font-size: 0.85rem;
+  margin-bottom: 14px;
+}
+.web-slider-group { margin-bottom: 14px; }
+.web-slider-track {
+  width: 100%; height: 6px; background: #38383A;
+  border-radius: 3px; margin-bottom: 6px; position: relative;
+}
+.web-slider-thumb {
+  position: absolute; top: -9px; width: 24px; height: 24px;
+  background: #DAA520; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.web-slider-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: #8E8E93; }
+.web-input {
+  width: 100%; padding: 12px 14px; border: 2px solid #38383A;
+  border-radius: 12px; font-size: 0.9rem; background: #1C1C1E;
+  color: #FFFFFF; min-height: 44px;
+}
+.web-cal-progress {
+  position: relative;
+  background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+  color: #DAA520; padding: 12px 16px;
+  border-left: 4px solid #DAA520;
+  border-radius: 0 12px 12px 0;
+  text-align: center; font-weight: 500; font-size: 0.85rem;
+  margin-bottom: 14px; overflow: hidden;
+}
+.web-cal-progress-bar {
+  position: absolute; top: 0; left: 0; height: 100%;
+  background: linear-gradient(90deg, #DAA520, #FF8C00);
+  opacity: 0.25; transition: width 0.4s;
+  pointer-events: none;
+}
+.web-cal-progress-text { position: relative; z-index: 2; }
+
+.tip {
+  background: rgba(218,165,32,0.08);
+  border-left: 4px solid #DAA520;
+  padding: 12px 16px;
+  border-radius: 0 10px 10px 0;
+  margin: 16px 0;
+  font-size: 0.9rem;
+  color: #4A3F35;
+}
+.tip strong { color: #2F2F2F; }
+
+.overview {
+  background: rgba(218,165,32,0.06);
+  border: 1px solid #DDD3C0;
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 28px;
+}
+.overview h2 {
+  font-size: 1.1rem; font-weight: 700; color: #2F2F2F;
+  margin-bottom: 12px;
+}
+.overview ol { padding-left: 20px; color: #4A3F35; }
+.overview li { margin-bottom: 6px; }
+.overview li strong { color: #DAA520; }
+
+@media (max-width: 640px) {
+  body { padding: 10px; }
+  .header { padding: 20px 16px; }
+  .header h1 { font-size: 1.4rem; }
+  .content { padding: 16px; }
+  .lang-nav { margin: 16px 16px 0; }
+  .mockup-body { padding: 14px; }
+  .mockup-header { padding: 12px 16px; }
+  .mockup-header-logo { width: 36px; height: 36px; }
+  .mockup-header-logo img { width: 36px; height: 36px; }
+  .web-content { padding: 10px; }
+  .web-header-logo { height: 48px; }
+  .web-header-title { font-size: 1.2rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="header">
+  <h1>BeeSMART</h1>
+  <p>Software Flasher &amp; Calibration Guide</p>
+</div>
+
+<div class="lang-nav" id="langNav">
+  <button class="lang-btn active" data-lang="en">English</button>
+  <button class="lang-btn" data-lang="de">Deutsch</button>
+  <button class="lang-btn" data-lang="da">Dansk</button>
+</div>
+
+<div class="content">
+
+<!-- ═══════════ ENGLISH ═══════════ -->
+<div class="lang-content active" id="lang-en">
+
+<div class="overview">
+  <h2>Overview — Two Main Steps</h2>
+  <ol>
+    <li><strong>Flash software</strong> — Load new firmware onto your BeeSMART controller via USB.</li>
+    <li><strong>Calibrate scale</strong> — Connect everything and calibrate the scale so it weighs accurately.</li>
+  </ol>
+  <p style="margin-top:10px;font-size:0.9rem;color:#8B7355;">Total time: ~5–10 minutes. No special tools needed.</p>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">1</span> Open the BeeSMART Software Flasher</div>
+  <div class="step-text">Double-click <strong>BeeSMART_Flasher.exe</strong> (Windows) or run <strong>beesmart_flasher.py</strong> (Linux/Mac). The window below will appear.</div>
+  <div class="mockup">
+    <div class="mockup-header">
+      <div class="mockup-header-logo"><img class="bee-logo" alt="BeeSMART logo"></div>
+      <div class="mockup-header-text">
+        <span class="title">BeeSMART</span>
+        <span class="sub">Software Flasher  ·  v3.3.0</span>
+      </div>
+    </div>
+    <div class="mockup-body">
+      <div class="mockup-label">Firmware Binary</div>
+      <div class="mockup-row">
+        <div class="mockup-field">No file selected</div>
+        <div class="mockup-btn">Browse</div>
+      </div>
+      <hr class="mockup-midline">
+      <div class="mockup-progress"><div class="mockup-progress-fill"></div></div>
+      <div class="mockup-status">Select a firmware binary to begin</div>
+      <div class="mockup-footer">BeeSMART Honey Dosing System  v3.3.0</div>
+    </div>
+  </div>
+  <div class="tip"><strong>Tip:</strong> On Windows you may see a SmartScreen warning the first time — click <em>More info</em> → <em>Run anyway</em>.</div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">2</span> Select the Firmware File</div>
+  <div class="step-text">Click <strong>Browse</strong> and navigate to the firmware file you downloaded. It should be a <code>.bin</code> file (e.g. <code>honeyDosing_v3_firmware.bin</code>).</div>
+  <div class="mockup">
+    <div class="mockup-header">
+      <div class="mockup-header-logo"><img class="bee-logo" alt="BeeSMART logo"></div>
+      <div class="mockup-header-text">
+        <span class="title">BeeSMART</span>
+        <span class="sub">Software Flasher  ·  v3.3.0</span>
+      </div>
+    </div>
+    <div class="mockup-body">
+      <div class="mockup-label">Firmware Binary</div>
+      <div class="mockup-row">
+        <div class="mockup-field" style="color:#2F2F2F;">honeyDosing_v3_firmware.bin</div>
+        <div class="mockup-btn">Browse</div>
+      </div>
+      <hr class="mockup-midline">
+      <div class="mockup-progress"><div class="mockup-progress-fill"></div></div>
+      <div class="mockup-status" style="color:#2F2F2F;">Ready to flash — connect your BeeSMART controller via USB</div>
+      <div class="mockup-footer">BeeSMART Honey Dosing System  v3.3.0</div>
+    </div>
+  </div>
+  <div class="tip"><strong>Tip:</strong> The status bar now shows <em>"Ready to flash — connect your BeeSMART controller via USB"</em>. The tool is waiting for your device.</div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">3</span> Connect the BeeSMART Controller via USB</div>
+  <div class="step-text">Plug the BeeSMART controller into your computer with a USB cable. The flasher will <strong>automatically detect</strong> the device and start flashing.</div>
+  <div class="mockup">
+    <div class="mockup-header">
+      <div class="mockup-header-logo"><img class="bee-logo" alt="BeeSMART logo"></div>
+      <div class="mockup-header-text">
+        <span class="title">BeeSMART</span>
+        <span class="sub">Software Flasher  ·  v3.3.0</span>
+      </div>
+    </div>
+    <div class="mockup-body">
+      <div class="mockup-label">Firmware Binary</div>
+      <div class="mockup-row">
+        <div class="mockup-field" style="color:#2F2F2F;">honeyDosing_v3_firmware.bin</div>
+        <div class="mockup-btn" style="opacity:0.6;">Browse</div>
+      </div>
+      <hr class="mockup-midline">
+      <div class="mockup-progress"><div class="mockup-progress-fill" style="width:45%;"></div></div>
+      <div class="mockup-status flash">Flashing on COM5...</div>
+      <div class="mockup-footer">BeeSMART Honey Dosing System  v3.3.0</div>
+    </div>
+  </div>
+  <div class="tip"><strong>Important:</strong> Do <strong>not</strong> unplug the USB cable while flashing is in progress. This could damage the controller.</div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">4</span> Wait for Flashing to Complete</div>
+  <div class="step-text">The progress bar will fill up and the status will turn <strong style="color:#8FBC8F;">green</strong> saying <em>"Device flashed successfully"</em>.</div>
+  <div class="mockup">
+    <div class="mockup-header">
+      <div class="mockup-header-logo"><img class="bee-logo" alt="BeeSMART logo"></div>
+      <div class="mockup-header-text">
+        <span class="title">BeeSMART</span>
+        <span class="sub">Software Flasher  ·  v3.3.0</span>
+      </div>
+    </div>
+    <div class="mockup-body">
+      <div class="mockup-label">Firmware Binary</div>
+      <div class="mockup-row">
+        <div class="mockup-field" style="color:#2F2F2F;">honeyDosing_v3_firmware.bin</div>
+        <div class="mockup-btn">Browse</div>
+      </div>
+      <hr class="mockup-midline">
+      <div class="mockup-progress"><div class="mockup-progress-fill p100"></div></div>
+      <div class="mockup-status success">Device flashed successfully</div>
+      <div class="mockup-footer">BeeSMART Honey Dosing System  v3.3.0</div>
+    </div>
+  </div>
+  <div class="tip"><strong>Tip:</strong> If you see <span style="color:#CD853F;">"Flashing failed"</span>, try unplugging and re-plugging the USB, then repeat steps 3–4.</div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">5</span> Close the Flasher</div>
+  <div class="step-text">Once the status shows <em>"Device flashed successfully"</em>, you can close the flasher window. Your BeeSMART controller now has the new software installed.</div>
+  <div class="mockup">
+    <div class="mockup-header">
+      <div class="mockup-header-logo"><img class="bee-logo" alt="BeeSMART logo"></div>
+      <div class="mockup-header-text">
+        <span class="title">BeeSMART</span>
+        <span class="sub">Software Flasher  ·  v3.3.0</span>
+      </div>
+    </div>
+    <div class="mockup-body">
+      <div class="mockup-label">Firmware Binary</div>
+      <div class="mockup-row">
+        <div class="mockup-field" style="color:#2F2F2F;">honeyDosing_v3_firmware.bin</div>
+        <div class="mockup-btn">Browse</div>
+      </div>
+      <hr class="mockup-midline">
+      <div class="mockup-progress"><div class="mockup-progress-fill p100"></div></div>
+      <div class="mockup-status success">Device flashed successfully</div>
+      <div class="mockup-footer">BeeSMART Honey Dosing System  v3.3.0</div>
+    </div>
+  </div>
+</div>
+
+<hr style="border:none;border-top:2px solid #DDD3C0;margin:32px 0;">
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">6</span> Connect the Scale to the Controller</div>
+  <div class="step-text">Use the <strong>RJ45 cable</strong> to connect the BeeSMART scale to the BeeSMART controller. Plug one end into the scale and the other into the controller's RJ45 port.</div>
+  <div style="text-align:center;padding:20px;background:#FFFEF7;border:1px solid #DDD3C0;border-radius:12px;margin:16px 0;">
+    <div style="font-size:2.5rem;margin-bottom:6px;">🔌 ─── RJ45 ─── 🔌</div>
+    <div style="font-size:0.85rem;color:#8B7355;">Scale  ←——————→  Controller</div>
+  </div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">7</span> Connect to the BeeSMART Wi-Fi</div>
+  <div class="step-text">On your phone, tablet, or computer, open the <strong>Wi-Fi settings</strong> and look for a network named <strong>BeeSMART-XXXXXXXX</strong> (the X's are unique to your device). Connect to it. No password is required.</div>
+  <div style="display:flex;align-items:center;gap:16px;padding:16px;background:#FFFEF7;border:1px solid #DDD3C0;border-radius:12px;margin:16px 0;flex-wrap:wrap;">
+    <div style="font-size:2rem;">📶</div>
+    <div>
+      <div style="font-weight:600;color:#2F2F2F;">BeeSMART-A3F2C1B0</div>
+      <div style="font-size:0.8rem;color:#8B7355;">Wi-Fi network  ·  No password</div>
+    </div>
+  </div>
+  <div class="tip"><strong>Tip:</strong> Once connected, your device should automatically show the BeeSMART web interface (captive portal). If it doesn't, open a browser and go to <strong>http://beesmart.local</strong> or <strong>http://192.168.4.1</strong>.</div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">8</span> Open the Web Interface</div>
+  <div class="step-text">Once connected to the BeeSMART Wi-Fi, the captive portal should open automatically. If not, type <strong>http://beesmart.local</strong> in your browser's address bar. You will see the BeeSMART web interface with the <strong>Filling</strong> tab active.</div>
+  <div class="mockup">
+    <div class="browser-chrome">
+      <span style="font-size:0.7rem;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span>
+      <span style="margin-left:10px;">Safari</span>
+      <span style="flex:1;text-align:right;font-size:0.7rem;opacity:0.6;">File  Edit  View</span>
+    </div>
+    <div class="browser-navbar">
+      <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+      <div class="browser-url">http://beesmart.local</div>
+    </div>
+    <div class="web-header">
+      <div class="web-header-row">
+        <img class="bee-logo web-header-logo" alt="BeeSMART logo">
+        <div class="web-header-text">
+          <div class="web-header-title">BeeSMART</div>
+          <div class="web-version">v3.3.0</div>
+        </div>
+      </div>
+    </div>
+    <div class="web-tab-bar">
+      <div class="web-tab active">Filling</div>
+      <div class="web-tab">Settings</div>
+      <div class="web-tab">Advanced</div>
+      <div class="web-tab">Statistics</div>
+    </div>
+    <div class="web-content">
+      <div class="web-section-card">
+        <div class="web-control-group">
+          <div class="web-btn-primary web-btn-large" style="text-align:center;">Start</div>
+          <div class="web-btn-secondary web-btn-large" style="text-align:center;">Stop</div>
+        </div>
+        <div class="web-toggle-group">
+          <span class="web-toggle-label">Automatic tap start</span>
+          <div class="web-toggle-track on"></div>
+        </div>
+      </div>
+      <div class="web-section-card">
+        <div class="web-info-display">
+          <div class="web-info-item">
+            <span class="web-info-label">Desired Amount:</span>
+            <span class="web-info-value">300 g</span>
+          </div>
+          <div class="web-info-item">
+            <span class="web-info-label">Current Honey Weight (without jar):</span>
+            <span class="web-info-value">0 g</span>
+          </div>
+        </div>
+      </div>
+      <div class="web-section-card">
+        <div class="web-status-msg">Press Start</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">9</span> Go to the Advanced Tab</div>
+  <div class="step-text">In the web interface, tap on <strong>"Advanced"</strong> (the third tab) to open the advanced settings. Scroll down to the <strong>Scale Calibration</strong> section.</div>
+  <div class="mockup">
+    <div class="browser-chrome">
+      <span style="font-size:0.7rem;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span>
+      <span style="margin-left:10px;">Safari</span>
+    </div>
+    <div class="browser-navbar">
+      <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+      <div class="browser-url">http://beesmart.local</div>
+    </div>
+    <div class="web-header" style="padding:12px 16px;">
+      <div class="web-header-row">
+        <img class="bee-logo web-header-logo" style="height:40px;" alt="BeeSMART logo">
+        <div class="web-header-text">
+          <div class="web-header-title" style="font-size:1.1rem;">BeeSMART</div>
+          <div class="web-version">v3.3.0</div>
+        </div>
+      </div>
+    </div>
+    <div class="web-tab-bar">
+      <div class="web-tab">Filling</div>
+      <div class="web-tab">Settings</div>
+      <div class="web-tab active">Advanced</div>
+      <div class="web-tab">Statistics</div>
+    </div>
+    <div class="web-content">
+      <div class="web-section-card">
+        <div class="web-section-title">PID Control Parameters</div>
+        <div style="font-size:0.8rem;font-weight:600;color:#8E8E93;margin-bottom:8px;">Viscosity</div>
+        <div style="display:flex;background:#38383A;border-radius:10px;padding:2px;margin-bottom:16px;">
+          <span style="flex:1;text-align:center;padding:8px;font-size:0.72rem;color:#8E8E93;">Low</span>
+          <span style="flex:1;text-align:center;padding:8px;font-size:0.72rem;background:#1C1C1E;border-radius:8px;color:#DAA520;box-shadow:0 1px 3px rgba(0,0,0,0.1);">Medium</span>
+          <span style="flex:1;text-align:center;padding:8px;font-size:0.72rem;color:#8E8E93;">High</span>
+          <span style="flex:1;text-align:center;padding:8px;font-size:0.72rem;color:#8E8E93;">User Defined</span>
+        </div>
+        <div style="font-size:0.8rem;font-weight:600;color:#8E8E93;margin-bottom:8px;">Control Parameters</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+          <div>
+            <div style="font-size:0.75rem;color:#8E8E93;margin-bottom:4px;">Kp</div>
+            <div class="web-input" style="padding:8px 12px;font-size:0.85rem;">8</div>
+          </div>
+          <div>
+            <div style="font-size:0.75rem;color:#8E8E93;margin-bottom:4px;">Ti</div>
+            <div class="web-input" style="padding:8px 12px;font-size:0.85rem;">10</div>
+          </div>
+          <div>
+            <div style="font-size:0.75rem;color:#8E8E93;margin-bottom:4px;">Kd</div>
+            <div class="web-input" style="padding:8px 12px;font-size:0.85rem;">5</div>
+          </div>
+        </div>
+      </div>
+      <div class="web-section-card">
+        <div class="web-section-title">Set Min and Max Servo Position</div>
+        <div style="display:flex;gap:16px;margin-bottom:10px;">
+          <div style="flex:1;">
+            <div style="font-size:0.75rem;color:#8E8E93;margin-bottom:4px;">Servo Minimum</div>
+            <div style="height:6px;background:#38383A;border-radius:3px;position:relative;margin-bottom:4px;">
+              <span style="position:absolute;top:-9px;left:0;width:24px;height:24px;background:#DAA520;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,0.1);"></span>
+            </div>
+            <div style="font-size:0.75rem;color:#DAA520;text-align:center;font-weight:600;">0°</div>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:0.75rem;color:#8E8E93;margin-bottom:4px;">Servo Maximum</div>
+            <div style="height:6px;background:#38383A;border-radius:3px;position:relative;margin-bottom:4px;">
+              <span style="position:absolute;top:-9px;right:0;width:24px;height:24px;background:#DAA520;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,0.1);"></span>
+            </div>
+            <div style="font-size:0.75rem;color:#DAA520;text-align:center;font-weight:600;">90°</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <span class="web-btn-secondary" style="flex:1;text-align:center;font-size:0.8rem;padding:10px;">Go to min position</span>
+          <span class="web-btn-secondary" style="flex:1;text-align:center;font-size:0.8rem;padding:10px;">Go to max position</span>
+        </div>
+      </div>
+      <div class="web-section-card" style="border:2px solid #DAA520;">
+        <div class="web-section-title">Scale Calibration</div>
+        <div class="web-info-display">
+          <div class="web-info-item">
+            <span class="web-info-label">Current Weight:</span>
+            <span class="web-info-value">0 g</span>
+          </div>
+        </div>
+        <div class="web-cal-progress">
+          <div class="web-cal-progress-bar" style="width:0%;"></div>
+          <span class="web-cal-progress-text">System calibrated, press Calibrate to start re-calibration</span>
+        </div>
+        <div style="font-size:0.85rem;font-weight:600;color:#FFFFFF;margin-bottom:10px;">Calibration Weight</div>
+        <div class="web-slider-group">
+          <div class="web-slider-track">
+            <span class="web-slider-thumb" style="left:20%;"></span>
+          </div>
+          <div class="web-slider-labels"><span>50g</span><span>250g</span><span>1000g</span></div>
+        </div>
+        <div class="web-input" style="margin-bottom:12px;">250</div>
+        <div style="text-align:center;">
+          <span class="web-btn-primary">Calibrate</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">10</span> Start Calibration — Remove Weight &amp; Press Calibrate</div>
+  <div class="step-text">Make sure nothing is on the scale. In the <strong>Scale Calibration</strong> section (bottom of the Advanced tab), press the <strong>"Calibrate"</strong> button. The system will tare the scale.</div>
+  <div class="mockup">
+    <div class="browser-chrome">
+      <span style="font-size:0.7rem;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span>
+      <span style="margin-left:10px;">Safari</span>
+    </div>
+    <div class="browser-navbar">
+      <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+      <div class="browser-url">http://beesmart.local</div>
+    </div>
+    <div class="web-header" style="padding:10px 16px;">
+      <div class="web-header-row">
+        <img class="bee-logo web-header-logo" style="height:32px;" alt="BeeSMART logo">
+        <div class="web-header-text">
+          <div class="web-header-title" style="font-size:0.9rem;">BeeSMART</div>
+        </div>
+      </div>
+    </div>
+    <div class="web-tab-bar" style="font-size:0.7rem;">
+      <div class="web-tab">Filling</div>
+      <div class="web-tab">Settings</div>
+      <div class="web-tab active">Advanced</div>
+      <div class="web-tab">Statistics</div>
+    </div>
+    <div class="web-content">
+      <div class="web-section-card" style="border:2px solid #DAA520;">
+        <div class="web-section-title">Scale Calibration</div>
+        <div class="web-info-display">
+          <div class="web-info-item">
+            <span class="web-info-label">Current Weight:</span>
+            <span class="web-info-value">0 g</span>
+          </div>
+        </div>
+        <div class="web-cal-progress">
+          <div class="web-cal-progress-bar" style="width:0%;"></div>
+          <span class="web-cal-progress-text">Remove any weight from scale and press Calibrate</span>
+        </div>
+        <div style="font-size:0.85rem;font-weight:600;color:#FFFFFF;margin-bottom:10px;">Calibration Weight</div>
+        <div class="web-slider-group">
+          <div class="web-slider-track">
+            <span class="web-slider-thumb" style="left:20%;"></span>
+          </div>
+          <div class="web-slider-labels"><span>50g</span><span>250g</span><span>1000g</span></div>
+        </div>
+        <div class="web-input" style="margin-bottom:12px;">250</div>
+        <div style="text-align:center;">
+          <span class="web-btn-primary">Calibrate</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">11</span> Place a Known Weight &amp; Calibrate Again</div>
+  <div class="step-text">Find an item with a <strong>known weight</strong> (e.g. a 250g calibration weight, a bag of sugar, or a can of beans — check the label). Place it on the scale. Enter the exact weight in the <strong>Calibration Weight</strong> field. Press <strong>"Calibrate"</strong> again.</div>
+  <div class="mockup">
+    <div class="browser-chrome">
+      <span style="font-size:0.7rem;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span>
+      <span style="margin-left:10px;">Safari</span>
+    </div>
+    <div class="browser-navbar">
+      <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+      <div class="browser-url">http://beesmart.local</div>
+    </div>
+    <div class="web-header" style="padding:10px 16px;">
+      <div class="web-header-row">
+        <img class="bee-logo web-header-logo" style="height:32px;" alt="BeeSMART logo">
+        <div class="web-header-text">
+          <div class="web-header-title" style="font-size:0.9rem;">BeeSMART</div>
+        </div>
+      </div>
+    </div>
+    <div class="web-tab-bar" style="font-size:0.7rem;">
+      <div class="web-tab">Filling</div>
+      <div class="web-tab">Settings</div>
+      <div class="web-tab active">Advanced</div>
+      <div class="web-tab">Statistics</div>
+    </div>
+    <div class="web-content">
+      <div class="web-section-card" style="border:2px solid #DAA520;">
+        <div class="web-section-title">Scale Calibration</div>
+        <div class="web-info-display">
+          <div class="web-info-item">
+            <span class="web-info-label">Current Weight:</span>
+            <span class="web-info-value">250 g</span>
+          </div>
+        </div>
+        <div class="web-cal-progress">
+          <div class="web-cal-progress-bar" style="width:10%;"></div>
+          <span class="web-cal-progress-text">Place calibration weight on scale and press calibrate</span>
+        </div>
+        <div style="font-size:0.85rem;font-weight:600;color:#FFFFFF;margin-bottom:10px;">Calibration Weight</div>
+        <div class="web-slider-group">
+          <div class="web-slider-track">
+            <span class="web-slider-thumb" style="left:20%;"></span>
+          </div>
+          <div class="web-slider-labels"><span>50g</span><span>250g</span><span>1000g</span></div>
+        </div>
+        <div class="web-input" style="margin-bottom:12px;border-color:#DAA520;">250</div>
+        <div style="text-align:center;">
+          <span class="web-btn-primary">Calibrate</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tip"><strong>Tip:</strong> Any item with the weight printed on the package works — a bag of flour, a bottle of water, etc. The more accurate your reference weight, the better your scale will perform.</div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">12</span> Wait for Calibration Complete</div>
+  <div class="step-text">During sampling the progress bar fills to 100% while the status shows <em>"Calibrating..."</em>. When it finishes, the status returns to <strong>"System calibrated, press Calibrate to start re-calibration"</strong> — your scale is now calibrated and ready for use!</div>
+  <div class="mockup">
+    <div class="browser-chrome">
+      <span style="font-size:0.7rem;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span>
+      <span style="margin-left:10px;">Safari</span>
+    </div>
+    <div class="browser-navbar">
+      <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+      <div class="browser-url">http://beesmart.local</div>
+    </div>
+    <div class="web-header" style="padding:10px 16px;">
+      <div class="web-header-row">
+        <img class="bee-logo web-header-logo" style="height:32px;" alt="BeeSMART logo">
+        <div class="web-header-text">
+          <div class="web-header-title" style="font-size:0.9rem;">BeeSMART</div>
+        </div>
+      </div>
+    </div>
+    <div class="web-tab-bar" style="font-size:0.7rem;">
+      <div class="web-tab">Filling</div>
+      <div class="web-tab">Settings</div>
+      <div class="web-tab active">Advanced</div>
+      <div class="web-tab">Statistics</div>
+    </div>
+    <div class="web-content">
+      <div class="web-section-card" style="border:2px solid #DAA520;">
+        <div class="web-section-title">Scale Calibration</div>
+        <div class="web-info-display">
+          <div class="web-info-item">
+            <span class="web-info-label">Current Weight:</span>
+            <span class="web-info-value">0 g</span>
+          </div>
+        </div>
+        <div class="web-cal-progress">
+          <div class="web-cal-progress-bar" style="width:0%;"></div>
+          <span class="web-cal-progress-text">System calibrated, press Calibrate to start re-calibration</span>
+        </div>
+        <div style="font-size:0.85rem;font-weight:600;color:#FFFFFF;margin-bottom:10px;">Calibration Weight</div>
+        <div class="web-slider-group">
+          <div class="web-slider-track">
+            <span class="web-slider-thumb" style="left:20%;"></span>
+          </div>
+          <div class="web-slider-labels"><span>50g</span><span>250g</span><span>1000g</span></div>
+        </div>
+        <div class="web-input" style="margin-bottom:12px;">250</div>
+        <div style="text-align:center;">
+          <span class="web-btn-primary">Calibrate</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="background:linear-gradient(135deg, #FFD700, #FFA500);border-radius:16px;padding:30px;text-align:center;color:#2C1810;margin-top:32px;box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+  <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
+    <img class="bee-logo" style="height:48px;width:48px;object-fit:contain;" alt="BeeSMART">
+    <span style="font-size:1.8rem;font-weight:900;font-family:'Cooper Black','Fredoka One','Arial Black',sans-serif;letter-spacing:-0.5px;">BeeSMART</span>
+  </div>
+  <div style="font-size:1.1rem;font-weight:700;margin-top:8px;">Your BeeSMART is ready!</div>
+  <div style="font-size:0.9rem;opacity:0.8;margin-top:4px;">Enjoy precise, automatic honey dosing.</div>
+</div>
+
+</div><!-- /lang-en -->
+
+<!-- ═══════════ GERMAN ═══════════ -->
+<div class="lang-content" id="lang-de">
+
+<div class="overview">
+  <h2>Übersicht — Zwei Hauptschritte</h2>
+  <ol>
+    <li><strong>Software flashen</strong> — Neue Firmware über USB auf den BeeSMART-Controller laden.</li>
+    <li><strong>Waage kalibrieren</strong> — Alles verbinden und die Waage kalibrieren, damit sie genau wiegt.</li>
+  </ol>
+  <p style="margin-top:10px;font-size:0.9rem;color:#8B7355;">Gesamtzeit: ~5–10 Minuten. Kein Spezialwerkzeug nötig.</p>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">1</span> Öffnen Sie den BeeSMART Flasher</div>
+  <div class="step-text">Doppelklicken Sie <strong>BeeSMART_Flasher.exe</strong> (Windows) oder führen Sie <strong>beesmart_flasher.py</strong> (Linux/Mac) aus.</div>
+  <div class="mockup">
+    <div class="mockup-header">
+      <div class="mockup-header-logo"><img class="bee-logo" alt="BeeSMART logo"></div>
+      <div class="mockup-header-text">
+        <span class="title">BeeSMART</span>
+        <span class="sub">Software Flasher  ·  v3.3.0</span>
+      </div>
+    </div>
+    <div class="mockup-body">
+      <div class="mockup-label">Firmware Binary</div>
+      <div class="mockup-row">
+        <div class="mockup-field">Keine Datei ausgewählt</div>
+        <div class="mockup-btn">Durchsuchen</div>
+      </div>
+      <hr class="mockup-midline">
+      <div class="mockup-progress"><div class="mockup-progress-fill"></div></div>
+      <div class="mockup-status">Wählen Sie eine Firmware-Datei</div>
+      <div class="mockup-footer">BeeSMART Honey Dosing System  v3.3.0</div>
+    </div>
+  </div>
+  <div class="tip"><strong>Hinweis:</strong> Unter Windows erscheint möglicherweise eine SmartScreen-Warnung — klicken Sie <em>Weitere Informationen</em> → <em>Trotzdem ausführen</em>.</div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">2</span> Firmware-Datei auswählen</div>
+  <div class="step-text">Klicken Sie <strong>Durchsuchen</strong> und wählen Sie die <code>.bin</code>-Datei aus (z. B. <code>honeyDosing_v3_firmware.bin</code>).</div>
+  <div class="mockup">
+    <div class="mockup-header">
+      <div class="mockup-header-logo"><img class="bee-logo" alt="BeeSMART logo"></div>
+      <div class="mockup-header-text">
+        <span class="title">BeeSMART</span>
+        <span class="sub">Software Flasher  ·  v3.3.0</span>
+      </div>
+    </div>
+    <div class="mockup-body">
+      <div class="mockup-label">Firmware Binary</div>
+      <div class="mockup-row">
+        <div class="mockup-field" style="color:#2F2F2F;">honeyDosing_v3_firmware.bin</div>
+        <div class="mockup-btn">Durchsuchen</div>
+      </div>
+      <hr class="mockup-midline">
+      <div class="mockup-progress"><div class="mockup-progress-fill"></div></div>
+      <div class="mockup-status" style="color:#2F2F2F;">Bereit — BeeSMART-Controller via USB verbinden</div>
+      <div class="mockup-footer">BeeSMART Honey Dosing System  v3.3.0</div>
+    </div>
+  </div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">3</span> Controller per USB anschließen</div>
+  <div class="step-text">Verbinden Sie den BeeSMART-Controller per USB mit dem Computer. Der Flasher erkennt das Gerät <strong>automatisch</strong> und beginnt mit dem Flashen.</div>
+  <div class="mockup">
+    <div class="mockup-header">
+      <div class="mockup-header-logo"><img class="bee-logo" alt="BeeSMART logo"></div>
+      <div class="mockup-header-text">
+        <span class="title">BeeSMART</span>
+        <span class="sub">Software Flasher  ·  v3.3.0</span>
+      </div>
+    </div>
+    <div class="mockup-body">
+      <div class="mockup-label">Firmware Binary</div>
+      <div class="mockup-row">
+        <div class="mockup-field" style="color:#2F2F2F;">honeyDosing_v3_firmware.bin</div>
+        <div class="mockup-btn" style="opacity:0.6;">Durchsuchen</div>
+      </div>
+      <hr class="mockup-midline">
+      <div class="mockup-progress"><div class="mockup-progress-fill" style="width:45%;"></div></div>
+      <div class="mockup-status flash">Flashen auf COM5...</div>
+      <div class="mockup-footer">BeeSMART Honey Dosing System  v3.3.0</div>
+    </div>
+  </div>
+  <div class="tip"><strong>Wichtig:</strong> Ziehen Sie das USB-Kabel während des Flashvorgangs <strong>nicht</strong> ab. Dies könnte den Controller beschädigen.</div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">4</span> Warten bis der Vorgang abgeschlossen ist</div>
+  <div class="step-text">Der Fortschrittsbalken füllt sich und die Statusmeldung wird <strong style="color:#8FBC8F;">grün</strong>: <em>"Gerät erfolgreich geflasht"</em>.</div>
+  <div class="mockup">
+    <div class="mockup-header">
+      <div class="mockup-header-logo"><img class="bee-logo" alt="BeeSMART logo"></div>
+      <div class="mockup-header-text">
+        <span class="title">BeeSMART</span>
+        <span class="sub">Software Flasher  ·  v3.3.0</span>
+      </div>
+    </div>
+    <div class="mockup-body">
+      <div class="mockup-label">Firmware Binary</div>
+      <div class="mockup-row">
+        <div class="mockup-field" style="color:#2F2F2F;">honeyDosing_v3_firmware.bin</div>
+        <div class="mockup-btn">Durchsuchen</div>
+      </div>
+      <hr class="mockup-midline">
+      <div class="mockup-progress"><div class="mockup-progress-fill p100"></div></div>
+      <div class="mockup-status success">Gerät erfolgreich geflasht</div>
+      <div class="mockup-footer">BeeSMART Honey Dosing System  v3.3.0</div>
+    </div>
+  </div>
+  <div class="tip"><strong>Hinweis:</strong> Bei <span style="color:#CD853F;">"Flashing failed"</span> trennen Sie das USB-Kabel kurz und schließen es erneut an. Wiederholen Sie dann Schritt 3–4.</div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">5</span> Flasher schließen</div>
+  <div class="step-text">Sobald <em>"Gerät erfolgreich geflasht"</em> angezeigt wird, können Sie das Fenster schließen. Der Controller hat jetzt die neue Software.</div>
+  <div class="mockup">
+    <div class="mockup-header">
+      <div class="mockup-header-logo"><img class="bee-logo" alt="BeeSMART logo"></div>
+      <div class="mockup-header-text">
+        <span class="title">BeeSMART</span>
+        <span class="sub">Software Flasher  ·  v3.3.0</span>
+      </div>
+    </div>
+    <div class="mockup-body">
+      <div class="mockup-label">Firmware Binary</div>
+      <div class="mockup-row">
+        <div class="mockup-field" style="color:#2F2F2F;">honeyDosing_v3_firmware.bin</div>
+        <div class="mockup-btn">Durchsuchen</div>
+      </div>
+      <hr class="mockup-midline">
+      <div class="mockup-progress"><div class="mockup-progress-fill p100"></div></div>
+      <div class="mockup-status success">Gerät erfolgreich geflasht</div>
+      <div class="mockup-footer">BeeSMART Honey Dosing System  v3.3.0</div>
+    </div>
+  </div>
+</div>
+
+<hr style="border:none;border-top:2px solid #DDD3C0;margin:32px 0;">
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">6</span> Waage mit dem Controller verbinden</div>
+  <div class="step-text">Verbinden Sie die BeeSMART-Waage mit dem <strong>RJ45-Kabel</strong> mit dem Controller.</div>
+  <div style="text-align:center;padding:20px;background:#FFFEF7;border:1px solid #DDD3C0;border-radius:12px;margin:16px 0;">
+    <div style="font-size:2.5rem;margin-bottom:6px;">🔌 ─── RJ45 ─── 🔌</div>
+    <div style="font-size:0.85rem;color:#8B7355;">Waage  ←——————→  Controller</div>
+  </div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">7</span> Mit dem BeeSMART-WLAN verbinden</div>
+  <div class="step-text">Öffnen Sie die <strong>WLAN-Einstellungen</strong> Ihres Geräts und wählen Sie <strong>BeeSMART-XXXXXXXX</strong>. Kein Passwort erforderlich.</div>
+  <div style="display:flex;align-items:center;gap:16px;padding:16px;background:#FFFEF7;border:1px solid #DDD3C0;border-radius:12px;margin:16px 0;flex-wrap:wrap;">
+    <div style="font-size:2rem;">📶</div>
+    <div>
+      <div style="font-weight:600;color:#2F2F2F;">BeeSMART-A3F2C1B0</div>
+      <div style="font-size:0.8rem;color:#8B7355;">WLAN  ·  Kein Passwort</div>
+    </div>
+  </div>
+  <div class="tip"><strong>Hinweis:</strong> Nach Verbindung öffnet sich die Weboberfläche automatisch. Falls nicht: <strong>http://beesmart.local</strong> oder <strong>http://192.168.4.1</strong>.</div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">8</span> Weboberfläche öffnen</div>
+  <div class="step-text">Nach der Verbindung mit dem BeeSMART-WLAN öffnen Sie einen Browser und gehen zu <strong>http://beesmart.local</strong>. Sie sehen das BeeSMART-Webinterface mit dem Tab <strong>Abfüllung</strong>.</div>
+  <div class="mockup">
+    <div class="browser-chrome">
+      <span style="font-size:0.7rem;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span>
+      <span style="margin-left:10px;">Safari</span>
+    </div>
+    <div class="browser-navbar">
+      <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+      <div class="browser-url">http://beesmart.local</div>
+    </div>
+    <div class="web-header">
+      <div class="web-header-row">
+        <img class="bee-logo web-header-logo" alt="BeeSMART logo">
+        <div class="web-header-text">
+          <div class="web-header-title">BeeSMART</div>
+          <div class="web-version">v3.3.0</div>
+        </div>
+      </div>
+    </div>
+    <div class="web-tab-bar">
+      <div class="web-tab active">Abfüllung</div>
+      <div class="web-tab">Einstellungen</div>
+      <div class="web-tab">Erweiterte</div>
+      <div class="web-tab">Statistiken</div>
+    </div>
+    <div class="web-content">
+      <div class="web-section-card">
+        <div class="web-control-group">
+          <div class="web-btn-primary web-btn-large" style="text-align:center;">Start</div>
+          <div class="web-btn-secondary web-btn-large" style="text-align:center;">Stopp</div>
+        </div>
+        <div class="web-toggle-group">
+          <span class="web-toggle-label">Automatischer Start</span>
+          <div class="web-toggle-track on"></div>
+        </div>
+      </div>
+      <div class="web-section-card">
+        <div class="web-info-display">
+          <div class="web-info-item">
+            <span class="web-info-label">Gewünschte Menge:</span>
+            <span class="web-info-value">300 g</span>
+          </div>
+          <div class="web-info-item">
+            <span class="web-info-label">Aktuelles Honiggewicht (ohne Glas):</span>
+            <span class="web-info-value">0 g</span>
+          </div>
+        </div>
+      </div>
+      <div class="web-section-card">
+        <div class="web-status-msg">Start drücken</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">9</span> Zum Reiter „Erweiterte Einstellungen"</div>
+  <div class="step-text">Tippen Sie auf <strong>"Erweiterte Einstellungen"</strong>, scrollen Sie nach unten zur <strong>Waagen-Kalibrierung</strong>.</div>
+  <div class="mockup">
+    <div class="browser-chrome">
+      <span style="font-size:0.7rem;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span>
+      <span style="margin-left:10px;">Safari</span>
+    </div>
+    <div class="browser-navbar">
+      <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+      <div class="browser-url">http://beesmart.local</div>
+    </div>
+    <div class="web-header" style="padding:12px 16px;">
+      <div class="web-header-row">
+        <img class="bee-logo web-header-logo" style="height:40px;" alt="BeeSMART logo">
+        <div class="web-header-text">
+          <div class="web-header-title" style="font-size:1.1rem;">BeeSMART</div>
+          <div class="web-version">v3.3.0</div>
+        </div>
+      </div>
+    </div>
+    <div class="web-tab-bar">
+      <div class="web-tab">Abfüllung</div>
+      <div class="web-tab">Einstellungen</div>
+      <div class="web-tab active">Erweiterte</div>
+      <div class="web-tab">Statistiken</div>
+    </div>
+    <div class="web-content">
+      <div class="web-section-card">
+        <div class="web-section-title">PID-Steuerungsparameter</div>
+        <div style="font-size:0.8rem;font-weight:600;color:#8E8E93;margin-bottom:8px;">Viskosität</div>
+        <div style="display:flex;background:#38383A;border-radius:10px;padding:2px;margin-bottom:16px;">
+          <span style="flex:1;text-align:center;padding:8px;font-size:0.72rem;color:#8E8E93;">Niedrig</span>
+          <span style="flex:1;text-align:center;padding:8px;font-size:0.72rem;background:#1C1C1E;border-radius:8px;color:#DAA520;box-shadow:0 1px 3px rgba(0,0,0,0.1);">Mittel</span>
+          <span style="flex:1;text-align:center;padding:8px;font-size:0.72rem;color:#8E8E93;">Hoch</span>
+          <span style="flex:1;text-align:center;padding:8px;font-size:0.72rem;color:#8E8E93;">Benutzerdefiniert</span>
+        </div>
+        <div style="font-size:0.8rem;font-weight:600;color:#8E8E93;margin-bottom:8px;">Regelparameter</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+          <div>
+            <div style="font-size:0.75rem;color:#8E8E93;margin-bottom:4px;">Kp</div>
+            <div class="web-input" style="padding:8px 12px;font-size:0.85rem;">8</div>
+          </div>
+          <div>
+            <div style="font-size:0.75rem;color:#8E8E93;margin-bottom:4px;">Ti</div>
+            <div class="web-input" style="padding:8px 12px;font-size:0.85rem;">10</div>
+          </div>
+          <div>
+            <div style="font-size:0.75rem;color:#8E8E93;margin-bottom:4px;">Kd</div>
+            <div class="web-input" style="padding:8px 12px;font-size:0.85rem;">5</div>
+          </div>
+        </div>
+      </div>
+      <div class="web-section-card">
+        <div class="web-section-title">Min und max Servoposition einstellen</div>
+        <div style="display:flex;gap:16px;margin-bottom:10px;">
+          <div style="flex:1;"><div style="font-size:0.75rem;color:#8E8E93;margin-bottom:4px;">Minimum</div><div style="height:6px;background:#38383A;border-radius:3px;position:relative;"><span style="position:absolute;top:-9px;left:0;width:24px;height:24px;background:#DAA520;border-radius:50%;"></span></div><div style="font-size:0.75rem;color:#DAA520;text-align:center;">0°</div></div>
+          <div style="flex:1;"><div style="font-size:0.75rem;color:#8E8E93;margin-bottom:4px;">Maximum</div><div style="height:6px;background:#38383A;border-radius:3px;position:relative;"><span style="position:absolute;top:-9px;right:0;width:24px;height:24px;background:#DAA520;border-radius:50%;"></span></div><div style="font-size:0.75rem;color:#DAA520;text-align:center;">90°</div></div>
+        </div>
+      </div>
+      <div class="web-section-card" style="border:2px solid #DAA520;">
+        <div class="web-section-title">Waagen-Kalibrierung</div>
+        <div class="web-info-display">
+          <div class="web-info-item">
+            <span class="web-info-label">Aktuelles Gewicht:</span>
+            <span class="web-info-value">0 g</span>
+          </div>
+        </div>
+        <div class="web-cal-progress">
+          <div class="web-cal-progress-bar" style="width:0%;"></div>
+          <span class="web-cal-progress-text">System kalibriert, für Neukalibrierung drücken Sie Kalibrieren</span>
+        </div>
+        <div style="font-size:0.85rem;font-weight:600;color:#FFFFFF;margin-bottom:10px;">Kalibrierungsgewicht</div>
+        <div class="web-slider-group">
+          <div class="web-slider-track"><span class="web-slider-thumb" style="left:20%;"></span></div>
+          <div class="web-slider-labels"><span>50g</span><span>250g</span><span>1000g</span></div>
+        </div>
+        <div class="web-input" style="margin-bottom:12px;">250</div>
+        <div style="text-align:center;">
+          <span class="web-btn-primary">Kalibrieren</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">10</span> Kalibrierung starten — Gewicht entfernen</div>
+  <div class="step-text">Stellen Sie sicher, dass sich nichts auf der Waage befindet. Drücken Sie <strong>"Kalibrieren"</strong>.</div>
+  <div class="mockup">
+    <div class="browser-chrome">
+      <span style="font-size:0.7rem;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span>
+      <span style="margin-left:10px;">Safari</span>
+    </div>
+    <div class="browser-navbar">
+      <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+      <div class="browser-url">http://beesmart.local</div>
+    </div>
+    <div class="web-header" style="padding:10px 16px;">
+      <div class="web-header-row">
+        <img class="bee-logo web-header-logo" style="height:32px;" alt="BeeSMART logo">
+        <div class="web-header-text"><div class="web-header-title" style="font-size:0.9rem;">BeeSMART</div></div>
+      </div>
+    </div>
+    <div class="web-tab-bar" style="font-size:0.7rem;">
+      <div class="web-tab">Abfüllung</div>
+      <div class="web-tab">Einstellungen</div>
+      <div class="web-tab active">Erweiterte</div>
+      <div class="web-tab">Statistiken</div>
+    </div>
+    <div class="web-content">
+      <div class="web-section-card" style="border:2px solid #DAA520;">
+        <div class="web-section-title">Waagen-Kalibrierung</div>
+        <div class="web-info-display">
+          <div class="web-info-item">
+            <span class="web-info-label">Aktuelles Gewicht:</span>
+            <span class="web-info-value">0 g</span>
+          </div>
+        </div>
+        <div class="web-cal-progress">
+          <div class="web-cal-progress-bar" style="width:0%;"></div>
+          <span class="web-cal-progress-text">Gewicht entfernen und Kalibrieren drücken</span>
+        </div>
+        <div style="font-size:0.85rem;font-weight:600;color:#FFFFFF;margin-bottom:10px;">Kalibrierungsgewicht</div>
+        <div class="web-slider-group">
+          <div class="web-slider-track"><span class="web-slider-thumb" style="left:20%;"></span></div>
+          <div class="web-slider-labels"><span>50g</span><span>250g</span><span>1000g</span></div>
+        </div>
+        <div class="web-input" style="margin-bottom:12px;">250</div>
+        <div style="text-align:center;">
+          <span class="web-btn-primary">Kalibrieren</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">11</span> Bekanntes Gewicht auflegen &amp; erneut kalibrieren</div>
+  <div class="step-text">Legen Sie einen Gegenstand mit <strong>bekanntem Gewicht</strong> auf (z. B. 250g). Geben Sie das Gewicht ein und drücken Sie erneut <strong>"Kalibrieren"</strong>.</div>
+  <div class="mockup">
+    <div class="browser-chrome">
+      <span style="font-size:0.7rem;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span>
+      <span style="margin-left:10px;">Safari</span>
+    </div>
+    <div class="browser-navbar">
+      <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+      <div class="browser-url">http://beesmart.local</div>
+    </div>
+    <div class="web-header" style="padding:10px 16px;">
+      <div class="web-header-row">
+        <img class="bee-logo web-header-logo" style="height:32px;" alt="BeeSMART logo">
+        <div class="web-header-text"><div class="web-header-title" style="font-size:0.9rem;">BeeSMART</div></div>
+      </div>
+    </div>
+    <div class="web-tab-bar" style="font-size:0.7rem;">
+      <div class="web-tab">Abfüllung</div>
+      <div class="web-tab">Einstellungen</div>
+      <div class="web-tab active">Erweiterte</div>
+      <div class="web-tab">Statistiken</div>
+    </div>
+    <div class="web-content">
+      <div class="web-section-card" style="border:2px solid #DAA520;">
+        <div class="web-section-title">Waagen-Kalibrierung</div>
+        <div class="web-info-display">
+          <div class="web-info-item">
+            <span class="web-info-label">Aktuelles Gewicht:</span>
+            <span class="web-info-value">250 g</span>
+          </div>
+        </div>
+        <div class="web-cal-progress">
+          <div class="web-cal-progress-bar" style="width:10%;"></div>
+          <span class="web-cal-progress-text">Kalibriergewicht auflegen und Kalibrieren drücken</span>
+        </div>
+        <div style="font-size:0.85rem;font-weight:600;color:#FFFFFF;margin-bottom:10px;">Kalibrierungsgewicht</div>
+        <div class="web-slider-group">
+          <div class="web-slider-track"><span class="web-slider-thumb" style="left:20%;"></span></div>
+          <div class="web-slider-labels"><span>50g</span><span>250g</span><span>1000g</span></div>
+        </div>
+        <div class="web-input" style="margin-bottom:12px;border-color:#DAA520;">250</div>
+        <div style="text-align:center;">
+          <span class="web-btn-primary">Kalibrieren</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tip"><strong>Hinweis:</strong> Jeder Gegenstand mit aufgedrucktem Gewicht funktioniert — Mehl, Wasserflasche usw.</div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">12</span> Kalibrierung abschließen</div>
+  <div class="step-text">Während der Messung füllt sich der Fortschrittsbalken auf 100%, während <em>"Kalibriert..."</em> angezeigt wird. Danach kehrt der Status zu <strong>"System kalibriert, für Neukalibrierung drücken Sie Kalibrieren"</strong> zurück — Ihre Waage ist nun kalibriert!</div>
+  <div class="mockup">
+    <div class="browser-chrome">
+      <span style="font-size:0.7rem;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span>
+      <span style="margin-left:10px;">Safari</span>
+    </div>
+    <div class="browser-navbar">
+      <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+      <div class="browser-url">http://beesmart.local</div>
+    </div>
+    <div class="web-header" style="padding:10px 16px;">
+      <div class="web-header-row">
+        <img class="bee-logo web-header-logo" style="height:32px;" alt="BeeSMART logo">
+        <div class="web-header-text"><div class="web-header-title" style="font-size:0.9rem;">BeeSMART</div></div>
+      </div>
+    </div>
+    <div class="web-tab-bar" style="font-size:0.7rem;">
+      <div class="web-tab">Abfüllung</div>
+      <div class="web-tab">Einstellungen</div>
+      <div class="web-tab active">Erweiterte</div>
+      <div class="web-tab">Statistiken</div>
+    </div>
+    <div class="web-content">
+      <div class="web-section-card" style="border:2px solid #DAA520;">
+        <div class="web-section-title">Waagen-Kalibrierung</div>
+        <div class="web-info-display">
+          <div class="web-info-item">
+            <span class="web-info-label">Aktuelles Gewicht:</span>
+            <span class="web-info-value">0 g</span>
+          </div>
+        </div>
+        <div class="web-cal-progress">
+          <div class="web-cal-progress-bar" style="width:0%;"></div>
+          <span class="web-cal-progress-text">System kalibriert, für Neukalibrierung drücken Sie Kalibrieren</span>
+        </div>
+        <div style="font-size:0.85rem;font-weight:600;color:#FFFFFF;margin-bottom:10px;">Kalibrierungsgewicht</div>
+        <div class="web-slider-group">
+          <div class="web-slider-track"><span class="web-slider-thumb" style="left:20%;"></span></div>
+          <div class="web-slider-labels"><span>50g</span><span>250g</span><span>1000g</span></div>
+        </div>
+        <div class="web-input" style="margin-bottom:12px;">250</div>
+        <div style="text-align:center;">
+          <span class="web-btn-primary">Kalibrieren</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="background:linear-gradient(135deg, #FFD700, #FFA500);border-radius:16px;padding:30px;text-align:center;color:#2C1810;margin-top:32px;box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+  <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
+    <img class="bee-logo" style="height:48px;width:48px;object-fit:contain;" alt="BeeSMART">
+    <span style="font-size:1.8rem;font-weight:900;font-family:'Cooper Black','Fredoka One','Arial Black',sans-serif;letter-spacing:-0.5px;">BeeSMART</span>
+  </div>
+  <div style="font-size:1.1rem;font-weight:700;margin-top:8px;">Ihr BeeSMART ist bereit!</div>
+  <div style="font-size:0.9rem;opacity:0.8;margin-top:4px;">Genießen Sie präzises, automatisches Honigdosieren.</div>
+</div>
+
+</div><!-- /lang-de -->
+
+<!-- ═══════════ DANISH ═══════════ -->
+<div class="lang-content" id="lang-da">
+
+<div class="overview">
+  <h2>Overblik — To hovedtrin</h2>
+  <ol>
+    <li><strong>Flash software</strong> — Indlæs ny firmware på din BeeSMART-controller via USB.</li>
+    <li><strong>Kalibrér vægten</strong> — Forbind alt, og kalibrér vægten.</li>
+  </ol>
+  <p style="margin-top:10px;font-size:0.9rem;color:#8B7355;">Tid: ~5–10 minutter. Intet specialværktøj nødvendigt.</p>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">1</span> Åbn BeeSMART Software Flasher</div>
+  <div class="step-text">Dobbeltklik på <strong>BeeSMART_Flasher.exe</strong> (Windows) eller kør <strong>beesmart_flasher.py</strong> (Linux/Mac).</div>
+  <div class="mockup">
+    <div class="mockup-header">
+      <div class="mockup-header-logo"><img class="bee-logo" alt="BeeSMART logo"></div>
+      <div class="mockup-header-text">
+        <span class="title">BeeSMART</span>
+        <span class="sub">Software Flasher  ·  v3.3.0</span>
+      </div>
+    </div>
+    <div class="mockup-body">
+      <div class="mockup-label">Firmware Binary</div>
+      <div class="mockup-row">
+        <div class="mockup-field">Ingen fil valgt</div>
+        <div class="mockup-btn">Gennemse</div>
+      </div>
+      <hr class="mockup-midline">
+      <div class="mockup-progress"><div class="mockup-progress-fill"></div></div>
+      <div class="mockup-status">Vælg en firmware-fil for at begynde</div>
+      <div class="mockup-footer">BeeSMART Honey Dosing System  v3.3.0</div>
+    </div>
+  </div>
+  <div class="tip"><strong>Tip:</strong> På Windows kan du se en SmartScreen-advarsel første gang — klik <em>More info</em> → <em>Run anyway</em>.</div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">2</span> Vælg firmware-filen</div>
+  <div class="step-text">Klik <strong>Gennemse</strong> og find den <code>.bin</code>-fil, du har downloadet (f.eks. <code>honeyDosing_v3_firmware.bin</code>).</div>
+  <div class="mockup">
+    <div class="mockup-header">
+      <div class="mockup-header-logo"><img class="bee-logo" alt="BeeSMART logo"></div>
+      <div class="mockup-header-text">
+        <span class="title">BeeSMART</span>
+        <span class="sub">Software Flasher  ·  v3.3.0</span>
+      </div>
+    </div>
+    <div class="mockup-body">
+      <div class="mockup-label">Firmware Binary</div>
+      <div class="mockup-row">
+        <div class="mockup-field" style="color:#2F2F2F;">honeyDosing_v3_firmware.bin</div>
+        <div class="mockup-btn">Gennemse</div>
+      </div>
+      <hr class="mockup-midline">
+      <div class="mockup-progress"><div class="mockup-progress-fill"></div></div>
+      <div class="mockup-status" style="color:#2F2F2F;">Klar til at flashe — tilslut din BeeSMART-controller via USB</div>
+      <div class="mockup-footer">BeeSMART Honey Dosing System  v3.3.0</div>
+    </div>
+  </div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">3</span> Tilslut BeeSMART-controlleren via USB</div>
+  <div class="step-text">Sæt BeeSMART-controlleren i computeren med et USB-kabel. Flasheren <strong>registrerer automatisk</strong> enheden.</div>
+  <div class="mockup">
+    <div class="mockup-header">
+      <div class="mockup-header-logo"><img class="bee-logo" alt="BeeSMART logo"></div>
+      <div class="mockup-header-text">
+        <span class="title">BeeSMART</span>
+        <span class="sub">Software Flasher  ·  v3.3.0</span>
+      </div>
+    </div>
+    <div class="mockup-body">
+      <div class="mockup-label">Firmware Binary</div>
+      <div class="mockup-row">
+        <div class="mockup-field" style="color:#2F2F2F;">honeyDosing_v3_firmware.bin</div>
+        <div class="mockup-btn" style="opacity:0.6;">Gennemse</div>
+      </div>
+      <hr class="mockup-midline">
+      <div class="mockup-progress"><div class="mockup-progress-fill" style="width:45%;"></div></div>
+      <div class="mockup-status flash">Flasher på COM5...</div>
+      <div class="mockup-footer">BeeSMART Honey Dosing System  v3.3.0</div>
+    </div>
+  </div>
+  <div class="tip"><strong>Vigtigt:</strong> Træk <strong>ikke</strong> USB-kablet ud, mens flashing er i gang.</div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">4</span> Vent på at flashning er færdig</div>
+  <div class="step-text">Statuslinjen viser til sidst <strong style="color:#8FBC8F;">grøn</strong> tekst med <em>"Enhed blev flashet"</em>.</div>
+  <div class="mockup">
+    <div class="mockup-header">
+      <div class="mockup-header-logo"><img class="bee-logo" alt="BeeSMART logo"></div>
+      <div class="mockup-header-text">
+        <span class="title">BeeSMART</span>
+        <span class="sub">Software Flasher  ·  v3.3.0</span>
+      </div>
+    </div>
+    <div class="mockup-body">
+      <div class="mockup-label">Firmware Binary</div>
+      <div class="mockup-row">
+        <div class="mockup-field" style="color:#2F2F2F;">honeyDosing_v3_firmware.bin</div>
+        <div class="mockup-btn">Gennemse</div>
+      </div>
+      <hr class="mockup-midline">
+      <div class="mockup-progress"><div class="mockup-progress-fill p100"></div></div>
+      <div class="mockup-status success">Enhed blev flashet</div>
+      <div class="mockup-footer">BeeSMART Honey Dosing System  v3.3.0</div>
+    </div>
+  </div>
+  <div class="tip"><strong>Tip:</strong> Hvis du ser <span style="color:#CD853F;">"Flashing failed"</span>, så prøv at genindkoble USB-kablet, og gentag trin 3–4.</div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">5</span> Luk flasheren</div>
+  <div class="step-text">Når status viser <em>"Enhed blev flashet"</em>, kan du lukke vinduet. Din controller har nu den nye software.</div>
+  <div class="mockup">
+    <div class="mockup-header">
+      <div class="mockup-header-logo"><img class="bee-logo" alt="BeeSMART logo"></div>
+      <div class="mockup-header-text">
+        <span class="title">BeeSMART</span>
+        <span class="sub">Software Flasher  ·  v3.3.0</span>
+      </div>
+    </div>
+    <div class="mockup-body">
+      <div class="mockup-label">Firmware Binary</div>
+      <div class="mockup-row">
+        <div class="mockup-field" style="color:#2F2F2F;">honeyDosing_v3_firmware.bin</div>
+        <div class="mockup-btn">Gennemse</div>
+      </div>
+      <hr class="mockup-midline">
+      <div class="mockup-progress"><div class="mockup-progress-fill p100"></div></div>
+      <div class="mockup-status success">Enhed blev flashet</div>
+      <div class="mockup-footer">BeeSMART Honey Dosing System  v3.3.0</div>
+    </div>
+  </div>
+</div>
+
+<hr style="border:none;border-top:2px solid #DDD3C0;margin:32px 0;">
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">6</span> Forbind vægten til controlleren</div>
+  <div class="step-text">Brug <strong>RJ45-kablet</strong> til at forbinde BeeSMART-vægten til controlleren.</div>
+  <div style="text-align:center;padding:20px;background:#FFFEF7;border:1px solid #DDD3C0;border-radius:12px;margin:16px 0;">
+    <div style="font-size:2.5rem;margin-bottom:6px;">🔌 ─── RJ45 ─── 🔌</div>
+    <div style="font-size:0.85rem;color:#8B7355;">Vægt  ←——————→  Controller</div>
+  </div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">7</span> Forbind til BeeSMART Wi-Fi</div>
+  <div class="step-text">Åbn <strong>Wi-Fi-indstillingerne</strong> og find netværket <strong>BeeSMART-XXXXXXXX</strong>. Ingen adgangskode.</div>
+  <div style="display:flex;align-items:center;gap:16px;padding:16px;background:#FFFEF7;border:1px solid #DDD3C0;border-radius:12px;margin:16px 0;flex-wrap:wrap;">
+    <div style="font-size:2rem;">📶</div>
+    <div>
+      <div style="font-weight:600;color:#2F2F2F;">BeeSMART-A3F2C1B0</div>
+      <div style="font-size:0.8rem;color:#8B7355;">Wi-Fi-netværk  ·  Ingen adgangskode</div>
+    </div>
+  </div>
+  <div class="tip"><strong>Tip:</strong> Når du er forbundet, åbnes BeeSMART-webgrænsefladen automatisk. Hvis ikke: <strong>http://beesmart.local</strong>.</div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">8</span> Åbn webgrænsefladen</div>
+  <div class="step-text">Åbn en browser og gå til <strong>http://beesmart.local</strong>. Du ser BeeSMART-webgrænsefladen med fanen <strong>Tapning</strong> aktiv.</div>
+  <div class="mockup">
+    <div class="browser-chrome">
+      <span style="font-size:0.7rem;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span>
+      <span style="margin-left:10px;">Safari</span>
+    </div>
+    <div class="browser-navbar">
+      <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+      <div class="browser-url">http://beesmart.local</div>
+    </div>
+    <div class="web-header">
+      <div class="web-header-row">
+        <img class="bee-logo web-header-logo" alt="BeeSMART logo">
+        <div class="web-header-text">
+          <div class="web-header-title">BeeSMART</div>
+          <div class="web-version">v3.3.0</div>
+        </div>
+      </div>
+    </div>
+    <div class="web-tab-bar">
+      <div class="web-tab active">Tapning</div>
+      <div class="web-tab">Indstillinger</div>
+      <div class="web-tab">Avanceret</div>
+      <div class="web-tab">Statistik</div>
+    </div>
+    <div class="web-content">
+      <div class="web-section-card">
+        <div class="web-control-group">
+          <div class="web-btn-primary web-btn-large" style="text-align:center;">Start</div>
+          <div class="web-btn-secondary web-btn-large" style="text-align:center;">Stop</div>
+        </div>
+        <div class="web-toggle-group">
+          <span class="web-toggle-label">Automatisk start af tapning</span>
+          <div class="web-toggle-track on"></div>
+        </div>
+      </div>
+      <div class="web-section-card">
+        <div class="web-info-display">
+          <div class="web-info-item">
+            <span class="web-info-label">Ønsket Mængde:</span>
+            <span class="web-info-value">300 g</span>
+          </div>
+          <div class="web-info-item">
+            <span class="web-info-label">Aktuel Honning Vægt (uden glas):</span>
+            <span class="web-info-value">0 g</span>
+          </div>
+        </div>
+      </div>
+      <div class="web-section-card">
+        <div class="web-status-msg">Tryk start</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">9</span> Gå til fanen Avanceret</div>
+  <div class="step-text">Tryk på <strong>"Avanceret"</strong>. Rul ned til <strong>Vægt Kalibrering</strong>.</div>
+  <div class="mockup">
+    <div class="browser-chrome">
+      <span style="font-size:0.7rem;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span>
+      <span style="margin-left:10px;">Safari</span>
+    </div>
+    <div class="browser-navbar">
+      <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+      <div class="browser-url">http://beesmart.local</div>
+    </div>
+    <div class="web-header" style="padding:12px 16px;">
+      <div class="web-header-row">
+        <img class="bee-logo web-header-logo" style="height:40px;" alt="BeeSMART logo">
+        <div class="web-header-text">
+          <div class="web-header-title" style="font-size:1.1rem;">BeeSMART</div>
+          <div class="web-version">v3.3.0</div>
+        </div>
+      </div>
+    </div>
+    <div class="web-tab-bar">
+      <div class="web-tab">Tapning</div>
+      <div class="web-tab">Indstillinger</div>
+      <div class="web-tab active">Avanceret</div>
+      <div class="web-tab">Statistik</div>
+    </div>
+    <div class="web-content">
+      <div class="web-section-card">
+        <div class="web-section-title">PID Kontrol Parametre</div>
+        <div style="font-size:0.8rem;font-weight:600;color:#8E8E93;margin-bottom:8px;">Viskositet</div>
+        <div style="display:flex;background:#38383A;border-radius:10px;padding:2px;margin-bottom:16px;">
+          <span style="flex:1;text-align:center;padding:8px;font-size:0.72rem;color:#8E8E93;">Lav</span>
+          <span style="flex:1;text-align:center;padding:8px;font-size:0.72rem;background:#1C1C1E;border-radius:8px;color:#DAA520;box-shadow:0 1px 3px rgba(0,0,0,0.1);">Medium</span>
+          <span style="flex:1;text-align:center;padding:8px;font-size:0.72rem;color:#8E8E93;">Høj</span>
+          <span style="flex:1;text-align:center;padding:8px;font-size:0.72rem;color:#8E8E93;">Brugerdefineret</span>
+        </div>
+        <div style="font-size:0.8rem;font-weight:600;color:#8E8E93;margin-bottom:8px;">Kontrol Parametre</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+          <div>
+            <div style="font-size:0.75rem;color:#8E8E93;margin-bottom:4px;">Kp</div>
+            <div class="web-input" style="padding:8px 12px;font-size:0.85rem;">8</div>
+          </div>
+          <div>
+            <div style="font-size:0.75rem;color:#8E8E93;margin-bottom:4px;">Ti</div>
+            <div class="web-input" style="padding:8px 12px;font-size:0.85rem;">10</div>
+          </div>
+          <div>
+            <div style="font-size:0.75rem;color:#8E8E93;margin-bottom:4px;">Kd</div>
+            <div class="web-input" style="padding:8px 12px;font-size:0.85rem;">5</div>
+          </div>
+        </div>
+      </div>
+      <div class="web-section-card">
+        <div class="web-section-title">Indstil min og max Servo position</div>
+        <div style="display:flex;gap:16px;margin-bottom:10px;">
+          <div style="flex:1;"><div style="font-size:0.75rem;color:#8E8E93;margin-bottom:4px;">Min</div><div style="height:6px;background:#38383A;border-radius:3px;position:relative;"><span style="position:absolute;top:-9px;left:0;width:24px;height:24px;background:#DAA520;border-radius:50%;"></span></div><div style="font-size:0.75rem;color:#DAA520;text-align:center;">0°</div></div>
+          <div style="flex:1;"><div style="font-size:0.75rem;color:#8E8E93;margin-bottom:4px;">Max</div><div style="height:6px;background:#38383A;border-radius:3px;position:relative;"><span style="position:absolute;top:-9px;right:0;width:24px;height:24px;background:#DAA520;border-radius:50%;"></span></div><div style="font-size:0.75rem;color:#DAA520;text-align:center;">90°</div></div>
+        </div>
+      </div>
+      <div class="web-section-card" style="border:2px solid #DAA520;">
+        <div class="web-section-title">Vægt Kalibrering</div>
+        <div class="web-info-display">
+          <div class="web-info-item">
+            <span class="web-info-label">Aktuel Vægt:</span>
+            <span class="web-info-value">0 g</span>
+          </div>
+        </div>
+        <div class="web-cal-progress">
+          <div class="web-cal-progress-bar" style="width:0%;"></div>
+          <span class="web-cal-progress-text">System kalibreret, tryk Kalibrer for at starte re-kalibrering</span>
+        </div>
+        <div style="font-size:0.85rem;font-weight:600;color:#FFFFFF;margin-bottom:10px;">Kalibreringsvægt</div>
+        <div class="web-slider-group">
+          <div class="web-slider-track"><span class="web-slider-thumb" style="left:20%;"></span></div>
+          <div class="web-slider-labels"><span>50g</span><span>250g</span><span>1000g</span></div>
+        </div>
+        <div class="web-input" style="margin-bottom:12px;">250</div>
+        <div style="text-align:center;">
+          <span class="web-btn-primary">Kalibrer</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">10</span> Start kalibrering — fjern vægt</div>
+  <div class="step-text">Sørg for, at der intet er på vægten. Tryk på <strong>"Kalibrer"</strong>.</div>
+  <div class="mockup">
+    <div class="browser-chrome">
+      <span style="font-size:0.7rem;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span>
+      <span style="margin-left:10px;">Safari</span>
+    </div>
+    <div class="browser-navbar">
+      <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+      <div class="browser-url">http://beesmart.local</div>
+    </div>
+    <div class="web-header" style="padding:10px 16px;">
+      <div class="web-header-row">
+        <img class="bee-logo web-header-logo" style="height:32px;" alt="BeeSMART logo">
+        <div class="web-header-text"><div class="web-header-title" style="font-size:0.9rem;">BeeSMART</div></div>
+      </div>
+    </div>
+    <div class="web-tab-bar" style="font-size:0.7rem;">
+      <div class="web-tab">Tapning</div>
+      <div class="web-tab">Indstillinger</div>
+      <div class="web-tab active">Avanceret</div>
+      <div class="web-tab">Statistik</div>
+    </div>
+    <div class="web-content">
+      <div class="web-section-card" style="border:2px solid #DAA520;">
+        <div class="web-section-title">Vægt Kalibrering</div>
+        <div class="web-info-display">
+          <div class="web-info-item">
+            <span class="web-info-label">Aktuel Vægt:</span>
+            <span class="web-info-value">0 g</span>
+          </div>
+        </div>
+        <div class="web-cal-progress">
+          <div class="web-cal-progress-bar" style="width:0%;"></div>
+          <span class="web-cal-progress-text">Tøm vægt og tryk Kalibrer</span>
+        </div>
+        <div style="font-size:0.85rem;font-weight:600;color:#FFFFFF;margin-bottom:10px;">Kalibreringsvægt</div>
+        <div class="web-slider-group">
+          <div class="web-slider-track"><span class="web-slider-thumb" style="left:20%;"></span></div>
+          <div class="web-slider-labels"><span>50g</span><span>250g</span><span>1000g</span></div>
+        </div>
+        <div class="web-input" style="margin-bottom:12px;">250</div>
+        <div style="text-align:center;">
+          <span class="web-btn-primary">Kalibrer</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">11</span> Placer kendt vægt &amp; kalibrér igen</div>
+  <div class="step-text">Find en genstand med <strong>kendt vægt</strong> (f.eks. 250g). Placer den på vægten. Indtast vægten og tryk <strong>"Kalibrer"</strong> igen.</div>
+  <div class="mockup">
+    <div class="browser-chrome">
+      <span style="font-size:0.7rem;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span>
+      <span style="margin-left:10px;">Safari</span>
+    </div>
+    <div class="browser-navbar">
+      <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+      <div class="browser-url">http://beesmart.local</div>
+    </div>
+    <div class="web-header" style="padding:10px 16px;">
+      <div class="web-header-row">
+        <img class="bee-logo web-header-logo" style="height:32px;" alt="BeeSMART logo">
+        <div class="web-header-text"><div class="web-header-title" style="font-size:0.9rem;">BeeSMART</div></div>
+      </div>
+    </div>
+    <div class="web-tab-bar" style="font-size:0.7rem;">
+      <div class="web-tab">Tapning</div>
+      <div class="web-tab">Indstillinger</div>
+      <div class="web-tab active">Avanceret</div>
+      <div class="web-tab">Statistik</div>
+    </div>
+    <div class="web-content">
+      <div class="web-section-card" style="border:2px solid #DAA520;">
+        <div class="web-section-title">Vægt Kalibrering</div>
+        <div class="web-info-display">
+          <div class="web-info-item">
+            <span class="web-info-label">Aktuel Vægt:</span>
+            <span class="web-info-value">250 g</span>
+          </div>
+        </div>
+        <div class="web-cal-progress">
+          <div class="web-cal-progress-bar" style="width:10%;"></div>
+          <span class="web-cal-progress-text">Placer kalibreringsvægt og tryk Kalibrer</span>
+        </div>
+        <div style="font-size:0.85rem;font-weight:600;color:#FFFFFF;margin-bottom:10px;">Kalibreringsvægt</div>
+        <div class="web-slider-group">
+          <div class="web-slider-track"><span class="web-slider-thumb" style="left:20%;"></span></div>
+          <div class="web-slider-labels"><span>50g</span><span>250g</span><span>1000g</span></div>
+        </div>
+        <div class="web-input" style="margin-bottom:12px;border-color:#DAA520;">250</div>
+        <div style="text-align:center;">
+          <span class="web-btn-primary">Kalibrer</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tip"><strong>Tip:</strong> Enhver genstand med vægten trykt på emballagen duer.</div>
+</div>
+
+<div class="step-card">
+  <div class="step-heading"><span class="step-number">12</span> Vent på kalibrering færdig</div>
+  <div class="step-text">Under prøvetagningen fyldes statuslinjen til 100%, mens <em>"Kalibrerer..."</em> vises. Derefter vender status tilbage til <strong>"System kalibreret, tryk Kalibrer for at starte re-kalibrering"</strong> — din vægt er nu kalibreret!</div>
+  <div class="mockup">
+    <div class="browser-chrome">
+      <span style="font-size:0.7rem;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span><span style="font-size:0.7rem;margin-left:4px;">●</span>
+      <span style="margin-left:10px;">Safari</span>
+    </div>
+    <div class="browser-navbar">
+      <span style="font-size:0.7rem;color:#8B7355;">◀ ▶ ↻</span>
+      <div class="browser-url">http://beesmart.local</div>
+    </div>
+    <div class="web-header" style="padding:10px 16px;">
+      <div class="web-header-row">
+        <img class="bee-logo web-header-logo" style="height:32px;" alt="BeeSMART logo">
+        <div class="web-header-text"><div class="web-header-title" style="font-size:0.9rem;">BeeSMART</div></div>
+      </div>
+    </div>
+    <div class="web-tab-bar" style="font-size:0.7rem;">
+      <div class="web-tab">Tapning</div>
+      <div class="web-tab">Indstillinger</div>
+      <div class="web-tab active">Avanceret</div>
+      <div class="web-tab">Statistik</div>
+    </div>
+    <div class="web-content">
+      <div class="web-section-card" style="border:2px solid #DAA520;">
+        <div class="web-section-title">Vægt Kalibrering</div>
+        <div class="web-info-display">
+          <div class="web-info-item">
+            <span class="web-info-label">Aktuel Vægt:</span>
+            <span class="web-info-value">0 g</span>
+          </div>
+        </div>
+        <div class="web-cal-progress">
+          <div class="web-cal-progress-bar" style="width:0%;"></div>
+          <span class="web-cal-progress-text">System kalibreret, tryk Kalibrer for at starte re-kalibrering</span>
+        </div>
+        <div style="font-size:0.85rem;font-weight:600;color:#FFFFFF;margin-bottom:10px;">Kalibreringsvægt</div>
+        <div class="web-slider-group">
+          <div class="web-slider-track"><span class="web-slider-thumb" style="left:20%;"></span></div>
+          <div class="web-slider-labels"><span>50g</span><span>250g</span><span>1000g</span></div>
+        </div>
+        <div class="web-input" style="margin-bottom:12px;">250</div>
+        <div style="text-align:center;">
+          <span class="web-btn-primary">Kalibrer</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="background:linear-gradient(135deg, #FFD700, #FFA500);border-radius:16px;padding:30px;text-align:center;color:#2C1810;margin-top:32px;box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+  <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
+    <img class="bee-logo" style="height:48px;width:48px;object-fit:contain;" alt="BeeSMART">
+    <span style="font-size:1.8rem;font-weight:900;font-family:'Cooper Black','Fredoka One','Arial Black',sans-serif;letter-spacing:-0.5px;">BeeSMART</span>
+  </div>
+  <div style="font-size:1.1rem;font-weight:700;margin-top:8px;">Din BeeSMART er klar!</div>
+  <div style="font-size:0.9rem;opacity:0.8;margin-top:4px;">Nyd præcis, automatisk honningdosering.</div>
+</div>
+
+</div><!-- /lang-da -->
+
+</div><!-- /content -->
+</div><!-- /container -->
+
+<script>
+const BEE_LOGO = 'data:image/webp;base64,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';
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.bee-logo').forEach(function(img){
+    img.src = BEE_LOGO;
+  });
+  var buttons = document.querySelectorAll('.lang-btn');
+  buttons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var lang = this.getAttribute('data-lang');
+      buttons.forEach(function(b){ b.classList.remove('active'); });
+      this.classList.add('active');
+      document.querySelectorAll('.lang-content').forEach(function(c){ c.classList.remove('active'); });
+      document.getElementById('lang-' + lang).classList.add('active');
+    });
+  });
+});
+</script>
+
+</body>
+</html>

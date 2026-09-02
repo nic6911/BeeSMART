@@ -1,24 +1,24 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════════════════╗
  * ║                  BeeSMART Honey Dosing System - Web Interface                ║
- * ║                                Version 3.2.0                                 ║
+ * ║                                Version 3.3.0                                 ║
  * ╚══════════════════════════════════════════════════════════════════════════════╝
  * 
  * @file app.js
  * @description Modern, responsive web interface for the BeeSMART honey dosing system.
- * Features HTTP polling architecture for maximum compatibility and reliability.
+ * Features WebSocket-based real-time updates with HTTP for commands and settings.
  * 
  * ARCHITECTURE:
  * =============
- * • HTTP Polling: 200ms intervals for real-time weight updates
- * • RESTful API: GET /api/status, GET /api/settings, POST /api/command
+ * • WebSocket: Real-time status push from ESP32 (port 81)
+ * • RESTful API: GET /api/settings, POST /api/command (port 80)
  * • Responsive UI: iOS-inspired design with golden honey theme
  * • Multi-language: Danish, German, English support
  * • Local Storage: Persistent statistics across sessions
  * 
  * KEY FEATURES:
  * =============
- * • Real-time weight monitoring with 200ms polling
+ * • Real-time weight monitoring via WebSocket push
  * • Automatic mode for continuous filling
  * • PID parameter tuning for different honey viscosities
  * • Servo calibration and testing
@@ -44,14 +44,17 @@ class BeeSMART {
         //═══════════════════════════════════════════════════════════════════════
         // NETWORK COMMUNICATION STATE
         //═══════════════════════════════════════════════════════════════════════
-        /** @type {?number} Polling interval timer ID */
+        /** @type {?number} Settings polling interval timer ID */
         this.pollingInterval = null;
+        
+        /** @type {?WebSocket} WebSocket connection for real-time status */
+        this.ws = null;
+        
+        /** @type {?number} WebSocket reconnection timer */
+        this.wsReconnectTimer = null;
         
         /** @type {boolean} Connection status to ESP32 backend */
         this.isConnected = false;
-        
-        /** @type {boolean} Flag to prevent concurrent status fetches */
-        this.isFetchingStatus = false;
         
         /** @type {boolean} Flag to prevent concurrent settings fetches */
         this.isFetchingSettings = false;
@@ -212,8 +215,6 @@ class BeeSMART {
             minGlassWeightTextHeading: ["Glasregistrering: Glas vejer mere end", "Glaserkennung: Glas wiegt mehr als", "Glass detection: Glass weighs more than"],
             maxWeightTextHeading: ["Max tappemængde", "Max Abfüllmenge", "Max dispensing amount"],
             tareTextHeading: ["Tare kun med tom vægt !", "Nur mit leerem Gewicht tarieren!", "Tare with empty scale only!"],
-            
-            // Connection status
             connectedText: ["Forbundet", "Verbunden", "Connected"],
             connectingText: ["Forbinder...", "Verbinde...", "Connecting..."]
         };
@@ -221,7 +222,7 @@ class BeeSMART {
         //═══════════════════════════════════════════════════════════════════════
         // APPLICATION INITIALIZATION
         //═══════════════════════════════════════════════════════════════════════
-        // Debounce helper to reduce HTTP traffic from slider drag events
+        // Debounce helper to prevent race conditions with debounced commands
         this._commandTimers = {};
         this._debouncedSendCommand = (command, payload, delay = 250) => {
             if (this._commandTimers[command]) {
@@ -250,6 +251,7 @@ class BeeSMART {
         this.initializeStatistics();
         this.startPolling();
         this.updateLanguage();
+        this.loadStatisticsFromStorage();
     }
     
     //═══════════════════════════════════════════════════════════════════════════
@@ -277,6 +279,9 @@ class BeeSMART {
         
         document.getElementById('stopButton')?.addEventListener('click', () => {
             this.sendCommand('stop');
+            this.settings.autoState = false;
+            const autoSwitch = document.getElementById('autoSwitch');
+            if (autoSwitch) autoSwitch.checked = false;
         });
         
         document.getElementById('tareButton')?.addEventListener('click', () => {
@@ -298,21 +303,25 @@ class BeeSMART {
                 const value = parseInt(e.target.value);
                 this.settings.desiredAmount = value;
                 document.getElementById('sliderValue').textContent = value + 'g';
+                document.getElementById('desiredAmount').textContent = value + ' g';
                 if (amountInput) amountInput.value = value;
-                this._debouncedSendCommand('setAmount', { value });
+                this._debouncedSendCommand('setAmount', { value }, 150);
             });
         }
         
         if (amountInput) {
             amountInput.addEventListener('change', (e) => {
-                const value = Math.max(50, Math.min(this.settings.maxWeight, parseInt(e.target.value) || 50));
+                const parsed = parseInt(e.target.value);
+                if (isNaN(parsed)) return;
+                const value = Math.max(50, Math.min(this.settings.maxWeight, parsed));
                 this.settings.desiredAmount = value;
                 e.target.value = value;
                 if (amountSlider) {
                     amountSlider.value = value;
                     document.getElementById('sliderValue').textContent = value + 'g';
                 }
-                this.sendCommand('setAmount', { value });
+                document.getElementById('desiredAmount').textContent = value + ' g';
+                this._debouncedSendCommand('setAmount', { value }, 150);
             });
         }
 
@@ -323,6 +332,7 @@ class BeeSMART {
                 this.settings.viscosity = viscosity;
                 this.sendCommand('setViscosity', { value: viscosity });
                 this.updatePidParameterEditability();
+                this.fetchSettings();
             });
         });
 
@@ -332,6 +342,7 @@ class BeeSMART {
             if (input) {
                 input.addEventListener('change', (e) => {
                     const value = parseFloat(e.target.value);
+                    if (isNaN(value)) return;
                     this.settings[param] = value;
                     const pidData = {};
                     pidData[param] = value;
@@ -350,7 +361,7 @@ class BeeSMART {
                 this.settings.servoMin = value;
                 e.target.value = value;
                 document.getElementById('servoMinValue').textContent = value + '°';
-                this._debouncedSendCommand('setServoMin', { value });
+                this._debouncedSendCommand('setServoMin', { value }, 150);
             });
         }
 
@@ -360,15 +371,13 @@ class BeeSMART {
                 this.settings.servoMax = value;
                 e.target.value = value;
                 document.getElementById('servoMaxValue').textContent = value + '°';
-                this._debouncedSendCommand('setServoMax', { value });
+                this._debouncedSendCommand('setServoMax', { value }, 150);
             });
         }
 
         // Servo test buttons - track which was last pressed
         const servoMinBtn = document.getElementById('servoMinButton');
         const servoMaxBtn = document.getElementById('servoMaxButton');
-
-        // Min position is the initial/default state
         if (servoMinBtn) servoMinBtn.classList.add('active');
 
         servoMinBtn?.addEventListener('click', () => {
@@ -389,6 +398,7 @@ class BeeSMART {
             if (input) {
                 input.addEventListener('change', (e) => {
                     const value = parseInt(e.target.value);
+                    if (isNaN(value)) return;
                     this.settings[param.replace('Input', '')] = value;
                     
                     const command = 'set' + param.charAt(0).toUpperCase() + param.slice(1).replace('Input', '');
@@ -422,13 +432,15 @@ class BeeSMART {
                 this.settings.calWeight = value;
                 document.getElementById('calSliderValue').textContent = value + 'g';
                 if (calWeightInput) calWeightInput.value = value;
-                this._debouncedSendCommand('setCalWeight', { value });
+                this._debouncedSendCommand('setCalWeight', { value }, 150);
             });
         }
 
         if (calWeightInput) {
             calWeightInput.addEventListener('change', (e) => {
-                const value = Math.max(50, Math.min(1000, parseInt(e.target.value) || 250));
+                const parsed = parseInt(e.target.value);
+                if (isNaN(parsed)) return;
+                const value = Math.max(50, Math.min(1000, parsed));
                 this.settings.calWeight = value;
                 e.target.value = value;
                 if (calWeightSlider) {
@@ -467,16 +479,19 @@ class BeeSMART {
         document.getElementById(tabName)?.classList.add('active');
         document.querySelector(`[data-tab="${tabName}"]`)?.classList.add('active');
 
-        // Initialize chart when switching to statistics tab
-        if (tabName === 'statistics') {
-            setTimeout(() => {
+        // Refresh UI elements whenever a tab is shown
+        setTimeout(() => {
+            this.updateSliders();
+            this.updateRadioButtons();
+            if (tabName === 'statistics') {
                 this.initializeChart();
                 this.updateStatisticsDisplay();
-            }, 100);
-        }
+            }
+        }, 100);
     }
 
     /**
+     * Update PID parameter input editability based on viscosity selection
      * Only User Defined (viscosity 0) allows manual PID parameter editing
      * @returns {void}
      */
@@ -498,8 +513,27 @@ class BeeSMART {
     //═══════════════════════════════════════════════════════════════════════════
     
     /**
-     * Start HTTP polling for real-time updates
-     * Fetches status every 200ms and settings every 2 seconds
+     * Fetch with timeout to prevent hanging connections
+     * @async
+     * @param {string} url - URL to fetch
+     * @param {Object} [options={}] - Fetch options
+     * @param {number} [timeout=5000] - Timeout in ms
+     * @returns {Promise<Response>}
+     */
+    async fetchWithTimeout(url, options = {}, timeout = 5000) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeout);
+        try {
+            const response = await fetch(url, { ...options, signal: controller.signal });
+            return response;
+        } finally {
+            clearTimeout(timer);
+        }
+    }
+
+    /**
+     * Start WebSocket for real-time updates and HTTP polling for settings
+     * Status updates arrive via WebSocket push, settings are polled every 10s
      * @async
      * @returns {Promise<void>}
      */
@@ -508,53 +542,75 @@ class BeeSMART {
             clearInterval(this.pollingInterval);
         }
 
-        // Start immediate fetch
-        this.fetchStatus();
+        // Do an initial fetch to get immediate data before WebSocket connects
         this.fetchSettings();
 
-        // Set up 200ms polling
-        this.pollingInterval = setInterval(() => {
-            this.fetchStatus();
-        }, 200);
+        // Connect WebSocket for real-time status
+        this.connectWebSocket();
 
-        // Fetch settings less frequently (every 2 seconds)
-        if (this.settingsInterval) {
-            clearInterval(this.settingsInterval);
-        }
-        this.settingsInterval = setInterval(() => {
+        // Fetch settings every 10 seconds (not time-critical)
+        this.pollingInterval = setInterval(() => {
             this.fetchSettings();
-        }, 2000);
+        }, 10000);
     }
 
     /**
-     * Fetch current system status from ESP32 backend
-     * Includes weights, state machine status, and calibration progress
-     * @async
-     * @returns {Promise<void>}
+     * Connect to the ESP32 WebSocket for real-time status updates
+     * Automatically reconnects on disconnect with exponential backoff
+     * @returns {void}
      */
-    async fetchStatus() {
-        if (this.isFetchingStatus) return;
-        this.isFetchingStatus = true;
+    connectWebSocket() {
+        if (this.ws) {
+            this.ws.close();
+            this.ws = null;
+        }
+        if (this.wsReconnectTimer) {
+            clearTimeout(this.wsReconnectTimer);
+            this.wsReconnectTimer = null;
+        }
 
         try {
-            const response = await fetch('/api/status');
-            const data = await response.json();
-            
-            this.isConnected = true;
-            this.updateConnectionStatus(true);
-            this.updateStatusDisplay(data);
-            
-            // Update statistics from server data
-            if (data.statistics) {
-                this.updateStatisticsFromServer(data.statistics);
-            }
-            
+            this.ws = new WebSocket('ws://192.168.4.1:81/');
+
+            this.ws.onopen = () => {
+                this.isConnected = true;
+                this.updateConnectionStatus(true);
+            };
+
+            this.ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    this.updateStatusDisplay(data);
+                    if (data.statistics) {
+                        this.updateStatisticsFromServer(data.statistics);
+                    }
+                } catch (e) {
+                    console.log('WebSocket message parse error:', e);
+                }
+            };
+
+            this.ws.onclose = () => {
+                this.isConnected = false;
+                this.updateConnectionStatus(false);
+                this.ws = null;
+                // Reconnect after 2 seconds
+                this.wsReconnectTimer = setTimeout(() => {
+                    this.connectWebSocket();
+                }, 2000);
+            };
+
+            this.ws.onerror = (error) => {
+                console.log('WebSocket error:', error);
+                this.ws.close();
+            };
         } catch (error) {
-            console.log('Connection error:', error);
+            console.log('WebSocket connection failed:', error);
             this.isConnected = false;
             this.updateConnectionStatus(false);
-        } finally {
-            this.isFetchingStatus = false;
+            // Retry after 3 seconds
+            this.wsReconnectTimer = setTimeout(() => {
+                this.connectWebSocket();
+            }, 3000);
         }
     }
 
@@ -569,11 +625,13 @@ class BeeSMART {
         this.isFetchingSettings = true;
 
         try {
-            const response = await fetch('/api/settings');
+            const response = await this.fetchWithTimeout('/api/settings');
             const data = await response.json();
             this.updateSettingsDisplay(data);
         } catch (error) {
-            console.log('Settings fetch error:', error);
+            if (error.name !== 'AbortError') {
+                console.log('Settings fetch error:', error);
+            }
         } finally {
             this.isFetchingSettings = false;
         }
@@ -594,6 +652,13 @@ class BeeSMART {
     updateStatusDisplay(data) {
         // Update basic status
         document.getElementById('statusMessage').textContent = data.message || '';
+        
+        // Sync autoState from WebSocket data (firmware sends it on every broadcast)
+        if (typeof data.autoState !== 'undefined' && data.autoState !== this.settings.autoState) {
+            this.settings.autoState = data.autoState;
+            const autoSwitch = document.getElementById('autoSwitch');
+            if (autoSwitch) autoSwitch.checked = data.autoState;
+        }
         
         // Update weights
         document.getElementById('honeyWeight').textContent = (data.weights?.honey || 0) + ' g';
@@ -633,7 +698,7 @@ class BeeSMART {
         if (typeof data.language !== 'undefined' && typeof data.lang === 'undefined') {
             data.lang = data.language; // mirror into expected internal field
         }
-        // Map setting keys to their debounced command names
+        // Map setting keys to their debounced command names to prevent race conditions
         const settingToCommand = {
             desiredAmount: 'setAmount',
             servoMin: 'setServoMin',
@@ -672,7 +737,6 @@ class BeeSMART {
      */
     updateSliders() {
         const focused = document.activeElement;
-
         const amountSlider = document.getElementById('amountSlider');
         if (amountSlider) {
             if (amountSlider !== focused) amountSlider.value = this.settings.desiredAmount;
@@ -727,11 +791,9 @@ class BeeSMART {
             'calWeightInput': this.settings.calWeight
         };
 
-        const focused = document.activeElement;
-
         Object.entries(inputs).forEach(([id, value]) => {
             const element = document.getElementById(id);
-            if (element && element !== focused && element.value != value) {
+            if (element && document.activeElement !== element && Number(element.value) !== value) {
                 element.value = value;
             }
         });
@@ -798,7 +860,7 @@ class BeeSMART {
                 target: record.target,
                 actual: record.actual,
                 error: record.error,
-                timestamp: Date.now() - Math.random() * 3600000 // Spread over last hour
+                timestamp: Date.now()
             }));
             
             this.calculateErrorDistribution();
@@ -1170,7 +1232,7 @@ class BeeSMART {
      */
     async sendCommand(command, payload = {}) {
         try {
-            const response = await fetch('/api/command', {
+            const response = await this.fetchWithTimeout('/api/command', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1188,7 +1250,9 @@ class BeeSMART {
             const result = await response.json();
             return result;
         } catch (error) {
-            console.error('Command failed:', error);
+            if (error.name !== 'AbortError') {
+                console.error('Command failed:', error);
+            }
             return { success: false, error: error.message };
         }
     }

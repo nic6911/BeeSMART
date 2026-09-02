@@ -1,4 +1,4 @@
-# BeeSMART honeyDosing — Build & Upload Instructions
+# BeeSMART honeyDosing — Build & Upload Instructions (v3.3.0)
 
 ## Prerequisites
 
@@ -7,7 +7,6 @@
 | [Arduino CLI](https://arduino.github.io/arduino-cli/) | ≥ 1.2.x | Or Arduino IDE 2.x |
 | ESP32 board package | `esp32:esp32` ≥ 3.3.x | Install via board manager |
 | [mklittlefs](https://github.com/earlephilhower/mklittlefs) | Bundled with ESP32 package | Used to build the filesystem image |
-| [esptool](https://github.com/espressif/esptool) | Bundled with ESP32 package | Used to flash the filesystem image |
 
 ### Arduino Libraries
 
@@ -50,62 +49,62 @@ arduino-cli compile --fqbn esp32:esp32:esp32c3:CDCOnBoot=cdc honeyDosing_v3/
 3. Set **USB CDC On Boot: Enabled**
 4. Click **Verify/Compile**
 
-## Uploading the Firmware
+## Building the Filesystem Image
+
+Run `build_merge.bat` to create the LittleFS image containing the web UI:
+
+```
+.\build_merge.bat
+```
+
+This creates `build/littlefs.bin` (1.38 MB).
+
+## Uploading
+
+### Firmware
 
 ```bash
+# Via arduino-cli
 arduino-cli upload --fqbn esp32:esp32:esp32c3:CDCOnBoot=cdc -p COM15 honeyDosing_v3/
 ```
 
-Replace `COM15` with your actual COM port.
+Replace `COM15` (or `/dev/ttyACM0` on Linux) with your actual port.
 
-## Uploading the Filesystem (Web UI)
+### Filesystem (Web UI)
 
-The `honeyDosing_v3/data/` folder contains the web interface files (HTML, CSS, JS). These
-must be uploaded as a LittleFS filesystem image to the ESP32.
-
-### Step 1 — Build the LittleFS image
+Flash the LittleFS image at offset `0x290000`:
 
 ```bash
-mklittlefs -c honeyDosing_v3/data -p 256 -b 4096 -s 1441792 littlefs.bin
+# Via esptool
+esptool.py --chip esp32c3 -p COM15 write-flash 0x290000 build/littlefs.bin
 ```
 
-The paths to `mklittlefs` and `esptool` are typically found inside the Arduino data
-folder:
-
-- **Windows:** `%LOCALAPPDATA%\Arduino15\packages\esp32\tools\mklittlefs\<version>\mklittlefs.exe`
-- **macOS/Linux:** `~/.arduino15/packages/esp32/tools/mklittlefs/<version>/mklittlefs`
-
-### Step 2 — Flash the image
-
-```bash
-esptool --chip esp32c3 --port COM15 --baud 460800 write_flash 0x290000 littlefs.bin
-```
-
-The offset `0x290000` corresponds to the default 4 MB partition table with a spiffs/littlefs
-partition. Adjust if using a custom partition scheme.
-
-> **Tip:** After uploading, connect to the **BeeSMART** Wi-Fi network and navigate to
-> `beesmart.local` (or `192.168.4.1`) in a browser to access the interface.
+> **Tip:** After uploading both, connect to the **BeeSMART** Wi-Fi network and navigate to `beesmart.local` (or `192.168.4.1`) in a browser.
 
 ## Project Structure
 
 ```
-Software/
-├── honeyDosing_v3/
-│   ├── honeyDosing_v3.ino   # Main firmware source
-│   └── data/                 # Web UI assets (uploaded as LittleFS)
-│       ├── index.html
-│       ├── app.js
-│       └── styles.css
-├── CHANGELOG.md              # Version history
-└── README.md                 # This file
+honeyDosing_v3/
+├── honeyDosing_v3.ino    # Entry point (setup + loop only)
+├── src/                   # Modular firmware source
+│   ├── config.h           # Constants, pins, structs
+│   ├── globals.h/.cpp     # Global variables + language strings
+│   ├── filesystem.h/.cpp  # File I/O, settings persistence
+│   ├── statistics.h/.cpp  # Dispensing records, weight sampling
+│   ├── control.h/.cpp     # PID, state machines (dosing/calibration)
+│   └── webserver.h/.cpp   # HTTP API, WebSocket, captive portal
+├── data/                  # Web UI assets (uploaded as LittleFS)
+│   ├── index.html
+│   ├── app.js
+│   ├── styles.css
+│   └── beesmart_bee.webp  # 62KB logo (was 521KB PNG)
+├── build_merge.bat        # LittleFS image builder (Windows)
+├── CHANGELOG.md           # Version history
+└── README.md              # This file
 ```
 
 ## Troubleshooting
 
-- **Upload fails / no COM port:** Ensure the ESP32-C3 is connected via its native USB
-  port. Hold the BOOT button while pressing RESET to enter download mode if needed.
-- **Web UI not loading after firmware upload:** Make sure to also upload the LittleFS
-  filesystem image (Step 2 above).
-- **ArduPID compile errors:** Verify you have version **0.2.1**, not 1.0.x. The API
-  changed significantly between versions.
+- **Upload fails / no COM port:** Ensure the ESP32-C3 is connected via its native USB port. Hold the BOOT button while pressing RESET to enter download mode if needed.
+- **Web UI not loading after firmware upload:** Make sure you also flashed the LittleFS filesystem image at `0x290000`.
+- **ArduPID compile errors:** Verify you have version **0.2.1**, not 1.0.x. The API changed significantly between versions.
